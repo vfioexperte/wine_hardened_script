@@ -6,18 +6,19 @@ Steam protect steam games:
 
 how find a APPID?
 
-protontricks  -s “Steam game name”
+"protontricks  -s “Steam game name”"
 
 how start the program with  -Steam options.
 Only use -Steam options for protontricks with this command. 
 
-protontricks  -c "python3.8 'path/wine_hardened_script_gui.py' -Steam" APPID
+"protontricks  -c "python3.8 'path/wine_hardened_script_gui.py' -Steam" APPID"
 
 
 wine Protect for WINEPREFIX:
 
 start
-python3.8 'path/wine_hardened_script_gui.py’
+
+"python3.8 'path/wine_hardened_script_gui.py’"
 
 
 This is a beta version.
