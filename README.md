@@ -44,4 +44,4 @@ Protecion removeing:
 click on the gui of remove hardened start.
 
 This is a beta version.
-You use one your risik.
+Use at your own risk.
