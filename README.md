@@ -1,13 +1,14 @@
 This is wine hardened script beta.
 Protect a WINEPREFIX for not allowed access of your Devices.
-See in the beat branch.
+See in the beta branch.
 
 Installation:
 
 „pip3.8 install pyqt5“
 
+git clone https://github.com/vfioexperte/wine_hardened_script -b beta
 
-Usage:
+usage:
 Steam protect steam games:
 
 how find a APPID?
@@ -20,11 +21,27 @@ Only use -Steam options for protontricks with this command.
 protontricks  -c "python3.8 'path/wine_hardened_script_gui.py' -Steam" APPID
 
 
-wine Protect for WINEPREFIX:
+wine Protect for  WINEPREFIX:
 
-start
+Step 1.
+start the gui and click on „browse…“ and browse to your  WINEPREFIX folder.
+
+Step 2.
+the gui list alle wine device.
+
+All True checkbox remove the path and create a dummy path. 
+And protect the wine device for  not allowed access.
+
+Stepp 3:
+click on hardend start and the app apply all setings.
+
+Start:
+
 python3.8 'path/wine_hardened_script_gui.py’
 
+
+Protecion removeing:
+click on the gui of remove hardened start.
 
 This is a beta version.
 You use one your risik.
