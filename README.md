@@ -1,5 +1,11 @@
 This is wine hardened script beta.
 Protect a WINEPREFIX for not allowed access of your Devices.
+See in the beat branch.
+
+Installation:
+
+„pip3.8 install pyqt5“
+
 
 Usage:
 Steam protect steam games:
