@@ -28,7 +28,21 @@ how start the program with  -Steam options.
 Only use -Steam options for protontricks with this command. 
 
 
-protontricks  -c "python3.8 'path/wine_hardened_script_gui.py' -Steam" APPID
+protontricks  -c "python3.8 '../wine_hardened_script_gui.py' -Steam" APPID
+
+Proton protect auto:
+
+protontricks  -c "python3.8 '../wine_hardened_script_gui.py' -Steam_auto_protect" APPID
+
+Only use -Steam options for protontricks with this command. 
+
+
+Proton remvoe protect auto:
+
+
+protontricks  -c "python3.8 '../wine_hardened_script_gui.py' -Steam_auto_remove_protect" APPID
+
+Only use -Steam options for protontricks with this command. 
 
 
 wine Protect for  WINEPREFIX:
@@ -54,7 +68,7 @@ click on hardend start and the app apply all setings.
 
 Start:
 
-python3.8 'path/wine_hardened_script_gui.py’
+python3.8 '../wine_hardened_script_gui.py’
 
 
 Protecion removeing:
