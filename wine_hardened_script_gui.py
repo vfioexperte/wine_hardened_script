@@ -5,7 +5,7 @@
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #Warnung der Programmierer hafte nicht auf Schäden oder auf unsachgemäßen Umgang der APP
 
-version = "0.7a gui"
+version = "0.7b gui"
 print(version);
 
 
@@ -27,16 +27,16 @@ if(len(sys.argv) == 2):
         print("you are find the APPID with protontricks -s \"gamename\"");
         print("protontricks  -c \"python3.8 '/wine_hardened_script_gui.py' -Steam\" APPID")
         steammode = 1;
-    elif(sys.argv[1] == "-Steam_autohradend"):
+    elif(sys.argv[1] == "-Steam_auto_protect"):
         print("enabled Steam aurto hardend mode");
-        print("protontricks  -c \"python3.8 '/wine_hardened_script_gui.py' -Steam_autohradend\" APPID");
-        print("auoto hardend mode enabled");
+        print("protontricks  -c \"python3.8 '/wine_hardened_script_gui.py' Steam_auto_protect\" APPID");
+        print("auto hardend mode enabled");
         steamauto = 1;
         steammode = 1;
-    elif(sys.argv[1] == "-Steam_autoremovehradend"):
+    elif(sys.argv[1] == "-Steam_auto_remove_protect"):
         print("enabled Steam aurto remove hardend mode");
-        print("protontricks  -c \"python3.8 '/wine_hardened_script_gui.py' -Steam_autoremovehradend\" APPID");
-        print("auoto remove hardend mode enabled");
+        print("protontricks  -c \"python3.8 '/wine_hardened_script_gui.py' -Steam_auto_remove_protect\" APPID");
+        print("auto remove hardend mode enabled");
         steamauto = 2;
         steammode = 1;
     elif(sys.argv[1] == "--help" or sys.argv[1] == "-h"):
@@ -47,14 +47,14 @@ if(len(sys.argv) == 2):
         print("you are find the APPID with protontricks -s \"gamename\"");
         print("protontricks  -c \"python3.8 '/wine_hardened_script_gui.py' -Steam\" APPID")
         print("");
-        print("-Steamautohradend");
+        print("Steam_auto_protect");
         print("enabled Steam aurto hardend mode");
-        print("protontricks  -c \"python3.8 '/wine_hardened_script_gui.py' -Steam_autohradend\" APPID");
+        print("protontricks  -c \"python3.8 '/wine_hardened_script_gui.py' -Steam_auto_protect\" APPID");
         print("auoto hardend mode enabled");
         print("");
-        print("-Steamautoremovehradend");
+        print("-Steam_auto_remove_protect");
         print("enabled Steam aurto remove hardend mode");
-        print("protontricks  -c \"python3.8 '/wine_hardened_script_gui.py' -Steam_autoremovehradend\" APPID");
+        print("protontricks  -c \"python3.8 '/wine_hardened_script_gui.py' -Steam_auto_remove_protect\" APPID");
         print("auoto remove hardend mode enabled");
         exit();
 
