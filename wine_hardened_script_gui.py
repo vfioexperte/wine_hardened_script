@@ -5,7 +5,7 @@
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #Warnung der Programmierer hafte nicht auf Schäden oder auf unsachgemäßen Umgang der APP
 
-version = "0.6g gui"
+version = "0.7a gui"
 print(version);
 
 
@@ -19,6 +19,7 @@ import platform
 
 
 steammode = 0;
+steamauto = 0;
 if(len(sys.argv) == 2):
     if(sys.argv[1] == "-Steam"):
         print("enabled Steam mode");
@@ -26,6 +27,39 @@ if(len(sys.argv) == 2):
         print("you are find the APPID with protontricks -s \"gamename\"");
         print("protontricks  -c \"python3.8 '/wine_hardened_script_gui.py' -Steam\" APPID")
         steammode = 1;
+    elif(sys.argv[1] == "-Steam_autohradend"):
+        print("enabled Steam aurto hardend mode");
+        print("protontricks  -c \"python3.8 '/wine_hardened_script_gui.py' -Steam_autohradend\" APPID");
+        print("auoto hardend mode enabled");
+        steamauto = 1;
+        steammode = 1;
+    elif(sys.argv[1] == "-Steam_autoremovehradend"):
+        print("enabled Steam aurto remove hardend mode");
+        print("protontricks  -c \"python3.8 '/wine_hardened_script_gui.py' -Steam_autoremovehradend\" APPID");
+        print("auoto remove hardend mode enabled");
+        steamauto = 2;
+        steammode = 1;
+    elif(sys.argv[1] == "--help" or sys.argv[1] == "-h"):
+        print("options:");
+        print("");
+        print("-Steam");
+        print("use this mode only wiht protontricks command")
+        print("you are find the APPID with protontricks -s \"gamename\"");
+        print("protontricks  -c \"python3.8 '/wine_hardened_script_gui.py' -Steam\" APPID")
+        print("");
+        print("-Steamautohradend");
+        print("enabled Steam aurto hardend mode");
+        print("protontricks  -c \"python3.8 '/wine_hardened_script_gui.py' -Steam_autohradend\" APPID");
+        print("auoto hardend mode enabled");
+        print("");
+        print("-Steamautoremovehradend");
+        print("enabled Steam aurto remove hardend mode");
+        print("protontricks  -c \"python3.8 '/wine_hardened_script_gui.py' -Steam_autoremovehradend\" APPID");
+        print("auoto remove hardend mode enabled");
+        exit();
+
+
+
 
 def system(cmd):
     os.system(cmd);
@@ -389,6 +423,7 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         if(steammode == 1):
             self.steammode = steammode;
             self.layouth29.addWidget(self.qlabel_z_dir);
+            self.steamauto = steamauto;
 
 
 
@@ -453,6 +488,8 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         return 0;
 
     def change_gui(self, block_device, winefodler):
+        self.steamauto = steamauto;
+        self.steammode = steammode;
         device = block_device.split(",");
         if(self.mode == 1):
                 if(os.path.isfile(self.config) == True):
@@ -467,11 +504,11 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
                 s2 = device[i];
                 s1 = winefodler + "/" + s2 + ":";
                 if(os.path.islink(s1) == True):
-                        device_overide = device_overide + "0" + ",";
+                    device_overide = device_overide + "0" + ",";
                 elif(os.path.islink(s1+":") == True):
-                        device_overide = device_overide + "0" + ",";
+                    device_overide = device_overide + "0" + ",";
                 else:
-                        device_overide = device_overide + "1" + ",";
+                    device_overide = device_overide + "1" + ",";
 
                 i = i +1;
         self.set_cheboxes(device_overide, self.block_device);
@@ -704,19 +741,19 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
             self.qlabel_y_bool.setText(stext + block_device[23]);
             self.qlabel_y_bool.setChecked(True);
 
-        if(device_overide[24] == "0"):
+        if(device_overide[24] == "0" and self.mode == 0):
             self.qlabel_z_bool.setDisabled(False);
             self.qlabel_z_bool.setText(stext + block_device[24]);
             self.qlabel_z_bool.setChecked(False);
             if(self.steammode == 1):
                 s1  = self.textedit_wineprefix.toPlainText();
-                print(s1);
                 s1 = os.path.realpath(s1+"../../../../");
                 self.qlabel_z_dir.setText(s1);
                 self.qlabel_z_bool.setText("create a link to fodler ->");
                 self.qlabel_z_dir.setHidden(False);
                 self.qlabel_z_dir.setDisabled(False);
-                print(s1);
+                if(self.steamauto == 1):
+                    self.qlabel_z_bool.setChecked(True);
             else:
                 self.qlabel_z_dir.setHidden(True);
         else:
@@ -726,6 +763,8 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
             self.qlabel_z_dir.setText("");
             self.qlabel_z_dir.setDisabled(True);
             self.qlabel_z_dir.setHidden(True);
+            if(self.steamauto == 2):
+                self.qlabel_z_bool.setChecked(True);
 
         self.qlabel_c_bool.setDisabled(True);
         self.qlabel_c_bool.setText(stext + "c");
@@ -894,7 +933,11 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         return device;
 
     def hardened_start(self):
+        if(os.path.isfile(self.config) == True):
+            print("ERROR is hardend");
+            exit();
         self.DEVICES = self.calculate1();
+        print(self.DEVICES);
         remnove_hardened(self.DEVICES, self.winefodler, self.block_output_folder);
         add_hardened(self.DEVICES, self.winefodler, self.block_output_folder);
         write_config_file(self.config, self.device_overide);
@@ -908,6 +951,9 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         self.change_gui(self.block_device, self.winefodler);
         return 0;
     def remove_hardened(self):
+        if(os.path.isfile(self.config) == False):
+            print("ERROR is not hardend please run hardend");
+            exit();
         self.DEVICES = self.calculate1();
         remnove_hardened(self.DEVICES, self.winefodler, self.block_output_folder);
         os.system("rm -f " + self.config);
@@ -970,4 +1016,12 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
 app = QtWidgets.QApplication(sys.argv);
 mainwindow = Wine_hardened_script_gui();
 mainwindow.show();
-app.exec_();
+if(steamauto == 1):
+    mainwindow.hardened_start();
+    mainwindow.close();
+elif(steamauto == 2):
+    mainwindow.remove_hardened();
+    mainwindow.close();
+else:
+    app.exec_();
+
