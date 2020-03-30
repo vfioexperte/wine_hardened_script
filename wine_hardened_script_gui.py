@@ -5,7 +5,7 @@
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #Warnung der Programmierer hafte nicht auf Schäden oder auf unsachgemäßen Umgang der APP
 
-version = "0.7b gui"
+version = "0.7c gui"
 print(version);
 
 
@@ -144,7 +144,7 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
 
         self.layoutv1 = QtWidgets.QVBoxLayout(self)
 
-        self.layouth1 = QtWidgets.QHBoxLayout(self)
+        self.layouth1 = QtWidgets.QHBoxLayout()
         self.qlabel_wineprefix = QtWidgets.QLabel("WINEPREFIX:");
         self.textedit_wineprefix = QtWidgets.QTextEdit(self.WINEPREFIX);
         self.button_wineprefix = QtWidgets.QPushButton("browse..");
@@ -155,7 +155,7 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         self.layoutv1.addLayout(self.layouth1);
         self.bcolse = False;
 	
-        self.layouth2 = QtWidgets.QHBoxLayout(self)
+        self.layouth2 = QtWidgets.QHBoxLayout()
         self.qlabel_a = QtWidgets.QLabel("a:");
         self.qlabel_a_tenner = QtWidgets.QLabel("->");
         self.qlabel_a_path = QtWidgets.QLabel("");
@@ -165,7 +165,7 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         self.layouth2.addWidget(self.qlabel_a_path);
         self.layouth2.addWidget(self.qlabel_a_bool);
 
-        self.layouth3 = QtWidgets.QHBoxLayout(self)
+        self.layouth3 = QtWidgets.QHBoxLayout()
         self.qlabel_b = QtWidgets.QLabel("b:");
         self.qlabel_b_tenner = QtWidgets.QLabel("->");
         self.qlabel_b_path = QtWidgets.QLabel("");
@@ -175,7 +175,7 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         self.layouth3.addWidget(self.qlabel_b_path);
         self.layouth3.addWidget(self.qlabel_b_bool);
 
-        self.layouth4 = QtWidgets.QHBoxLayout(self)
+        self.layouth4 = QtWidgets.QHBoxLayout()
         self.qlabel_c = QtWidgets.QLabel("c: disable");
         self.qlabel_c_tenner = QtWidgets.QLabel("->");
         self.qlabel_c_path = QtWidgets.QLabel("");
@@ -185,7 +185,7 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         self.layouth4.addWidget(self.qlabel_c_path);
         self.layouth4.addWidget(self.qlabel_c_bool);
 
-        self.layouth5 = QtWidgets.QHBoxLayout(self)
+        self.layouth5 = QtWidgets.QHBoxLayout()
         self.qlabel_d = QtWidgets.QLabel("d:");
         self.qlabel_d_tenner = QtWidgets.QLabel("->");
         self.qlabel_d_path = QtWidgets.QLabel("");
@@ -195,7 +195,7 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         self.layouth5.addWidget(self.qlabel_d_path);
         self.layouth5.addWidget(self.qlabel_d_bool);
 
-        self.layouth6 = QtWidgets.QHBoxLayout(self)
+        self.layouth6 = QtWidgets.QHBoxLayout()
         self.qlabel_e = QtWidgets.QLabel("e:");
         self.qlabel_e_tenner = QtWidgets.QLabel("->");
         self.qlabel_e_path = QtWidgets.QLabel("");
@@ -205,7 +205,7 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         self.layouth6.addWidget(self.qlabel_e_path);
         self.layouth6.addWidget(self.qlabel_e_bool);
 
-        self.layouth7 = QtWidgets.QHBoxLayout(self)
+        self.layouth7 = QtWidgets.QHBoxLayout()
         self.qlabel_f = QtWidgets.QLabel("f:");
         self.qlabel_f_tenner = QtWidgets.QLabel("->");
         self.qlabel_f_path = QtWidgets.QLabel("");
@@ -215,7 +215,7 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         self.layouth7.addWidget(self.qlabel_f_path);
         self.layouth7.addWidget(self.qlabel_f_bool);
 
-        self.layouth8 = QtWidgets.QHBoxLayout(self)
+        self.layouth8 = QtWidgets.QHBoxLayout()
         self.qlabel_g = QtWidgets.QLabel("g:");
         self.qlabel_g_tenner = QtWidgets.QLabel("->");
         self.qlabel_g_path = QtWidgets.QLabel("");
@@ -226,7 +226,7 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         self.layouth8.addWidget(self.qlabel_g_bool);
 
 
-        self.layouth9 = QtWidgets.QHBoxLayout(self)
+        self.layouth9 = QtWidgets.QHBoxLayout()
         self.qlabel_h = QtWidgets.QLabel("h:");
         self.qlabel_h_tenner = QtWidgets.QLabel("->");
         self.qlabel_h_path = QtWidgets.QLabel("");
@@ -236,7 +236,7 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         self.layouth9.addWidget(self.qlabel_h_path);
         self.layouth9.addWidget(self.qlabel_h_bool);
 
-        self.layouth10 = QtWidgets.QHBoxLayout(self)
+        self.layouth10 = QtWidgets.QHBoxLayout()
         self.qlabel_i = QtWidgets.QLabel("i:");
         self.qlabel_i_tenner = QtWidgets.QLabel("->");
         self.qlabel_i_path = QtWidgets.QLabel("");
@@ -246,7 +246,7 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         self.layouth10.addWidget(self.qlabel_i_path);
         self.layouth10.addWidget(self.qlabel_i_bool);
 
-        self.layouth11 = QtWidgets.QHBoxLayout(self)
+        self.layouth11 = QtWidgets.QHBoxLayout()
         self.qlabel_j = QtWidgets.QLabel("j:");
         self.qlabel_j_tenner = QtWidgets.QLabel("->");
         self.qlabel_j_path = QtWidgets.QLabel("");
@@ -257,7 +257,7 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         self.layouth11.addWidget(self.qlabel_j_bool);
 
 
-        self.layouth12 = QtWidgets.QHBoxLayout(self)
+        self.layouth12 = QtWidgets.QHBoxLayout()
         self.qlabel_k = QtWidgets.QLabel("k:");
         self.qlabel_k_tenner = QtWidgets.QLabel("->");
         self.qlabel_k_path = QtWidgets.QLabel("");
@@ -268,7 +268,7 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         self.layouth12.addWidget(self.qlabel_k_bool);
 
 
-        self.layouth13 = QtWidgets.QHBoxLayout(self)
+        self.layouth13 = QtWidgets.QHBoxLayout()
         self.qlabel_l = QtWidgets.QLabel("l:");
         self.qlabel_l_tenner = QtWidgets.QLabel("->");
         self.qlabel_l_path = QtWidgets.QLabel("");
@@ -279,7 +279,7 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         self.layouth13.addWidget(self.qlabel_l_bool);
 
 
-        self.layouth14 = QtWidgets.QHBoxLayout(self)
+        self.layouth14 = QtWidgets.QHBoxLayout()
         self.qlabel_m = QtWidgets.QLabel("m:");
         self.qlabel_m_tenner = QtWidgets.QLabel("->");
         self.qlabel_m_path = QtWidgets.QLabel("");
@@ -289,7 +289,7 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         self.layouth14.addWidget(self.qlabel_m_path);
         self.layouth14.addWidget(self.qlabel_m_bool);
 
-        self.layouth15 = QtWidgets.QHBoxLayout(self)
+        self.layouth15 = QtWidgets.QHBoxLayout()
         self.qlabel_n = QtWidgets.QLabel("n:");
         self.qlabel_n_tenner = QtWidgets.QLabel("->");
         self.qlabel_n_path = QtWidgets.QLabel("");
@@ -299,7 +299,7 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         self.layouth15.addWidget(self.qlabel_n_path);
         self.layouth15.addWidget(self.qlabel_n_bool);
 
-        self.layouth16 = QtWidgets.QHBoxLayout(self)
+        self.layouth16 = QtWidgets.QHBoxLayout()
         self.qlabel_o = QtWidgets.QLabel("o:");
         self.qlabel_o_tenner = QtWidgets.QLabel("->");
         self.qlabel_o_path = QtWidgets.QLabel("");
@@ -309,7 +309,7 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         self.layouth16.addWidget(self.qlabel_o_path);
         self.layouth16.addWidget(self.qlabel_o_bool);
 
-        self.layouth17 = QtWidgets.QHBoxLayout(self)
+        self.layouth17 = QtWidgets.QHBoxLayout()
         self.qlabel_p = QtWidgets.QLabel("p:");
         self.qlabel_p_tenner = QtWidgets.QLabel("->");
         self.qlabel_p_path = QtWidgets.QLabel("");
@@ -319,7 +319,7 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         self.layouth17.addWidget(self.qlabel_p_path);
         self.layouth17.addWidget(self.qlabel_p_bool);
 
-        self.layouth18 = QtWidgets.QHBoxLayout(self)
+        self.layouth18 = QtWidgets.QHBoxLayout()
         self.qlabel_q = QtWidgets.QLabel("q:");
         self.qlabel_q_tenner = QtWidgets.QLabel("->");
         self.qlabel_q_path = QtWidgets.QLabel("");
@@ -329,7 +329,7 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         self.layouth18.addWidget(self.qlabel_q_path);
         self.layouth18.addWidget(self.qlabel_q_bool);
 
-        self.layouth19 = QtWidgets.QHBoxLayout(self)
+        self.layouth19 = QtWidgets.QHBoxLayout()
         self.qlabel_r = QtWidgets.QLabel("r:");
         self.qlabel_r_tenner = QtWidgets.QLabel("->");
         self.qlabel_r_path = QtWidgets.QLabel("");
@@ -339,7 +339,7 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         self.layouth19.addWidget(self.qlabel_r_path);
         self.layouth19.addWidget(self.qlabel_r_bool);
 
-        self.layouth20 = QtWidgets.QHBoxLayout(self)
+        self.layouth20 = QtWidgets.QHBoxLayout()
         self.qlabel_s = QtWidgets.QLabel("s:");
         self.qlabel_s_tenner = QtWidgets.QLabel("->");
         self.qlabel_s_path = QtWidgets.QLabel("");
@@ -349,7 +349,7 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         self.layouth20.addWidget(self.qlabel_s_path);
         self.layouth20.addWidget(self.qlabel_s_bool);
 
-        self.layouth21 = QtWidgets.QHBoxLayout(self)
+        self.layouth21 = QtWidgets.QHBoxLayout()
         self.qlabel_t = QtWidgets.QLabel("t:");
         self.qlabel_t_tenner = QtWidgets.QLabel("->");
         self.qlabel_t_path = QtWidgets.QLabel("");
@@ -359,7 +359,7 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         self.layouth21.addWidget(self.qlabel_t_path);
         self.layouth21.addWidget(self.qlabel_t_bool);
 
-        self.layouth22 = QtWidgets.QHBoxLayout(self)
+        self.layouth22 = QtWidgets.QHBoxLayout()
         self.qlabel_u = QtWidgets.QLabel("u:");
         self.qlabel_u_tenner = QtWidgets.QLabel("->");
         self.qlabel_u_path = QtWidgets.QLabel("");
@@ -369,7 +369,7 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         self.layouth22.addWidget(self.qlabel_u_path);
         self.layouth22.addWidget(self.qlabel_u_bool)
 
-        self.layouth25 = QtWidgets.QHBoxLayout(self)
+        self.layouth25 = QtWidgets.QHBoxLayout()
         self.qlabel_v = QtWidgets.QLabel("v:");
         self.qlabel_v_tenner = QtWidgets.QLabel("->");
         self.qlabel_v_path = QtWidgets.QLabel("");
@@ -379,7 +379,7 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         self.layouth25.addWidget(self.qlabel_v_path);
         self.layouth25.addWidget(self.qlabel_v_bool)
 
-        self.layouth26 = QtWidgets.QHBoxLayout(self)
+        self.layouth26 = QtWidgets.QHBoxLayout()
         self.qlabel_w = QtWidgets.QLabel("w:");
         self.qlabel_w_tenner = QtWidgets.QLabel("->");
         self.qlabel_w_path = QtWidgets.QLabel("");
@@ -389,7 +389,7 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         self.layouth26.addWidget(self.qlabel_w_path);
         self.layouth26.addWidget(self.qlabel_w_bool)
 
-        self.layouth27 = QtWidgets.QHBoxLayout(self)
+        self.layouth27 = QtWidgets.QHBoxLayout()
         self.qlabel_x = QtWidgets.QLabel("x:");
         self.qlabel_x_tenner = QtWidgets.QLabel("->");
         self.qlabel_x_path = QtWidgets.QLabel("");
@@ -399,7 +399,7 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         self.layouth27.addWidget(self.qlabel_x_path);
         self.layouth27.addWidget(self.qlabel_x_bool)
 
-        self.layouth28  = QtWidgets.QHBoxLayout(self)
+        self.layouth28  = QtWidgets.QHBoxLayout()
         self.qlabel_y = QtWidgets.QLabel("y:");
         self.qlabel_y_tenner = QtWidgets.QLabel("->");
         self.qlabel_y_path = QtWidgets.QLabel("");
@@ -410,7 +410,7 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         self.layouth28.addWidget(self.qlabel_y_bool)
 
 
-        self.layouth29 = QtWidgets.QHBoxLayout(self)
+        self.layouth29 = QtWidgets.QHBoxLayout()
         self.qlabel_z = QtWidgets.QLabel("z:");
         self.qlabel_z_tenner = QtWidgets.QLabel("->");
         self.qlabel_z_path = QtWidgets.QLabel("");
@@ -456,7 +456,7 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         self.layoutv1.addLayout(self.layouth28);
         self.layoutv1.addLayout(self.layouth29);
 
-        self.layouth30 = QtWidgets.QHBoxLayout(self)
+        self.layouth30 = QtWidgets.QHBoxLayout()
         self.button_hardened = QtWidgets.QPushButton("hardened start");
         self.button_hardened.clicked.connect(self.hardened_start);
         self.button_remove_hardened = QtWidgets.QPushButton("remove hardened start");
