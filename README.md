@@ -79,5 +79,5 @@ click on the gui of remove hardened start.
 This is a beta version.
 
 
-Use at your own risk.
+Use at your risk.
 
