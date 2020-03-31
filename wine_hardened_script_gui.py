@@ -4,7 +4,7 @@
 #This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #Warnung der Programmierer hafte nicht auf Schäden oder auf unsachgemäßen Umgang der APP
-version = "0.7h gui"
+version = "0.7j gui"
 print(version);
 
 from PyQt5 import QtWidgets
@@ -274,7 +274,7 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
             if(i >= len(block_device)):
                 break;
             if(block_device[i] != "c" and block_device[i] != "z"):
-                if(device_overide[0] == "0"):
+                if(device_overide[i] == "0"):
                     self.qlabel_bool[i].setDisabled(False);
                     self.qlabel_bool[i].setText(stext + block_device[i]);
                     self.qlabel_bool[i].setChecked(False);
@@ -346,7 +346,6 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
             msgBox.exec();
             exit();
         self.DEVICES = self.calculate1();
-        print(self.DEVICES);
         remnove_hardened(self.DEVICES, self.winefodler, self.block_output_folder);
         add_hardened(self.DEVICES, self.winefodler, self.block_output_folder);
         write_config_file(self.config, self.device_overide);
@@ -362,6 +361,10 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
     def remove_hardened(self):
         if(os.path.isfile(self.config) == False):
             print("ERROR is not protect please run protection first");
+            msgBox = QtWidgets.QMessageBox();
+            msgBox.setIcon(QtWidgets.QMessageBox.Warning);
+            msgBox.setText("ERROR is not protect please run protection first");
+            msgBox.exec();
             exit();
         self.DEVICES = self.calculate1();
         remnove_hardened(self.DEVICES, self.winefodler, self.block_output_folder);
