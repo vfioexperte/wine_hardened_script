@@ -4,7 +4,7 @@
 #This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #Warnung der Programmierer hafte nicht auf Schäden oder auf unsachgemäßen Umgang der APP
-version = "0.7j gui"
+version = "0.7k gui"
 print(version);
 
 from PyQt5 import QtWidgets
@@ -31,7 +31,7 @@ if(len(sys.argv) == 2):
         steamauto = 1;
         steammode = 1;
     elif(sys.argv[1] == "-Steam_auto_remove_protect"):
-        print("enabled Steam aurto remove protect mode");
+        print("enabled Steam auto remove protect mode");
         print("protontricks  -c \"python3.8 '/wine_hardened_script_gui.py' -Steam_auto_remove_protect\" APPID");
         print("auto remove protect mode enabled");
         steamauto = 2;
@@ -45,9 +45,9 @@ if(len(sys.argv) == 2):
         print("you are find the APPID with protontricks -s \"game name\"");
         print("protontricks  -c \"python3.8 '../wine_hardened_script_gui.py' -Steam\" APPID")
         print("");
-        print("Steam_auto_protect");
+        print("-Steam_auto_protect");
         print("enabled Steam auto protect mode");
-        print("protontricks  -c \"python3.8 '../wine_hardened_script_gui.py' Steam_auto_protect\" APPID");
+        print("protontricks  -c \"python3.8 '../wine_hardened_script_gui.py' -Steam_auto_protect\" APPID");
         print("auto protect mode enabled");
         print("");
         print("-Steam_auto_remove_protect");
