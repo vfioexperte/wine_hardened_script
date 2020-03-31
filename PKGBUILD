@@ -6,7 +6,7 @@ pkgdesc="wine_hardened_script_gui"
 arch=( 'x86_64')
 url=""
 license=('GPL2' )
-provides=('Sebastian_Muench')
+provides=('vfio_experte')
 source=('wine_hardened_script_gui.py' 'steam_security.py' 'install.py')
 md5sums=('SKIP' 'SKIP' 'SKIP')
 
