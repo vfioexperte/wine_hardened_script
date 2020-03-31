@@ -4,7 +4,7 @@
 #This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #Warnung der Programmierer hafte nicht auf Schäden oder auf unsachgemäßen Umgang der APP
-version = "0.7k gui"
+version = "0.8b"
 print(version);
 
 from PyQt5 import QtWidgets
@@ -14,10 +14,15 @@ import os
 import os.path
 import platform
 
+script_path = "/usr/bin/wine_security_gui";
+
 steammode = 0;
 steamauto = 0;
+steamall = 0;
 debug_fodler = "";
 if(len(sys.argv) == 2):
+    if(sys.argv[1] == "-version"):
+        exit();
     if(sys.argv[1] == "-Steam"):
         print("enabled Steam mode");
         print("use this mode only with protontricks command")
@@ -36,6 +41,14 @@ if(len(sys.argv) == 2):
         print("auto remove protect mode enabled");
         steamauto = 2;
         steammode = 1;
+    elif(sys.argv[1] == "-Steam_all_auto_protect"):
+        steamall = 1;
+        steamauto = 1;
+        #steammode = 1;
+    elif(sys.argv[1] == "-Steam_all_auto_remove_protect"):
+        steamall = 1;
+        steamauto = 2;
+        #steammode = 1;
     elif(sys.argv[1] == "--help" or sys.argv[1] == "-h"):
         print("options:");
         print("");
@@ -64,6 +77,17 @@ else:
         if(sys.argv[1] == "-debug"):
             debug_fodler = sys.argv[2];
             print("enable debug mode");
+
+
+
+def popen(cmd, sin):
+    pipeout, pipein = pty.openpty();
+    print(sin);
+    process = subprocess.Popen(cmd,stdin=pipeout, stderr=subprocess.STDOUT);#stdout=pipein
+    os.write(pipein, sin.encode());
+    os.close(pipeout);
+    process.wait();
+    return 0;
 
 def system(cmd):
     os.system(cmd);
@@ -200,6 +224,9 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
 
         self.textedit_wineprefix.setDisabled(True);
         self.change_WINEPREFIX(self.WINEPREFIX);
+
+        if(steamall == 1):
+            self.lsit_all_Proton_games();
 
     def change_WINEPREFIX(self, wineprefix):
         if(os.path.isdir(wineprefix) == False):
@@ -430,6 +457,64 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
             s1 = s1 + path[j];
             j = j +1;
         return s1;
+    def lsit_all_Proton_games(self):
+        if(steamall == 0):
+            return 0;
+        os.system("protontricks -s \"*\" | grep \"(\" >/tmp/tmp_wine_hardend_script.tmp");
+        file1 = open("/tmp/tmp_wine_hardend_script.tmp", "r");
+        file1.seek(0, 2);
+        size = file1.tell();
+        file1.seek(0, 0);
+        s1 = file1.read(size);
+        file1.close();
+        s2 = s1.split('\n');
+        i = 0;
+        s4 = [];
+        s4_name = [];
+        while True:
+            if(i >= len(s2)):
+                break;
+            s3 = s2[i];
+            print(s3);
+            j = 0;
+            bmode = 0;
+            s5 = "";
+            s5_name = "";
+            while True:
+                if(j >=len(s3)):
+                    break;
+                if(s3[j] == '('):
+                    bmode = 1;
+                elif(bmode == 0):
+                    s5_name = s5_name + s3[j];
+                elif(bmode == 1 and s3[j] != ')'):
+                    s5 = s5 + s3[j];
+                elif(bmode == 1 and s3[j] == ')'):
+                    s4.append(s5);
+                    s4_name.append(s5_name);
+                    break;
+                j = j + 1;
+            i = i +1;
+        #print(s4);
+        #print(s4_name);
+        i = 0;
+        while True:
+            if(i >= len(s4)):
+                break;
+            print(s4_name);
+            if(steamauto == 1):
+                os.system("protontricks -c \"python3.8 '" + script_path + "' -Steam_auto_protect\" " + s4[i]);
+            elif(steamauto == 2):
+                os.system("protontricks -c \"python3.8 '" + script_path + "' -Steam_auto_remove_protect\" " + s4[i]);
+            i = i +1;
+
+
+        os.system("rm -f /tmp/tmp_wine_hardend_script.tmp")
+        return 0;
+
+
+
+
 
 app = QtWidgets.QApplication(sys.argv);
 mainwindow = Wine_hardened_script_gui();

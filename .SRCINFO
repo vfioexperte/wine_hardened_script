@@ -1,0 +1,11 @@
+pkgbase = wine_hardened_script_gui
+	pkgdesc = wine_hardened_script_gui
+	pkgver = 0.8.a
+	pkgrel = 1
+	url = 
+	arch = x86_64
+	license = GPL2
+	provides = "vfio_experte"
+pkgname = wine_hardened_script_gui
+
+
