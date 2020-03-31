@@ -5,7 +5,7 @@
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #Warnung der Programmierer hafte nicht auf Schäden oder auf unsachgemäßen Umgang der APP
 
-version = "0.7c gui"
+version = "0.7f gui"
 print(version);
 
 
@@ -20,46 +20,53 @@ import platform
 
 steammode = 0;
 steamauto = 0;
+debug_fodler = "";
 if(len(sys.argv) == 2):
     if(sys.argv[1] == "-Steam"):
         print("enabled Steam mode");
-        print("use this mode only wiht protontricks command")
-        print("you are find the APPID with protontricks -s \"gamename\"");
-        print("protontricks  -c \"python3.8 '/wine_hardened_script_gui.py' -Steam\" APPID")
+        print("use this mode only with protontricks command")
+        print("you are find the APPID with protontricks -s \"game name\"");
+        print("protontricks  -c \"python3.8 '../wine_hardened_script_gui.py' -Steam\" APPID")
         steammode = 1;
     elif(sys.argv[1] == "-Steam_auto_protect"):
-        print("enabled Steam aurto hardend mode");
-        print("protontricks  -c \"python3.8 '/wine_hardened_script_gui.py' Steam_auto_protect\" APPID");
-        print("auto hardend mode enabled");
+        print("enabled Steam auto protect mode");
+        print("protontricks  -c \"python3.8 '../wine_hardened_script_gui.py' -Steam_auto_protect\" APPID");
+        print("auto protect mode enabled");
         steamauto = 1;
         steammode = 1;
     elif(sys.argv[1] == "-Steam_auto_remove_protect"):
-        print("enabled Steam aurto remove hardend mode");
+        print("enabled Steam aurto remove protect mode");
         print("protontricks  -c \"python3.8 '/wine_hardened_script_gui.py' -Steam_auto_remove_protect\" APPID");
-        print("auto remove hardend mode enabled");
+        print("auto remove protect mode enabled");
         steamauto = 2;
         steammode = 1;
     elif(sys.argv[1] == "--help" or sys.argv[1] == "-h"):
         print("options:");
         print("");
         print("-Steam");
-        print("use this mode only wiht protontricks command")
-        print("you are find the APPID with protontricks -s \"gamename\"");
-        print("protontricks  -c \"python3.8 '/wine_hardened_script_gui.py' -Steam\" APPID")
+        print("enabled Steam mode");
+        print("use this mode only with protontricks command")
+        print("you are find the APPID with protontricks -s \"game name\"");
+        print("protontricks  -c \"python3.8 '../wine_hardened_script_gui.py' -Steam\" APPID")
         print("");
         print("Steam_auto_protect");
-        print("enabled Steam aurto hardend mode");
-        print("protontricks  -c \"python3.8 '/wine_hardened_script_gui.py' -Steam_auto_protect\" APPID");
-        print("auoto hardend mode enabled");
+        print("enabled Steam auto protect mode");
+        print("protontricks  -c \"python3.8 '../wine_hardened_script_gui.py' Steam_auto_protect\" APPID");
+        print("auto protect mode enabled");
         print("");
         print("-Steam_auto_remove_protect");
-        print("enabled Steam aurto remove hardend mode");
+        print("enabled Steam aurto remove protect mode");
         print("protontricks  -c \"python3.8 '/wine_hardened_script_gui.py' -Steam_auto_remove_protect\" APPID");
-        print("auoto remove hardend mode enabled");
+        print("auto remove protect mode enabled");
+        print("");
+        print("-debug");
+        print("test debug folder");
+        print("-debug /tmp");
         exit();
-
-
-
+else:
+    if(sys.argv[1] == "-debug"):
+        debug_fodler = sys.argv[2];
+        print("enable debug mode");
 
 def system(cmd):
     os.system(cmd);
@@ -67,6 +74,10 @@ def system(cmd):
 home = "";
 def read_WINEPREFIX():
     WINEPREFIX = "";
+    if(debug_fodler != ""):
+        WINEPREFIX = debug_fodler;
+        os.system("mkdir -p \"" + debug_fodler + "/dosdevices" + "\"");
+        return debug_fodler;
     try:
         WINEPREFIX = os.environ['WINEPREFIX'];
     except KeyError:
@@ -94,10 +105,11 @@ def add_hardened(device, winefodler, block_output_folder):
     while True:
         if(i >= len(device)):
             break;
-        s2 = device[i];
-        s1 = winefodler + "/" + s2 + ":";
-        #print("ln -sf " + "\"" + block_output_folder + "\" " + "\""  + s1 + "\"");
-        system("ln -sf " + "\"" + block_output_folder + "\" " + "\""  + s1 + "\"");
+        if(device[i] != ","):
+            s2 = device[i];
+            s1 = winefodler + "/" + s2 + ":";
+            #print("ln -sf " + "\"" + block_output_folder + "\" " + "\""  + s1 + "\"");
+            system("ln -sf " + "\"" + block_output_folder + "\" " + "\""  + s1 + "\"");
         i = i +1;
 
 
@@ -457,9 +469,9 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         self.layoutv1.addLayout(self.layouth29);
 
         self.layouth30 = QtWidgets.QHBoxLayout()
-        self.button_hardened = QtWidgets.QPushButton("hardened start");
+        self.button_hardened = QtWidgets.QPushButton("start protection ");
         self.button_hardened.clicked.connect(self.hardened_start);
-        self.button_remove_hardened = QtWidgets.QPushButton("remove hardened start");
+        self.button_remove_hardened = QtWidgets.QPushButton("remove protection start");
         self.button_remove_hardened.clicked.connect(self.remove_hardened);
         self.layouth30.addWidget(self.button_hardened);
         self.layouth30.addWidget(self.button_remove_hardened);
@@ -467,12 +479,15 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
 
         self.textedit_wineprefix.setDisabled(True);
         self.change_WINEPREFIX(self.WINEPREFIX);
-        #return 0;
 
     def change_WINEPREFIX(self, wineprefix):
         if(os.path.isdir(wineprefix) == False):
             print("WINEPREFIX: " + "\"" + wineprefix + "\" not found!");
             exit();
+        if(steammode != 0):
+            if(wineprefix.find("compatdata") == -1 or wineprefix.find("pfx") == -1):
+                print("WINEPREFIX: " + "\"" + wineprefix + "\" not a steam wine folder found!\nremove the -Steam options!");
+                exit();
         self.WINEPREFIX = wineprefix;
         self.winefodler = self.WINEPREFIX + "/dosdevices"
         self.config = self.winefodler + "/.hardened.config";
@@ -521,9 +536,9 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         self.device_overide = device_overide;
         device_overide = device_overide.split(",");
         if(self.mode == 0):
-            stext = "create a dammy device ";
+            stext = "create a protection device ";
         else:
-            stext = "remove a dammy device ";
+            stext = "remove a protection device ";
 
         if(device_overide[0] == "0"):
             self.qlabel_a_bool.setDisabled(False);
@@ -749,7 +764,7 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
                 s1  = self.textedit_wineprefix.toPlainText();
                 s1 = os.path.realpath(s1+"../../../../");
                 self.qlabel_z_dir.setText(s1);
-                self.qlabel_z_bool.setText("create a link to fodler ->");
+                self.qlabel_z_bool.setText("create a protection device path ->");
                 self.qlabel_z_dir.setHidden(False);
                 self.qlabel_z_dir.setDisabled(False);
                 if(self.steamauto == 1):
@@ -758,7 +773,7 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
                 self.qlabel_z_dir.setHidden(True);
         else:
             self.qlabel_z_bool.setDisabled(False);
-            self.qlabel_z_bool.setText("resore a dammy device " + block_device[24]);
+            self.qlabel_z_bool.setText("resore a protection device " + block_device[24]);
             self.qlabel_z_bool.setChecked(False);
             self.qlabel_z_dir.setText("");
             self.qlabel_z_dir.setDisabled(True);
@@ -934,7 +949,7 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
 
     def hardened_start(self):
         if(os.path.isfile(self.config) == True):
-            print("ERROR is hardend");
+            print("ERROR is protect");
             exit();
         self.DEVICES = self.calculate1();
         print(self.DEVICES);
@@ -952,7 +967,7 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         return 0;
     def remove_hardened(self):
         if(os.path.isfile(self.config) == False):
-            print("ERROR is not hardend please run hardend");
+            print("ERROR is not protect please run protection first");
             exit();
         self.DEVICES = self.calculate1();
         remnove_hardened(self.DEVICES, self.winefodler, self.block_output_folder);
