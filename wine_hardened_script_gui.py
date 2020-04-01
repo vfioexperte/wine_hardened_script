@@ -4,7 +4,7 @@
 #This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #Warnung der Programmierer hafte nicht auf Schäden oder auf unsachgemäßen Umgang der APP
-version = "0.8b"
+version = "0.8c"
 print(version);
 
 from PyQt5 import QtWidgets
@@ -64,10 +64,15 @@ if(len(sys.argv) == 2):
         print("auto protect mode enabled");
         print("");
         print("-Steam_auto_remove_protect");
-        print("enabled Steam aurto remove protect mode");
+        print("enabled Steam auto remove protect mode");
         print("protontricks  -c \"python3.8 '/wine_hardened_script_gui.py' -Steam_auto_remove_protect\" APPID");
         print("auto remove protect mode enabled");
         print("");
+        print("-Steam_all_auto_protect");
+        print("protect all steam games");
+        print("");
+        print("-Steam_auto_remove_protect");
+        print("remove protection all steam games");
         print("-debug");
         print("test debug folder");
         print("-debug /tmp");
@@ -160,7 +165,7 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         self.WINEPREFIX = read_WINEPREFIX();
         self.block_device = "a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z";
         self.DEVICES = self.block_device.split(",");
-        self.block_output_folder = "/tmp";
+        self.block_output_folder = "/tmp/wine_security";
         self.device_overide = "";
         self.winefodler = self.WINEPREFIX + "/dosdevices"
         self.config = self.winefodler + "/.hardened.config";
