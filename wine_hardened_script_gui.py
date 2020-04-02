@@ -4,7 +4,7 @@
 #This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #Warnung der Programmierer hafte nicht auf Schäden oder auf unsachgemäßen Umgang der APP
-version = "0.8c"
+version = "0.8e"
 print(version);
 
 from PyQt5 import QtWidgets
@@ -19,8 +19,9 @@ script_path = "/usr/bin/wine_security_gui";
 steammode = 0;
 steamauto = 0;
 steamall = 0;
+noerror = 0;
 debug_fodler = "";
-if(len(sys.argv) == 2):
+if(len(sys.argv) == 2 or len(sys.argv) == 3):
     if(sys.argv[1] == "-version"):
         exit();
     if(sys.argv[1] == "-Steam"):
@@ -49,6 +50,10 @@ if(len(sys.argv) == 2):
         steamall = 1;
         steamauto = 2;
         #steammode = 1;
+    if(len(sys.argv) == 3):
+        if(sys.argv[2] == "-noerror"):
+            print("enable noerror mode");
+            noerror = 1;
     elif(sys.argv[1] == "--help" or sys.argv[1] == "-h"):
         print("options:");
         print("");
@@ -235,20 +240,21 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
 
     def change_WINEPREFIX(self, wineprefix):
         if(os.path.isdir(wineprefix) == False):
-            print("WINEPREFIX: " + "\"" + wineprefix + "\" not found!");
-            msgBox = QtWidgets.QMessageBox();
-            msgBox.setIcon(QtWidgets.QMessageBox.Warning);
-            msgBox.setText("WINEPREFIX: " + "\"" + wineprefix + "\" not found!");
-            msgBox.exec();
+            if(noerror == 0):
+                print("WINEPREFIX: " + "\"" + wineprefix + "\" not found!");
+                msgBox = QtWidgets.QMessageBox();
+                msgBox.setIcon(QtWidgets.QMessageBox.Warning);
+                msgBox.setText("WINEPREFIX: " + "\"" + wineprefix + "\" not found!");
+                msgBox.exec();
             exit();
         if(steammode != 0):
             if(wineprefix.find("compatdata") == -1 or wineprefix.find("pfx") == -1):
-                print("WINEPREFIX: " + "\"" + wineprefix + "\" not a steam wine folder found!\nremove the -Steam options!");
-
-                msgBox = QtWidgets.QMessageBox();
-                msgBox.setIcon(QtWidgets.QMessageBox.Warning);
-                msgBox.setText("WINEPREFIX: " + "\"" + wineprefix + "\" not a steam wine folder found!\nremove the -Steam options!");
-                msgBox.exec();
+                if(noerror == 0):
+                    print("WINEPREFIX: " + "\"" + wineprefix + "\" not a steam wine folder found!\nremove the -Steam options!");
+                    msgBox = QtWidgets.QMessageBox();
+                    msgBox.setIcon(QtWidgets.QMessageBox.Warning);
+                    msgBox.setText("WINEPREFIX: " + "\"" + wineprefix + "\" not a steam wine folder found!\nremove the -Steam options!");
+                    msgBox.exec();
                 exit();
         self.WINEPREFIX = wineprefix;
         self.winefodler = self.WINEPREFIX + "/dosdevices"
@@ -306,7 +312,7 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
             if(i >= len(block_device)):
                 break;
             if(block_device[i] != "c" and block_device[i] != "z"):
-                if(device_overide[i] == "0"):
+                if(device_overide[i] == "0" and steammode == 0):
                     self.qlabel_bool[i].setDisabled(False);
                     self.qlabel_bool[i].setText(stext + block_device[i]);
                     self.qlabel_bool[i].setChecked(False);
@@ -371,11 +377,12 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
 
     def hardened_start(self):
         if(os.path.isfile(self.config) == True):
-            print("ERROR is protect");
-            msgBox = QtWidgets.QMessageBox();
-            msgBox.setIcon(QtWidgets.QMessageBox.Warning);
-            msgBox.setText("ERROR is protect");
-            msgBox.exec();
+            if(noerror == 0):
+                print("ERROR is protect");
+                msgBox = QtWidgets.QMessageBox();
+                msgBox.setIcon(QtWidgets.QMessageBox.Warning);
+                msgBox.setText("ERROR is protect");
+                msgBox.exec();
             exit();
         self.DEVICES = self.calculate1();
         remnove_hardened(self.DEVICES, self.winefodler, self.block_output_folder);
@@ -392,11 +399,12 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         return 0;
     def remove_hardened(self):
         if(os.path.isfile(self.config) == False):
-            print("ERROR is not protect please run protection first");
-            msgBox = QtWidgets.QMessageBox();
-            msgBox.setIcon(QtWidgets.QMessageBox.Warning);
-            msgBox.setText("ERROR is not protect please run protection first");
-            msgBox.exec();
+            if(noerror == 0):
+                print("ERROR is not protect please run protection first");
+                msgBox = QtWidgets.QMessageBox();
+                msgBox.setIcon(QtWidgets.QMessageBox.Warning);
+                msgBox.setText("ERROR is not protect please run protection first");
+                msgBox.exec();
             exit();
         self.DEVICES = self.calculate1();
         remnove_hardened(self.DEVICES, self.winefodler, self.block_output_folder);
@@ -465,7 +473,7 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
     def lsit_all_Proton_games(self):
         if(steamall == 0):
             return 0;
-        os.system("protontricks -s \"*\" | grep \"(\" >/tmp/tmp_wine_hardend_script.tmp");
+        os.system("protontricks -s \"*\" | grep \"(\" | cat>/tmp/tmp_wine_hardend_script.tmp");
         file1 = open("/tmp/tmp_wine_hardend_script.tmp", "r");
         file1.seek(0, 2);
         size = file1.tell();
@@ -508,9 +516,9 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
                 break;
             print(s4_name);
             if(steamauto == 1):
-                os.system("protontricks -c \"python3.8 '" + script_path + "' -Steam_auto_protect\" " + s4[i]);
+                os.system("protontricks -c \"python3.8 '" + script_path + "' -Steam_auto_protect -noerror\" " + s4[i]);
             elif(steamauto == 2):
-                os.system("protontricks -c \"python3.8 '" + script_path + "' -Steam_auto_remove_protect\" " + s4[i]);
+                os.system("protontricks -c \"python3.8 '" + script_path + "' -Steam_auto_remove_protect -noerror\" " + s4[i]);
             i = i +1;
 
 
@@ -525,9 +533,13 @@ app = QtWidgets.QApplication(sys.argv);
 mainwindow = Wine_hardened_script_gui();
 if(steamauto == 1):
     mainwindow.hardened_start();
+    #mainwindow.show();
+    #app.exec_();
     mainwindow.close();
 elif(steamauto == 2):
     mainwindow.remove_hardened();
+    #mainwindow.show();
+    #app.exec_();
     mainwindow.close();
 else:
     mainwindow.show();
