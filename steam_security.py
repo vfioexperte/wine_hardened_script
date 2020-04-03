@@ -1,10 +1,10 @@
-#!/usr/bin/env python3.8
+#!/usr/bin/env python
 #Copyright (C) 2020  vfio_experte
 #This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
 #This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #Warnung der Programmierer hafte nicht auf Schäden oder auf unsachgemäßen Umgang der APP
-version = "0.1b"
+version = "0.1c"
 print(version);
 
 from PyQt5 import QtWidgets
@@ -86,13 +86,13 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         index = self.combobox.currentIndex();
         print(self.array_name[index]);
         print(self.array_id[index]);
-        os.system("protontricks -c \"python3.8 '" + script_path + "' -Steam_auto_protect\" " + self.array_id[index]);
+        os.system("protontricks -c \"python '" + script_path + "' -Steam_auto_protect\" " + self.array_id[index]);
         return 0;
     def remove_hardened(self):
         index = self.combobox.currentIndex();
         print(self.array_name[index]);
         print(self.array_id[index]);
-        os.system("protontricks -c \"python3.8 '" + script_path + "' -Steam_auto_remove_protect\" " + self.array_id[index]);
+        os.system("protontricks -c \"python '" + script_path + "' -Steam_auto_remove_protect\" " + self.array_id[index]);
         return 0;
     def closeEvent(self, event):
         self.bcolse = True;

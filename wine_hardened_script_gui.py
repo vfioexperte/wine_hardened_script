@@ -1,10 +1,10 @@
-#!/usr/bin/env python3.8
+#!/usr/bin/env python
 #Copyright (C) 2020  vfio_experte
 #This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
 #This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #Warnung der Programmierer hafte nicht auf Schäden oder auf unsachgemäßen Umgang der APP
-version = "0.8e"
+version = "0.8h"
 print(version);
 
 from PyQt5 import QtWidgets
@@ -20,6 +20,7 @@ steammode = 0;
 steamauto = 0;
 steamall = 0;
 noerror = 0;
+appname = "wine_security_gui";
 debug_fodler = "";
 if(len(sys.argv) == 2 or len(sys.argv) == 3):
     if(sys.argv[1] == "-version"):
@@ -27,18 +28,18 @@ if(len(sys.argv) == 2 or len(sys.argv) == 3):
     if(sys.argv[1] == "-Steam"):
         print("enabled Steam mode");
         print("use this mode only with protontricks command")
-        print("you are find the APPID with protontricks -s \"game name\"");
-        print("protontricks  -c \"python3.8 '../wine_hardened_script_gui.py' -Steam\" APPID")
+        print("you will find the APPID with protontricks -s \"game name\"");
+        print("protontricks  -c \"/usr/bin/wine_security_gui -Steam\" APPID")
         steammode = 1;
     elif(sys.argv[1] == "-Steam_auto_protect"):
         print("enabled Steam auto protect mode");
-        print("protontricks  -c \"python3.8 '../wine_hardened_script_gui.py' -Steam_auto_protect\" APPID");
+        print("protontricks  -c \"/usr/bin/wine_security_gui -Steam_auto_protect\" APPID");
         print("auto protect mode enabled");
         steamauto = 1;
         steammode = 1;
     elif(sys.argv[1] == "-Steam_auto_remove_protect"):
         print("enabled Steam auto remove protect mode");
-        print("protontricks  -c \"python3.8 '/wine_hardened_script_gui.py' -Steam_auto_remove_protect\" APPID");
+        print("protontricks  -c \"/usr/bin/wine_security_gui -Steam_auto_remove_protect\" APPID");
         print("auto remove protect mode enabled");
         steamauto = 2;
         steammode = 1;
@@ -59,24 +60,24 @@ if(len(sys.argv) == 2 or len(sys.argv) == 3):
         print("");
         print("-Steam");
         print("enabled Steam mode");
-        print("use this mode only with protontricks command")
-        print("you are find the APPID with protontricks -s \"game name\"");
-        print("protontricks  -c \"python3.8 '../wine_hardened_script_gui.py' -Steam\" APPID")
+        print("only use this mode with protontricks command")
+        print("you will find the APPID with protontricks -s \"game name\"");
+        print("protontricks  -c \"/usr/bin/wine_security_gui -Steam\" APPID")
         print("");
         print("-Steam_auto_protect");
         print("enabled Steam auto protect mode");
-        print("protontricks  -c \"python3.8 '../wine_hardened_script_gui.py' -Steam_auto_protect\" APPID");
+        print("protontricks  -c \"/usr/bin/wine_security_gui -Steam_auto_protect\" APPID");
         print("auto protect mode enabled");
         print("");
         print("-Steam_auto_remove_protect");
         print("enabled Steam auto remove protect mode");
-        print("protontricks  -c \"python3.8 '/wine_hardened_script_gui.py' -Steam_auto_remove_protect\" APPID");
+        print("protontricks  -c \"/usr/bin/wine_security_gui -Steam_auto_remove_protect\" APPID");
         print("auto remove protect mode enabled");
         print("");
         print("-Steam_all_auto_protect");
         print("protect all steam games");
         print("");
-        print("-Steam_auto_remove_protect");
+        print("-Steam_all_auto_remove_protect");
         print("remove protection all steam games");
         print("-debug");
         print("test debug folder");
@@ -164,8 +165,9 @@ def restore_device_z(winefodler):
 
 class Wine_hardened_script_gui(QtWidgets.QWidget):
     def __init__(self):
+        self.init = 0;
         QtWidgets.QWidget.__init__(self)
-        self.title = "Wine_hardened_script_gui - " + version;
+        self.title = appname +  " - " + version;
         self.setWindowTitle(self.title);
         self.WINEPREFIX = read_WINEPREFIX();
         self.block_device = "a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z";
@@ -239,6 +241,12 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
             self.lsit_all_Proton_games();
 
     def change_WINEPREFIX(self, wineprefix):
+        if(self.init == 1):
+            self.steammode = 0;
+        elif(self.init == 2):
+            self.steammode = 1;
+        else:
+            self.steammode = steammode;
         if(os.path.isdir(wineprefix) == False):
             if(noerror == 0):
                 print("WINEPREFIX: " + "\"" + wineprefix + "\" not found!");
@@ -247,7 +255,9 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
                 msgBox.setText("WINEPREFIX: " + "\"" + wineprefix + "\" not found!");
                 msgBox.exec();
             exit();
-        if(steammode != 0):
+        if(steamall == 0 and self.steammode != 0):
+            self.title = appname +  " (Steam mode) - " + version;
+            self.setWindowTitle(self.title);
             if(wineprefix.find("compatdata") == -1 or wineprefix.find("pfx") == -1):
                 if(noerror == 0):
                     print("WINEPREFIX: " + "\"" + wineprefix + "\" not a steam wine folder found!\nremove the -Steam options!");
@@ -256,6 +266,13 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
                     msgBox.setText("WINEPREFIX: " + "\"" + wineprefix + "\" not a steam wine folder found!\nremove the -Steam options!");
                     msgBox.exec();
                 exit();
+        else:
+            self.title = appname +  " - " + version;
+            self.setWindowTitle(self.title);
+            if(wineprefix.find("compatdata") != -1 and wineprefix.find("pfx") != -1):
+                self.title = appname +  " (Steam mode) - " + version;
+                self.setWindowTitle(self.title);
+                self.steammode = 1;
         self.WINEPREFIX = wineprefix;
         self.winefodler = self.WINEPREFIX + "/dosdevices"
         self.config = self.winefodler + "/.hardened.config";
@@ -272,7 +289,7 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
 
     def change_gui(self, block_device, winefodler):
         self.steamauto = steamauto;
-        self.steammode = steammode;
+        #self.steammode = steammode;
         device = block_device.split(",");
         if(self.mode == 1):
                 if(os.path.isfile(self.config) == True):
@@ -312,7 +329,7 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
             if(i >= len(block_device)):
                 break;
             if(block_device[i] != "c" and block_device[i] != "z"):
-                if(device_overide[i] == "0" and steammode == 0):
+                if(device_overide[i] == "0" and self.steammode == 0):
                     self.qlabel_bool[i].setDisabled(False);
                     self.qlabel_bool[i].setText(stext + block_device[i]);
                     self.qlabel_bool[i].setChecked(False);
@@ -378,10 +395,10 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
     def hardened_start(self):
         if(os.path.isfile(self.config) == True):
             if(noerror == 0):
-                print("ERROR is protect");
+                print("ERROR folder is ready protect");
                 msgBox = QtWidgets.QMessageBox();
                 msgBox.setIcon(QtWidgets.QMessageBox.Warning);
-                msgBox.setText("ERROR is protect");
+                msgBox.setText("ERROR folder is ready protect");
                 msgBox.exec();
             exit();
         self.DEVICES = self.calculate1();
@@ -393,7 +410,6 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
             s2 = self.winefodler + "/" + "z" + ":";
             os.system("rm -f " + "\"" + s2  +  "\"");
             os.system("ln -sf " + s1 + " " + "\"" + s2  +  "\"" );
-
         self.change_WINEPREFIX(self.WINEPREFIX);
         self.change_gui(self.block_device, self.winefodler);
         return 0;
@@ -424,16 +440,27 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
     def browse_WINEPREFIX(self):            
         msgBox = QtWidgets.QMessageBox();
         msgBox.setIcon(QtWidgets.QMessageBox.Warning);
-        if(self.steammode == 1):
-            self.steammode = 0;
-            msgBox.setText("You are in steamode and disabled steammode");
-            msgBox.exec();
         while True:
             fieldialog = QtWidgets.QFileDialog;
             file = fieldialog.getExistingDirectory(self, "WINEPREFIX", home);
             if(file == ""):
                 exit();
             if(os.path.exists(file + "/dosdevices")  == True):
+                if(self.steammode == 1):
+                    if(file.find("compatdata") == -1 or file.find("pfx") == -1):
+                        self.steammode = 0;
+                        self.init = 1;
+                        msgBox.setText("You chose wrong folder, isn't a steam folder. " + appname + " got disable steammode.");
+                        msgBox.exec();
+                    else:
+                        self.init = 0;
+                else:
+                    if(file.find("compatdata") != -1 or file.find("pfx") != -1):
+                        self.init = 2;
+                        self.steammode = 1;
+                        msgBox.setText("You chose wrong folder, isn't a wine folder. " + appname + " got enable steammode.");
+                        msgBox.exec();
+
                 self.textedit_wineprefix.setText(file);
                 self.change_WINEPREFIX(file);
                 self.textedit_wineprefix.setText(file);
@@ -516,9 +543,9 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
                 break;
             print(s4_name);
             if(steamauto == 1):
-                os.system("protontricks -c \"python3.8 '" + script_path + "' -Steam_auto_protect -noerror\" " + s4[i]);
+                os.system("protontricks -c \"python '" + script_path + "' -Steam_auto_protect -noerror\" " + s4[i]);
             elif(steamauto == 2):
-                os.system("protontricks -c \"python3.8 '" + script_path + "' -Steam_auto_remove_protect -noerror\" " + s4[i]);
+                os.system("protontricks -c \"python '" + script_path + "' -Steam_auto_remove_protect -noerror\" " + s4[i]);
             i = i +1;
 
 
