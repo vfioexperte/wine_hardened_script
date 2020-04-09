@@ -4,7 +4,7 @@
 #This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #Warnung der Programmierer hafte nicht auf Schäden oder auf unsachgemäßen Umgang der APP
-version = "0.8h"
+version = "0.9b"
 print(version);
 
 from PyQt5 import QtWidgets
@@ -13,14 +13,17 @@ import sys
 import os
 import os.path
 import platform
+import string
 
-script_path = "/usr/bin/wine_security_gui";
+script_path = "/usr/bin/wine-security-gui";
 
 steammode = 0;
 steamauto = 0;
 steamall = 0;
 noerror = 0;
-appname = "wine_security_gui";
+add_blacklist = 0;
+remvoe_blacklist = 0,
+appname = "wine-security-gui";
 debug_fodler = "";
 if(len(sys.argv) == 2 or len(sys.argv) == 3):
     if(sys.argv[1] == "-version"):
@@ -29,17 +32,17 @@ if(len(sys.argv) == 2 or len(sys.argv) == 3):
         print("enabled Steam mode");
         print("use this mode only with protontricks command")
         print("you will find the APPID with protontricks -s \"game name\"");
-        print("protontricks  -c \"/usr/bin/wine_security_gui -Steam\" APPID")
+        print("protontricks  -c \"/usr/bin/wine-security-gui -Steam\" APPID")
         steammode = 1;
     elif(sys.argv[1] == "-Steam_auto_protect"):
         print("enabled Steam auto protect mode");
-        print("protontricks  -c \"/usr/bin/wine_security_gui -Steam_auto_protect\" APPID");
+        print("protontricks  -c \"/usr/bin/wine-security-gui -Steam_auto_protect\" APPID");
         print("auto protect mode enabled");
         steamauto = 1;
         steammode = 1;
     elif(sys.argv[1] == "-Steam_auto_remove_protect"):
         print("enabled Steam auto remove protect mode");
-        print("protontricks  -c \"/usr/bin/wine_security_gui -Steam_auto_remove_protect\" APPID");
+        print("protontricks  -c \"/usr/bin/wine-security-gui -Steam_auto_remove_protect\" APPID");
         print("auto remove protect mode enabled");
         steamauto = 2;
         steammode = 1;
@@ -51,6 +54,10 @@ if(len(sys.argv) == 2 or len(sys.argv) == 3):
         steamall = 1;
         steamauto = 2;
         #steammode = 1;
+    elif(sys.argv[1] == "-add_to_balcklist"):
+        add_blacklist = 1;
+    elif(sys.argv[1] == "-remove_to_balcklist"):
+        remvoe_blacklist = 1;
     if(len(sys.argv) == 3):
         if(sys.argv[2] == "-noerror"):
             print("enable noerror mode");
@@ -62,16 +69,16 @@ if(len(sys.argv) == 2 or len(sys.argv) == 3):
         print("enabled Steam mode");
         print("only use this mode with protontricks command")
         print("you will find the APPID with protontricks -s \"game name\"");
-        print("protontricks  -c \"/usr/bin/wine_security_gui -Steam\" APPID")
+        print("protontricks  -c \"/usr/bin/wine-security-gui -Steam\" APPID")
         print("");
         print("-Steam_auto_protect");
         print("enabled Steam auto protect mode");
-        print("protontricks  -c \"/usr/bin/wine_security_gui -Steam_auto_protect\" APPID");
+        print("protontricks  -c \"/usr/bin/wine-security-gui -Steam_auto_protect\" APPID");
         print("auto protect mode enabled");
         print("");
         print("-Steam_auto_remove_protect");
         print("enabled Steam auto remove protect mode");
-        print("protontricks  -c \"/usr/bin/wine_security_gui -Steam_auto_remove_protect\" APPID");
+        print("protontricks  -c \"/usr/bin/wine-security-gui -Steam_auto_remove_protect\" APPID");
         print("auto remove protect mode enabled");
         print("");
         print("-Steam_all_auto_protect");
@@ -79,6 +86,11 @@ if(len(sys.argv) == 2 or len(sys.argv) == 3):
         print("");
         print("-Steam_all_auto_remove_protect");
         print("remove protection all steam games");
+        print("");
+        print("-add_to_balcklist");
+        print("add WINEPREFIX to blacklist");
+        print("-remove_to_balcklist");
+        print("remvoe blacklist from WINEPREFIX");
         print("-debug");
         print("test debug folder");
         print("-debug /tmp");
@@ -106,15 +118,15 @@ def system(cmd):
 home = "";
 def read_WINEPREFIX():
     WINEPREFIX = "";
-    if(debug_fodler != ""):
+    if debug_fodler:
         WINEPREFIX = debug_fodler;
-        os.system("mkdir -p \"" + debug_fodler + "/dosdevices" + "\"");
+        os.makedirs(os.path.join(debug_folder, 'dosdevices'), exist_ok=True);
         return debug_fodler;
     try:
         WINEPREFIX = os.environ['WINEPREFIX'];
     except KeyError:
         home = os.environ['HOME'];
-        WINEPREFIX = home + "/.wine";
+        WINEPREFIX = os.path.join(home, ".wine");
     return WINEPREFIX;
 
 def remnove_hardened(device, winefodler, block_output_folder):
@@ -171,11 +183,11 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         self.setWindowTitle(self.title);
         self.WINEPREFIX = read_WINEPREFIX();
         self.block_device = "a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z";
-        self.DEVICES = self.block_device.split(",");
-        self.block_output_folder = "/tmp/wine_security";
+        self.DEVICES = list(string.ascii_lowercase);
+        self.block_output_folder = os.path.join("/tmp",  "wine_security");
         self.device_overide = "";
-        self.winefodler = self.WINEPREFIX + "/dosdevices"
-        self.config = self.winefodler + "/.hardened.config";
+        self.winefodler = os.path.join(self.WINEPREFIX ,"/dosdevices");
+        self.config = os.path.join(self.winefodler , "/.hardened.config");
         self.device_overide = "";
         self.mode = 0;
 
@@ -274,8 +286,8 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
                 self.setWindowTitle(self.title);
                 self.steammode = 1;
         self.WINEPREFIX = wineprefix;
-        self.winefodler = self.WINEPREFIX + "/dosdevices"
-        self.config = self.winefodler + "/.hardened.config";
+        self.winefodler = os.path.join(self.WINEPREFIX ,"dosdevices");
+        self.config = os.path.join(self.winefodler ,".hardened.config");
         if(os.path.isfile(self.config) == True):
             self.mode = 1;
             self.button_hardened.setDisabled(True);
@@ -393,6 +405,14 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         return device;
 
     def hardened_start(self):
+        if(self.is_blacklsited() == True):
+            if(noerror == 0):
+                print("ERROR folder is blacklisted");
+                msgBox = QtWidgets.QMessageBox();
+                msgBox.setIcon(QtWidgets.QMessageBox.Warning);
+                msgBox.setText("ERROR folder is blacklisted");
+                msgBox.exec();
+            exit();
         if(os.path.isfile(self.config) == True):
             if(noerror == 0):
                 print("ERROR folder is ready protect");
@@ -414,6 +434,14 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         self.change_gui(self.block_device, self.winefodler);
         return 0;
     def remove_hardened(self):
+        if(self.is_blacklsited() == True):
+            if(noerror == 0):
+                print("ERROR folder is blacklisted");
+                msgBox = QtWidgets.QMessageBox();
+                msgBox.setIcon(QtWidgets.QMessageBox.Warning);
+                msgBox.setText("ERROR folder is blacklisted");
+                msgBox.exec();
+            exit();
         if(os.path.isfile(self.config) == False):
             if(noerror == 0):
                 print("ERROR is not protect please run protection first");
@@ -500,7 +528,7 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
     def lsit_all_Proton_games(self):
         if(steamall == 0):
             return 0;
-        os.system("protontricks -s \"*\" | grep \"(\" | cat>/tmp/tmp_wine_hardend_script.tmp");
+        os.system("protontricks -s \"*\" | grep \"(\" >/tmp/tmp_wine_hardend_script.tmp");
         file1 = open("/tmp/tmp_wine_hardend_script.tmp", "r");
         file1.seek(0, 2);
         size = file1.tell();
@@ -551,6 +579,45 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
 
         os.system("rm -f /tmp/tmp_wine_hardend_script.tmp")
         return 0;
+    def is_blacklsited(self):
+        sblacklsit = self.winefodler + "/" +".blacklist";
+        if(os.path.isfile(sblacklsit) == False):
+            return False;
+        else:
+            return True;
+        return -1;
+    def set_blacklist(self):
+        sblacklsit = self.winefodler + "/" +".blacklist";
+        if(self.is_blacklsited() == False):
+            file1 = open(sblacklsit, "w");
+            file1.write(" ");
+            file1.close();
+            return 0;
+        else:
+            if(noerror == 0):
+                msgBox = QtWidgets.QMessageBox();
+                msgBox.setIcon(QtWidgets.QMessageBox.Warning);
+                msgBox.setText("ERROR is blacklisted");
+                msgBox.exec();
+            print("ERROR is blacklisted");
+            exit();
+    def remvoe_blacklist(self):
+        sblacklsit = self.winefodler + "/" +".blacklist";
+        if(os.path.isfile(sblacklsit) == False):
+            if(noerror == 0):
+                msgBox = QtWidgets.QMessageBox();
+                msgBox.setIcon(QtWidgets.QMessageBox.Warning);
+                msgBox.setText("ERROR is not blacklisted");
+                msgBox.exec();
+            print("ERROR is not blacklisted");
+            exit();
+        else:
+            os.remove(sblacklsit);
+            return 0;
+
+
+
+
 
 
 
@@ -567,6 +634,12 @@ elif(steamauto == 2):
     mainwindow.remove_hardened();
     #mainwindow.show();
     #app.exec_();
+    mainwindow.close();
+elif(add_blacklist == 1):
+    mainwindow.set_blacklist();
+    mainwindow.close();
+elif(remvoe_blacklist == 1):
+    mainwindow.remvoe_blacklist();
     mainwindow.close();
 else:
     mainwindow.show();
