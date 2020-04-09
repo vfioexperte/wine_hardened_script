@@ -9,7 +9,7 @@ dir = "/";
 if(argc != 1):
 	dir = argv[1];
 os.system("mkdir -p " + dir + "/usr/bin/");
-os.system("cp wine_hardened_script_gui.py " + dir+  "/usr/bin/wine_security_gui");
-os.system("cp steam_security.py " + dir+  "/usr/bin/steam_security");
+os.system("cp wine_hardened_script_gui.py " + dir+  "/usr/bin/wine-security-gui");
+os.system("cp steam_security.py " + dir+  "/usr/bin/steam-security");
 os.system("chmod +x -R "+  dir);
 
