@@ -4,7 +4,7 @@
 #This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #Warnung der Programmierer hafte nicht auf Schäden oder auf unsachgemäßen Umgang der APP
-version = "0.9b"
+version = "0.9c"
 print(version);
 
 from PyQt5 import QtWidgets
@@ -137,8 +137,12 @@ def remnove_hardened(device, winefodler, block_output_folder):
         s2 = device[i];
         s1 = winefodler + "/" + s2 + ":";
         s3 = s1 + ":";
-        system("rm -f \"" + s1 + "\"");
-        system("rm -f \"" + s3 + "\"");
+        if(os.path.islink(s1) == True):
+            os.unlink(s1);
+        if(os.path.islink(s3) == True):
+            os.unlink(s3);
+        #system("rm -f \"" + s1 + "\"");
+        #system("rm -f \"" + s3 + "\"");
         i = i +1;
 
 def add_hardened(device, winefodler, block_output_folder):
@@ -150,7 +154,8 @@ def add_hardened(device, winefodler, block_output_folder):
         if(device[i] != ","):
             s2 = device[i];
             s1 = winefodler + "/" + s2 + ":";
-            system("ln -sf " + "\"" + block_output_folder + "\" " + "\""  + s1 + "\"");
+            os.symlink(block_output_folder, s1, True);
+            #system("ln -sf " + "\"" + block_output_folder + "\" " + "\""  + s1 + "\"");
         i = i +1;
 
 def read_config_file(config):
@@ -172,7 +177,10 @@ def write_config_file(config, device_overide):
 
 def restore_device_z(winefodler):
     s2 = winefodler + "/" + "z" + ":";
-    os.system("ln -sf " + "/ " + "\"" + winefodler + "/z:" + "\"");
+    if(os.path.islink(s2) == True):
+        os.unlink(s2);
+    os.symlink("/", s2, True);
+    #os.system("ln -sf " + "/ " + "\"" + winefodler + "/z:" + "\"");
     return 0;
 
 class Wine_hardened_script_gui(QtWidgets.QWidget):
