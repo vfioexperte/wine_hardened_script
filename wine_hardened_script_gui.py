@@ -4,7 +4,7 @@
 #This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #Warnung der Programmierer hafte nicht auf Schäden oder auf unsachgemäßen Umgang der APP
-version = "0.9c"
+version = "0.9d"
 print(version);
 
 from PyQt5 import QtWidgets
@@ -129,59 +129,6 @@ def read_WINEPREFIX():
         WINEPREFIX = os.path.join(home, ".wine");
     return WINEPREFIX;
 
-def remnove_hardened(device, winefodler, block_output_folder):
-    i = 0;
-    while True:
-        if(i >= len(device)):
-            break;
-        s2 = device[i];
-        s1 = winefodler + "/" + s2 + ":";
-        s3 = s1 + ":";
-        if(os.path.islink(s1) == True):
-            os.unlink(s1);
-        if(os.path.islink(s3) == True):
-            os.unlink(s3);
-        #system("rm -f \"" + s1 + "\"");
-        #system("rm -f \"" + s3 + "\"");
-        i = i +1;
-
-def add_hardened(device, winefodler, block_output_folder):
-    remnove_hardened(device, winefodler, block_output_folder);
-    i = 0;
-    while True:
-        if(i >= len(device)):
-            break;
-        if(device[i] != ","):
-            s2 = device[i];
-            s1 = winefodler + "/" + s2 + ":";
-            os.symlink(block_output_folder, s1, True);
-            #system("ln -sf " + "\"" + block_output_folder + "\" " + "\""  + s1 + "\"");
-        i = i +1;
-
-def read_config_file(config):
-    if(os.path.isfile(config) == False):
-        return -1;
-    file1 = open(config, "r");
-    file1.seek(0, 2);
-    size = file1.tell();
-    file1.seek(0, 0);
-    b1 = file1.read(size);
-    file1.close();
-    return b1;
-
-def write_config_file(config, device_overide):
-    file1 = open(config, "w");
-    file1.write(device_overide)
-    file1.close();
-    return 0;
-
-def restore_device_z(winefodler):
-    s2 = winefodler + "/" + "z" + ":";
-    if(os.path.islink(s2) == True):
-        os.unlink(s2);
-    os.symlink("/", s2, True);
-    #os.system("ln -sf " + "/ " + "\"" + winefodler + "/z:" + "\"");
-    return 0;
 
 class Wine_hardened_script_gui(QtWidgets.QWidget):
     def __init__(self):
@@ -313,7 +260,7 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         device = block_device.split(",");
         if(self.mode == 1):
                 if(os.path.isfile(self.config) == True):
-                    self.device_overide = read_config_file(self.config);
+                    self.device_overide =self. read_config_file(self.config);
                     self.set_cheboxes(self.device_overide, self.block_device);
                     return 0;
         device_overide = "";
@@ -430,9 +377,9 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
                 msgBox.exec();
             exit();
         self.DEVICES = self.calculate1();
-        remnove_hardened(self.DEVICES, self.winefodler, self.block_output_folder);
-        add_hardened(self.DEVICES, self.winefodler, self.block_output_folder);
-        write_config_file(self.config, self.device_overide);
+        self.remnove_hardened(self.DEVICES, self.winefodler, self.block_output_folder);
+        self.add_hardened(self.DEVICES, self.winefodler, self.block_output_folder);
+        self.write_config_file(self.config, self.device_overide);
         if(self.steammode == 1):
             s1 = self.qlabel_z_dir.toPlainText();
             s2 = self.winefodler + "/" + "z" + ":";
@@ -459,7 +406,7 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
                 msgBox.exec();
             exit();
         self.DEVICES = self.calculate1();
-        remnove_hardened(self.DEVICES, self.winefodler, self.block_output_folder);
+        self.remnove_hardened(self.DEVICES, self.winefodler, self.block_output_folder);
         os.system("rm -f " + self.config);
         block_device = self.block_device.split(",");
         i = 0;
@@ -468,7 +415,7 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
                 break;
             if(block_device[i] == "z"):
                 if(self.qlabel_bool[i].isChecked() == True):
-                    restore_device_z(self.winefodler);
+                    self.restore_device_z(self.winefodler);
             i = i +1;
         self.change_WINEPREFIX(self.WINEPREFIX);
         self.change_gui(self.block_device, self.winefodler);
@@ -622,6 +569,62 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         else:
             os.remove(sblacklsit);
             return 0;
+        return 0;
+
+    def read_config_file(self, config):
+        if(os.path.isfile(config) == False):
+            return -1;
+        file1 = open(config, "r");
+        file1.seek(0, 2);
+        size = file1.tell();
+        file1.seek(0, 0);
+        b1 = file1.read(size);
+        file1.close();
+        return b1;
+
+    def write_config_file(self, config, device_overide):
+        file1 = open(config, "w");
+        file1.write(device_overide)
+        file1.close();
+        return 0;
+
+    def restore_device_z(self, winefodler):
+        s2 = winefodler + "/" + "z" + ":";
+        if(os.path.islink(s2) == True):
+            os.unlink(s2);
+        os.symlink("/", s2, True);
+        #os.system("ln -sf " + "/ " + "\"" + winefodler + "/z:" + "\"");
+        return 0;
+
+    def remnove_hardened(self, device, winefodler, block_output_folder):
+        i = 0;
+        while True:
+            if(i >= len(device)):
+                break;
+            s2 = device[i];
+            s1 = winefodler + "/" + s2 + ":";
+            s3 = s1 + ":";
+            if(os.path.islink(s1) == True):
+                os.unlink(s1);
+            if(os.path.islink(s3) == True):
+                os.unlink(s3);
+            #system("rm -f \"" + s1 + "\"");
+            #system("rm -f \"" + s3 + "\"");
+            i = i +1;
+
+    def add_hardened(self, device, winefodler, block_output_folder):
+        self.remnove_hardened(device, winefodler, block_output_folder);
+        i = 0;
+        while True:
+            if(i >= len(device)):
+                break;
+            if(device[i] != ","):
+                s2 = device[i];
+                s1 = winefodler + "/" + s2 + ":";
+                os.symlink(block_output_folder, s1, True);
+                #system("ln -sf " + "\"" + block_output_folder + "\" " + "\""  + s1 + "\"");
+            i = i +1;
+
 
 
 
