@@ -4,7 +4,7 @@
 #This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #Warnung der Programmierer hafte nicht auf Schäden oder auf unsachgemäßen Umgang der APP
-version = "0.2a"
+version = "0.3c"
 print(version);
 
 from PyQt5 import QtWidgets
@@ -13,6 +13,7 @@ import sys
 import os
 import os.path
 import platform
+import string
 
 script_path = "/usr/bin/wine-security-gui";
 
@@ -52,11 +53,11 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         self.setWindowTitle(self.title);
         self.WINEPREFIX = read_WINEPREFIX();
         self.block_device = "a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z";
-        self.DEVICES = self.block_device.split(",");
+        self.DEVICES = list(string.ascii_lowercase);
         self.block_output_folder = "/tmp";
         self.device_overide = "";
-        self.winefodler = self.WINEPREFIX + "/dosdevices"
-        self.config = self.winefodler + "/.hardened.config";
+        self.winefodler = os.path.join(self.WINEPREFIX ,"dosdevices");
+        self.config = os.path.join(self.winefodler ,".hardened.config");
         self.device_overide = "";
         self.mode = 0;
 
@@ -77,9 +78,15 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         self.button_remove_hardened.clicked.connect(self.remove_hardened);
         self.button_custom_hardened = QtWidgets.QPushButton("custom protection start");
         self.button_custom_hardened.clicked.connect(self.custom);
+        self.button_add_lock = QtWidgets.QPushButton("add lock");
+        self.button_add_lock.clicked.connect(self.add_lock);
+        self.button_remove_lock = QtWidgets.QPushButton("remove lock");
+        self.button_remove_lock.clicked.connect(self.remove_lock);
         self.layouth30.addWidget(self.button_hardened);
         self.layouth30.addWidget(self.button_remove_hardened);
         self.layouth30.addWidget(self.button_custom_hardened);
+        self.layouth30.addWidget(self.button_add_lock);
+        self.layouth30.addWidget(self.button_remove_lock);
         self.layoutv1.addLayout(self.layouth30);
 
         self.list_all_Proton_games();
@@ -151,6 +158,20 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         self.combobox.setEnabled(True);
         os.system("rm -f /tmp/tmp_wine_hardend_script.tmp")
         return 0;
+    def add_lock(self):
+        index = self.combobox.currentIndex();
+        print(self.array_name[index]);
+        print(self.array_id[index]);
+        os.system("protontricks -c \"python '" + script_path + "' -add_to_balcklist\" " + self.array_id[index]);
+        return 0;
+    def remove_lock(self):
+        index = self.combobox.currentIndex();
+        print(self.array_name[index]);
+        print(self.array_id[index]);
+        os.system("protontricks -c \"python '" + script_path + "' -remove_to_balcklist\" " + self.array_id[index]);
+        return 0;
+
+
 
 app = QtWidgets.QApplication(sys.argv);
 mainwindow = Wine_hardened_script_gui();

@@ -4,7 +4,7 @@
 #This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #Warnung der Programmierer hafte nicht auf Schäden oder auf unsachgemäßen Umgang der APP
-version = "0.8i"
+version = "0.9e"
 print(version);
 
 from PyQt5 import QtWidgets
@@ -13,6 +13,7 @@ import sys
 import os
 import os.path
 import platform
+import string
 
 script_path = "/usr/bin/wine-security-gui";
 
@@ -20,6 +21,8 @@ steammode = 0;
 steamauto = 0;
 steamall = 0;
 noerror = 0;
+add_blacklist = 0;
+remvoe_blacklist = 0,
 appname = "wine-security-gui";
 debug_fodler = "";
 if(len(sys.argv) == 2 or len(sys.argv) == 3):
@@ -51,6 +54,10 @@ if(len(sys.argv) == 2 or len(sys.argv) == 3):
         steamall = 1;
         steamauto = 2;
         #steammode = 1;
+    elif(sys.argv[1] == "-add_to_balcklist"):
+        add_blacklist = 1;
+    elif(sys.argv[1] == "-remove_to_balcklist"):
+        remvoe_blacklist = 1;
     if(len(sys.argv) == 3):
         if(sys.argv[2] == "-noerror"):
             print("enable noerror mode");
@@ -79,6 +86,11 @@ if(len(sys.argv) == 2 or len(sys.argv) == 3):
         print("");
         print("-Steam_all_auto_remove_protect");
         print("remove protection all steam games");
+        print("");
+        print("-add_to_balcklist");
+        print("add WINEPREFIX to blacklist");
+        print("-remove_to_balcklist");
+        print("remvoe blacklist from WINEPREFIX");
         print("-debug");
         print("test debug folder");
         print("-debug /tmp");
@@ -106,62 +118,17 @@ def system(cmd):
 home = "";
 def read_WINEPREFIX():
     WINEPREFIX = "";
-    if(debug_fodler != ""):
+    if debug_fodler:
         WINEPREFIX = debug_fodler;
-        os.system("mkdir -p \"" + debug_fodler + "/dosdevices" + "\"");
+        os.makedirs(os.path.join(debug_folder, 'dosdevices'), exist_ok=True);
         return debug_fodler;
     try:
         WINEPREFIX = os.environ['WINEPREFIX'];
     except KeyError:
         home = os.environ['HOME'];
-        WINEPREFIX = home + "/.wine";
+        WINEPREFIX = os.path.join(home, ".wine");
     return WINEPREFIX;
 
-def remnove_hardened(device, winefodler, block_output_folder):
-    i = 0;
-    while True:
-        if(i >= len(device)):
-            break;
-        s2 = device[i];
-        s1 = winefodler + "/" + s2 + ":";
-        s3 = s1 + ":";
-        system("rm -f \"" + s1 + "\"");
-        system("rm -f \"" + s3 + "\"");
-        i = i +1;
-
-def add_hardened(device, winefodler, block_output_folder):
-    remnove_hardened(device, winefodler, block_output_folder);
-    i = 0;
-    while True:
-        if(i >= len(device)):
-            break;
-        if(device[i] != ","):
-            s2 = device[i];
-            s1 = winefodler + "/" + s2 + ":";
-            system("ln -sf " + "\"" + block_output_folder + "\" " + "\""  + s1 + "\"");
-        i = i +1;
-
-def read_config_file(config):
-    if(os.path.isfile(config) == False):
-        return -1;
-    file1 = open(config, "r");
-    file1.seek(0, 2);
-    size = file1.tell();
-    file1.seek(0, 0);
-    b1 = file1.read(size);
-    file1.close();
-    return b1;
-
-def write_config_file(config, device_overide):
-    file1 = open(config, "w");
-    file1.write(device_overide)
-    file1.close();
-    return 0;
-
-def restore_device_z(winefodler):
-    s2 = winefodler + "/" + "z" + ":";
-    os.system("ln -sf " + "/ " + "\"" + winefodler + "/z:" + "\"");
-    return 0;
 
 class Wine_hardened_script_gui(QtWidgets.QWidget):
     def __init__(self):
@@ -171,11 +138,11 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         self.setWindowTitle(self.title);
         self.WINEPREFIX = read_WINEPREFIX();
         self.block_device = "a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z";
-        self.DEVICES = self.block_device.split(",");
-        self.block_output_folder = "/tmp/wine_security";
+        self.DEVICES = list(string.ascii_lowercase);
+        self.block_output_folder = os.path.join("/tmp",  "wine_security");
         self.device_overide = "";
-        self.winefodler = self.WINEPREFIX + "/dosdevices"
-        self.config = self.winefodler + "/.hardened.config";
+        self.winefodler = os.path.join(self.WINEPREFIX ,"/dosdevices");
+        self.config = os.path.join(self.winefodler , "/.hardened.config");
         self.device_overide = "";
         self.mode = 0;
 
@@ -274,8 +241,8 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
                 self.setWindowTitle(self.title);
                 self.steammode = 1;
         self.WINEPREFIX = wineprefix;
-        self.winefodler = self.WINEPREFIX + "/dosdevices"
-        self.config = self.winefodler + "/.hardened.config";
+        self.winefodler = os.path.join(self.WINEPREFIX ,"dosdevices");
+        self.config = os.path.join(self.winefodler ,".hardened.config");
         if(os.path.isfile(self.config) == True):
             self.mode = 1;
             self.button_hardened.setDisabled(True);
@@ -293,7 +260,7 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         device = block_device.split(",");
         if(self.mode == 1):
                 if(os.path.isfile(self.config) == True):
-                    self.device_overide = read_config_file(self.config);
+                    self.device_overide =self. read_config_file(self.config);
                     self.set_cheboxes(self.device_overide, self.block_device);
                     return 0;
         device_overide = "";
@@ -393,6 +360,14 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         return device;
 
     def hardened_start(self):
+        if(self.is_blacklsited() == True):
+            if(noerror == 0):
+                print("ERROR folder is blacklisted");
+                msgBox = QtWidgets.QMessageBox();
+                msgBox.setIcon(QtWidgets.QMessageBox.Warning);
+                msgBox.setText("ERROR folder is blacklisted");
+                msgBox.exec();
+            exit();
         if(os.path.isfile(self.config) == True):
             if(noerror == 0):
                 print("ERROR folder is ready protect");
@@ -402,9 +377,9 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
                 msgBox.exec();
             exit();
         self.DEVICES = self.calculate1();
-        remnove_hardened(self.DEVICES, self.winefodler, self.block_output_folder);
-        add_hardened(self.DEVICES, self.winefodler, self.block_output_folder);
-        write_config_file(self.config, self.device_overide);
+        self.remnove_hardened(self.DEVICES, self.winefodler, self.block_output_folder);
+        self.add_hardened(self.DEVICES, self.winefodler, self.block_output_folder);
+        self.write_config_file(self.config, self.device_overide);
         if(self.steammode == 1):
             s1 = self.qlabel_z_dir.toPlainText();
             s2 = self.winefodler + "/" + "z" + ":";
@@ -414,6 +389,14 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         self.change_gui(self.block_device, self.winefodler);
         return 0;
     def remove_hardened(self):
+        if(self.is_blacklsited() == True):
+            if(noerror == 0):
+                print("ERROR folder is blacklisted");
+                msgBox = QtWidgets.QMessageBox();
+                msgBox.setIcon(QtWidgets.QMessageBox.Warning);
+                msgBox.setText("ERROR folder is blacklisted");
+                msgBox.exec();
+            exit();
         if(os.path.isfile(self.config) == False):
             if(noerror == 0):
                 print("ERROR is not protect please run protection first");
@@ -423,7 +406,7 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
                 msgBox.exec();
             exit();
         self.DEVICES = self.calculate1();
-        remnove_hardened(self.DEVICES, self.winefodler, self.block_output_folder);
+        self.remnove_hardened(self.DEVICES, self.winefodler, self.block_output_folder);
         os.system("rm -f " + self.config);
         block_device = self.block_device.split(",");
         i = 0;
@@ -432,7 +415,7 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
                 break;
             if(block_device[i] == "z"):
                 if(self.qlabel_bool[i].isChecked() == True):
-                    restore_device_z(self.winefodler);
+                    self.restore_device_z(self.winefodler);
             i = i +1;
         self.change_WINEPREFIX(self.WINEPREFIX);
         self.change_gui(self.block_device, self.winefodler);
@@ -551,6 +534,101 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
 
         os.system("rm -f /tmp/tmp_wine_hardend_script.tmp")
         return 0;
+    def is_blacklsited(self):
+        sblacklsit = self.winefodler + "/" +".blacklist";
+        if(os.path.isfile(sblacklsit) == False):
+            return False;
+        else:
+            return True;
+        return -1;
+    def set_blacklist(self):
+        sblacklsit = self.winefodler + "/" +".blacklist";
+        if(self.is_blacklsited() == False):
+            file1 = open(sblacklsit, "w");
+            file1.write(" ");
+            file1.close();
+            return 0;
+        else:
+            if(noerror == 0):
+                msgBox = QtWidgets.QMessageBox();
+                msgBox.setIcon(QtWidgets.QMessageBox.Warning);
+                msgBox.setText("ERROR is blacklisted");
+                msgBox.exec();
+            print("ERROR is blacklisted");
+            exit();
+    def remvoe_blacklist(self):
+        sblacklsit = self.winefodler + "/" +".blacklist";
+        if(os.path.isfile(sblacklsit) == False):
+            if(noerror == 0):
+                msgBox = QtWidgets.QMessageBox();
+                msgBox.setIcon(QtWidgets.QMessageBox.Warning);
+                msgBox.setText("ERROR is not blacklisted");
+                msgBox.exec();
+            print("ERROR is not blacklisted");
+            exit();
+        else:
+            os.remove(sblacklsit);
+            return 0;
+        return 0;
+
+    def read_config_file(self, config):
+        if(os.path.isfile(config) == False):
+            return -1;
+        file1 = open(config, "r");
+        file1.seek(0, 2);
+        size = file1.tell();
+        file1.seek(0, 0);
+        b1 = file1.read(size);
+        file1.close();
+        return b1;
+
+    def write_config_file(self, config, device_overide):
+        file1 = open(config, "w");
+        file1.write(device_overide)
+        file1.close();
+        return 0;
+
+    def restore_device_z(self, winefodler):
+        s2 = winefodler + "/" + "z" + ":";
+        if(os.path.islink(s2) == True):
+            os.unlink(s2);
+        os.symlink("/", s2, True);
+        #os.system("ln -sf " + "/ " + "\"" + winefodler + "/z:" + "\"");
+        return 0;
+
+    def remnove_hardened(self, device, winefodler, block_output_folder):
+        i = 0;
+        while True:
+            if(i >= len(device)):
+                break;
+            s2 = device[i];
+            s1 = winefodler + "/" + s2 + ":";
+            s3 = s1 + ":";
+            if(os.path.islink(s1) == True):
+                os.unlink(s1);
+            if(os.path.islink(s3) == True):
+                os.unlink(s3);
+            #system("rm -f \"" + s1 + "\"");
+            #system("rm -f \"" + s3 + "\"");
+            i = i +1;
+
+    def add_hardened(self, device, winefodler, block_output_folder):
+        self.remnove_hardened(device, winefodler, block_output_folder);
+        i = 0;
+        while True:
+            if(i >= len(device)):
+                break;
+            if(device[i] != ","):
+                s2 = device[i];
+                s1 = winefodler + "/" + s2 + ":";
+                os.symlink(block_output_folder, s1, True);
+                #system("ln -sf " + "\"" + block_output_folder + "\" " + "\""  + s1 + "\"");
+            i = i +1;
+
+
+
+
+
 
 
 
@@ -567,6 +645,12 @@ elif(steamauto == 2):
     mainwindow.remove_hardened();
     #mainwindow.show();
     #app.exec_();
+    mainwindow.close();
+elif(add_blacklist == 1):
+    mainwindow.set_blacklist();
+    mainwindow.close();
+elif(remvoe_blacklist == 1):
+    mainwindow.remvoe_blacklist();
     mainwindow.close();
 else:
     mainwindow.show();
