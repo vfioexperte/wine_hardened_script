@@ -79,5 +79,5 @@ Protecion removeing:
 *This is a beta version.
 
 
-*Use at your risk.
+*Use at your own risk.
 
