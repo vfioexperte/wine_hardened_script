@@ -4,7 +4,7 @@
 #This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #Warnung der Programmierer hafte nicht auf Schäden oder auf unsachgemäßen Umgang der APP
-version = "0.3b"
+version = "0.3c"
 print(version);
 
 from PyQt5 import QtWidgets
@@ -77,12 +77,11 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         self.button_remove_hardened = QtWidgets.QPushButton("remove protection start");
         self.button_remove_hardened.clicked.connect(self.remove_hardened);
         self.button_custom_hardened = QtWidgets.QPushButton("custom protection start");
-        self.button_remove_hardened.clicked.connect(self.remove_hardened);
+        self.button_custom_hardened.clicked.connect(self.custom);
         self.button_add_lock = QtWidgets.QPushButton("add lock");
         self.button_add_lock.clicked.connect(self.add_lock);
         self.button_remove_lock = QtWidgets.QPushButton("remove lock");
-        self.button_remove_lock.clicked.connect(self.add_lock);
-        self.button_custom_hardened.clicked.connect(self.custom);
+        self.button_remove_lock.clicked.connect(self.remove_lock);
         self.layouth30.addWidget(self.button_hardened);
         self.layouth30.addWidget(self.button_remove_hardened);
         self.layouth30.addWidget(self.button_custom_hardened);

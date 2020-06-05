@@ -4,7 +4,7 @@
 #This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #Warnung der Programmierer hafte nicht auf Schäden oder auf unsachgemäßen Umgang der APP
-version = "0.9d"
+version = "1.1a"
 print(version);
 
 from PyQt5 import QtWidgets
@@ -124,6 +124,7 @@ def read_WINEPREFIX():
         return debug_fodler;
     try:
         WINEPREFIX = os.environ['WINEPREFIX'];
+        home = os.environ['HOME'];
     except KeyError:
         home = os.environ['HOME'];
         WINEPREFIX = os.path.join(home, ".wine");
@@ -163,6 +164,7 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         self.qlabel_tenner = [];
         self.qlabel_path = [];
         self.qlabel_bool = [];
+        self.qlabel_realpath = [];
         self.layouth = [];
         i = 0;
         block_device = self.block_device.split(",");
@@ -173,6 +175,7 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
             self.qlabel_tenner.append(QtWidgets.QLabel("->"));
             self.qlabel_path.append(QtWidgets.QLabel(""));
             self.qlabel_bool.append(QtWidgets.QCheckBox(""));
+            self.qlabel_realpath.append(QtWidgets.QLabel(""));
             self.layouth.append(QtWidgets.QHBoxLayout());
             self.layouth[i].addWidget(self.qlabel[i]);
             self.layouth[i].addWidget(self.qlabel_tenner[i]);
@@ -182,9 +185,13 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
                 self.qlabel_bool[i].setChecked(False);
                 self.qlabel_bool[i].setDisabled(True);
                 self.qlabel_bool[i].setText("c: disbale");
-            if(block_device[i] == "z"):
+                self.layouth[i].addWidget(self.qlabel_realpath[i]);
+            elif(block_device[i] == "z"):
                 self.qlabel_z_dir = QtWidgets.QTextEdit("");
                 self.layouth[i].addWidget(self.qlabel_z_dir);
+                self.layouth[i].addWidget(self.qlabel_realpath[i]);
+            else:
+                 self.layouth[i].addWidget(self.qlabel_realpath[i]);
             self.layoutv1.addLayout(self.layouth[i]);
             i = i +1;
 
@@ -197,8 +204,18 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
         self.button_hardened.clicked.connect(self.hardened_start);
         self.button_remove_hardened = QtWidgets.QPushButton("remove protection start");
         self.button_remove_hardened.clicked.connect(self.remove_hardened);
+
+        self.button_remove_links = QtWidgets.QPushButton("remove wine links");
+        self.button_remove_links.clicked.connect(self.remove_wine_links);
+        self.button_reset_links = QtWidgets.QPushButton("rest wine links");
+        self.button_reset_links.clicked.connect(self.reset_links);
+
         self.layouth30.addWidget(self.button_hardened);
         self.layouth30.addWidget(self.button_remove_hardened);
+        self.layouth30.addWidget(self.button_remove_links);
+        self.layouth30.addWidget(self.button_reset_links);
+
+
         self.layoutv1.addLayout(self.layouth30);
 
         self.textedit_wineprefix.setDisabled(True);
@@ -251,6 +268,21 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
             self.mode = 0;
             self.button_hardened.setDisabled(False);
             self.button_remove_hardened.setDisabled(True);
+
+
+        self.button_remove_links
+        user = os.environ['USER'];
+        if(os.path.islink(os.path.join(self.WINEPREFIX ,"drive_c", "users", user, "Desktop")) == True):
+            self.button_remove_links.setDisabled(False);
+            self.button_reset_links.setDisabled(True);
+        else:
+            if(os.path.isdir(os.path.join(self.WINEPREFIX ,"drive_c", "users", user, "Desktop")) == True):
+                self.button_remove_links.setDisabled(True);
+                self.button_reset_links.setDisabled(False);
+            else:
+                self.button_remove_links.setDisabled(True);
+                self.button_reset_links.setDisabled(True);
+
         self.change_gui(self.block_device, self.winefodler);
         return 0;
 
@@ -300,15 +332,28 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
                     self.qlabel_bool[i].setDisabled(False);
                     self.qlabel_bool[i].setText(stext + block_device[i]);
                     self.qlabel_bool[i].setChecked(False);
+                    if(os.path.islink(self.textedit_wineprefix.toPlainText()+ "/dosdevices/" +  block_device[i] + "::") == True):
+                        self.qlabel_realpath[i].setText(os.path.realpath(self.textedit_wineprefix.toPlainText()+ "/dosdevices/" +  block_device[i] + "::"));
+                    elif(os.path.islink(self.textedit_wineprefix.toPlainText()+ "/dosdevices/" +  block_device[i] + ":") == True):
+                        self.qlabel_realpath[i].setText(os.path.realpath(self.textedit_wineprefix.toPlainText()+ "/dosdevices/" +  block_device[i] + ":"));
+                    else:
+                        self.qlabel_realpath[i].setText("");
                 else:
                     self.qlabel_bool[i].setDisabled(True);
                     self.qlabel_bool[i].setText(stext + block_device[i]);
                     self.qlabel_bool[i].setChecked(True);
+                    if(os.path.islink(self.textedit_wineprefix.toPlainText()+ "/dosdevices/" +  block_device[i] + "::") == True):
+                        self.qlabel_realpath[i].setText(os.path.realpath(self.textedit_wineprefix.toPlainText()+ "/dosdevices/" +  block_device[i] + "::"));
+                    elif(os.path.islink(self.textedit_wineprefix.toPlainText()+ "/dosdevices/" +  block_device[i] + ":") == True):
+                        self.qlabel_realpath[i].setText(os.path.realpath(self.textedit_wineprefix.toPlainText()+ "/dosdevices/" +  block_device[i] + ":"));
+                    else:
+                        self.qlabel_realpath[i].setText("");
             elif(block_device[i] == "z"):
                 if(device_overide[i] == "0" and self.mode == 0):
                     self.qlabel_bool[i].setDisabled(False);
                     self.qlabel_bool[i].setText(stext + block_device[i]);
                     self.qlabel_bool[i].setChecked(False);
+                    self.qlabel_realpath[i].setText(os.path.realpath(self.textedit_wineprefix.toPlainText()+ "/dosdevices/" +  block_device[i] + ":"));
                     if(self.steammode == 1):
                         s1  = self.textedit_wineprefix.toPlainText();
                         s1 = os.path.realpath(s1+"../../../../");
@@ -327,12 +372,14 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
                     self.qlabel_z_dir.setText("");
                     self.qlabel_z_dir.setDisabled(True);
                     self.qlabel_z_dir.setHidden(True);
+                    self.qlabel_realpath[i].setText(os.path.realpath(self.textedit_wineprefix.toPlainText()+ "/dosdevices/" +  block_device[i] + ":"));
                     if(self.steamauto == 2):
                         self.qlabel_bool[i].setChecked(True);
             elif(block_device[i] == "c"):
                 self.qlabel_bool[i].setDisabled(True);
                 self.qlabel_bool[i].setText(stext + "c");
                 self.qlabel_bool[i].setChecked(False);
+                self.qlabel_realpath[i].setText(os.path.realpath(self.textedit_wineprefix.toPlainText()+ "/dosdevices/" +  block_device[i] + ":"));
             i = i +1;
         app.processEvents();
         return 0;
@@ -624,6 +671,144 @@ class Wine_hardened_script_gui(QtWidgets.QWidget):
                 os.symlink(block_output_folder, s1, True);
                 #system("ln -sf " + "\"" + block_output_folder + "\" " + "\""  + s1 + "\"");
             i = i +1;
+    def remove_wine_links(self):
+        print(self.WINEPREFIX);
+        user = os.environ['USER'];
+        home = os.environ['HOME'];
+        wine_drive_c_user = os.path.join(self.WINEPREFIX, "drive_c", "users", user);
+        if(os.path.isdir(wine_drive_c_user) == True):
+            destop = os.path.join(home, "Desktop");
+            destop_link = os.path.join(wine_drive_c_user, "Desktop");
+            if(os.path.islink(destop_link) == True):
+                os.unlink(destop_link);
+            if(os.path.isdir(destop_link) == False):
+                os.makedirs(destop_link);
+
+            downlaods = os.path.join(home, "Downloads");
+            downlaods_link = os.path.join(wine_drive_c_user, "Downloads");
+
+            if(os.path.islink(downlaods_link) == True):
+                os.unlink(downlaods_link);
+            if(os.path.isdir(downlaods_link) == False):
+                os.makedirs(downlaods_link);
+
+            bilder = os.path.join(home, "Bilder");
+            if(os.path.isdir(bilder) ==False):
+                bilder = os.path.join(home, "Pictures");
+            bilder_link = os.path.join(wine_drive_c_user, "Eigene Bilder");
+            if(os.path.islink(bilder_link) == True):
+                os.unlink(bilder_link);
+            if(os.path.isdir(bilder_link) == False):
+                os.makedirs(bilder_link);
+
+            msuik = os.path.join(home, "Musik");
+            if(os.path.isdir(msuik) == False):
+                msuik = os.path.join(home, "Music");
+            msuik_link = os.path.join(wine_drive_c_user, "Eigene Musik");
+            if(os.path.islink(msuik_link) == True):
+                os.unlink(msuik_link);
+            if(os.path.isdir(msuik_link) == False):
+                os.makedirs(msuik_link);
+
+            videos = os.path.join(home, "Videos");
+            videos_link = os.path.join(wine_drive_c_user, "Eigene Videos");
+            if(os.path.islink(videos_link) == True):
+                os.unlink(videos_link);
+            if(os.path.isdir(videos_link) == False):
+                os.makedirs(videos_link);
+
+            duko = os.path.join(home, "Dokumente");
+            if(os.path.isdir(duko) == False):
+                duko = os.path.join(home, "Documents");
+            duko_link = os.path.join(wine_drive_c_user, "Meine Dokumente");
+            if(os.path.islink(duko_link) == True):
+                os.unlink(duko_link);
+            if(os.path.isdir(duko_link) == False):
+                os.makedirs(duko_link);
+
+            temp = os.path.join(home, "Vorlagen");
+            if(os.path.isdir(temp) == False):
+                temp = os.path.join(home, "Templates");
+            temp_links = os.path.join(wine_drive_c_user, "Templates");
+            if(os.path.islink(temp_links) == True):
+                os.unlink(temp_links);
+            if(os.path.isdir(temp_links) == False):
+                os.makedirs(temp_links);
+
+            anser = QtWidgets.QMessageBox.question(self, '', "Copy user data to wineprefix?", QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No, QtWidgets.QMessageBox.No);
+            if(anser == QtWidgets.QMessageBox.Yes):
+                print("copy..");
+                print(destop);
+                print(destop_link);
+                anser2 = QtWidgets.QMessageBox.question(self, '', "Copy all file \"" +  destop + "\" data to wineprefix?", QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No, QtWidgets.QMessageBox.No);
+                if(anser2 == QtWidgets.QMessageBox.Yes):
+                    os.system("rsync -a \"" + destop + "/\" " + "\"" +  destop_link + "/\"");
+                anser2 = QtWidgets.QMessageBox.question(self, '', "Copy all file \"" +  downlaods + "\" data to wineprefix?", QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No, QtWidgets.QMessageBox.No);
+                if(anser2 == QtWidgets.QMessageBox.Yes):
+                    os.system("rsync -a \"" + downlaods + "/\" " + "\"" +  downlaods_link + "/\"");
+                anser2 = QtWidgets.QMessageBox.question(self, '', "Copy all file \"" +  bilder + "\" data to wineprefix?", QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No, QtWidgets.QMessageBox.No);
+                if(anser2 == QtWidgets.QMessageBox.Yes):
+                    os.system("rsync -a \"" + bilder + "/\" " + "\"" +  bilder_link + "/\"");
+                anser2 = QtWidgets.QMessageBox.question(self, '', "Copy all file \"" +  msuik + "\" data to wineprefix?", QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No, QtWidgets.QMessageBox.No);
+                if(anser2 == QtWidgets.QMessageBox.Yes):
+                    os.system("rsync -a \"" + msuik + "/\" " + "\"" +  msuik_link + "/\"");
+                anser2 = QtWidgets.QMessageBox.question(self, '', "Copy all file \"" +  videos + "\" data to wineprefix?", QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No, QtWidgets.QMessageBox.No);
+                if(anser2 == QtWidgets.QMessageBox.Yes):
+                    os.system("rsync -a \"" + videos + "/\" " + "\"" +  videos_link + "/\"");
+                anser2 = QtWidgets.QMessageBox.question(self, '', "Copy all file \"" +  duko + "\" data to wineprefix?", QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No, QtWidgets.QMessageBox.No);
+                if(anser2 == QtWidgets.QMessageBox.Yes):
+                    os.system("rsync -a \"" + duko + "/\" " + "\"" +  duko_link + "/\"");
+                anser2 = QtWidgets.QMessageBox.question(self, '', "Copy all file \"" +  temp + "\" data to wineprefix?", QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No, QtWidgets.QMessageBox.No);
+                if(anser2 == QtWidgets.QMessageBox.Yes):
+                    os.system("rsync -a \"" + temp + "/\" " + "\"" +  temp_links + "/\"");
+                print("copy");
+        self.change_WINEPREFIX(self.WINEPREFIX);
+
+    def reset_links(self):
+        print(self.WINEPREFIX);
+        user = os.environ['USER'];
+        home = os.environ['HOME'];
+        wine_drive_c_user = os.path.join(self.WINEPREFIX, "drive_c", "users", user);
+        anser = QtWidgets.QMessageBox.question(self, '', "remove user data and rest links?", QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No, QtWidgets.QMessageBox.No)
+        if(anser == QtWidgets.QMessageBox.Yes):
+            if(os.path.isdir(wine_drive_c_user) == True):
+                destop = os.path.join(home, "Desktop");
+                destop_link = os.path.join(wine_drive_c_user, "Desktop");
+                os.system("rm -rf \""+  destop_link + "\"");
+                os.symlink(destop, destop_link);
+
+                downlaods = os.path.join(home, "Downloads");
+                downlaods_link = os.path.join(wine_drive_c_user, "Downloads");
+                os.system("rm -rf \""+  downlaods_link + "\"");
+                os.symlink(downlaods, downlaods_link);
+
+                bilder = os.path.join(home, "Bilder");
+                bilder_link = os.path.join(wine_drive_c_user, "Eigene Bilder");
+                os.system("rm -rf \""+  bilder_link + "\"");
+                os.symlink(bilder, bilder_link);
+
+                msuik = os.path.join(home, "Musik");
+                msuik_link = os.path.join(wine_drive_c_user, "Eigene Musik");
+                os.system("rm -rf \""+  msuik_link + "\"");
+                os.symlink(msuik, msuik_link);
+
+                videos = os.path.join(home, "Videos");
+                videos_link = os.path.join(wine_drive_c_user, "Eigene Videos");
+                os.system("rm -rf \""+  videos_link + "\"");
+                os.symlink(videos, videos_link);
+
+                duko = os.path.join(home, "Dokumente");
+                duko_link = os.path.join(wine_drive_c_user, "Meine Dokumente");
+                os.system("rm -rf \""+  duko_link + "\"");
+                os.symlink(duko, duko_link);
+
+                temp = os.path.join(home, "Vorlagen");
+                temp_links = os.path.join(wine_drive_c_user, "Templates");
+                os.system("rm -rf \""+  temp_links + "\"");
+                os.symlink(temp, temp_links);
+        self.change_WINEPREFIX(self.WINEPREFIX);
+
+
 
 
 

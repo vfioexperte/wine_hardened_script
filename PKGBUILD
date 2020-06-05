@@ -1,30 +1,29 @@
 # Maintainer: vfio_experte
 pkgname="wine-security"
-pkgver=0.8b
+pkgver=1.1a
 pkgrel=1
-pkgdesc="wine-security-script_gui"
+pkgdesc="wine-security"
 arch=( 'x86_64')
 url=""
-depend=('python' 'protontricks' 'python-pyqt5')
-license=('GPL3' )
+license=('GPL2' )
 provides=('vfio_experte')
-source=('wine-security::git+https://github.com/vfioexperte/wine_hardened_script#branch=beta')
-md5sums=('SKIP')
-
+source=('wine_hardened_script_gui.py' 'steam_security.py' 'wine_no_internet.py' 'version' 'install.py')
+md5sums=('SKIP' 'SKIP' 'SKIP' 'SKIP' 'SKIP')
+depends=('python' 'python-pyqt5' 'wine' 'rsync' )
 pkgver() {
-  cd "$srcdir/wine-security"
-  python3.8 wine_hardened_script_gui.py -version
+  cd "$srcdir/"
+  cat < version
 }
 #prepare() {
   
 #}
 
 build() { 
-   cd "$srcdir/wine-security"
+   cd "$srcdir/"
 }
 
 package() {
-   cd "$srcdir/wine-security"
+   cd "$srcdir/"
    python3.8 install.py "$pkgdir/"
 }
 
