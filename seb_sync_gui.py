@@ -5,11 +5,11 @@
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #Warnung der Programmierer hafte nicht auf Schäden oder auf unsachgemäßen Umgang der APP
 #19.12.2020 #start wirting app
-#20.20.2020 alst edit
+#22.20.2020 last edit
 from PyQt5 import QtWidgets
 from PyQt5 import QtGui
 import math
-version = "v0.2b"
+version = "v0.5c"
 print(version)
 appname = "Sebs Sync App";
 
@@ -38,6 +38,7 @@ import binascii
 import os
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
+import time
 
 app = QtWidgets.QApplication(sys.argv);
 
@@ -224,7 +225,10 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
         self.progressbar.setValue(progrssbar_value);
         app.processEvents();
         return 0;
+
     def start_sync(self):
+        self.button_start_Server.setDisabled(True);
+        self.button_start_Client.setDisabled(True);
         aes_key = self.question_aes_key();
         iv_ = self.question_iv_key();
         b1 = 0;
@@ -264,6 +268,8 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
         if(testmode != 1):
             self.sav();
         self.update_progress_info("sync ende",0, 400);
+        self.button_start_Server.setDisabled(False);
+        self.button_start_Client.setDisabled(False);
         return 0;
 
     def sav(self):
@@ -354,19 +360,8 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
             s2 = fobj2.read(size);
             fobj2.close();
             byte2=binascii.unhexlify(s2);
-            sbin = os.path.join(folder, "1.bin.aes");
-            sbin_decrypt = os.path.join(folder, "1.bin");
-            fobj = open(sbin, "wb")
-            fobj.write(byte2);
-            fobj.close();
-            self.file_decrypt(aeskey, iv, sbin, sbin_decrypt);
-            fobj3 = open(sbin_decrypt, "rb")
-            fobj3.seek(0, 2)
-            size = fobj3.tell()
-            fobj3.seek(0, 0)
-            s2 = fobj3.read(size);
-            fobj3.close();
-            s2 = s2.decode();
+            byte_1bin = self.bytes_decryption(aeskey, iv, byte2);
+            s2 = byte_1bin.decode();
             s3 = s2.split("^");
             ip = s3[0];
             port = int(s3[1]);
@@ -382,18 +377,24 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
             hash_aes_key.update(key_);
             hash_aes_key.update(iv_);
             hash_aes_key = hash_aes_key.hexdigest();
-            os.remove(sbin);
-            os.remove(sbin_decrypt);
+            #os.remove(sbin);
+            #os.remove(sbin_decrypt);
             if(hash_aes_key != hash):
                 msgBox2 = QtWidgets.QMessageBox();
                 msgBox2.setText("ERROR Connection File not corupt or passwor wrong!");
                 msgBox2.exec();
                 print("ERROR Connection File not corupt or passwor wrong!");
-                os.remove(sbin);
-                os.remove(sbin_decrypt);
+                #os.remove(sbin);
+                #os.remove(sbin_decrypt);
                 return [];
             return [ip, port, key_, iv_, hash];
         except UnicodeDecodeError:
+            msgBox2 = QtWidgets.QMessageBox();
+            msgBox2.setText("ERROR Connection File not corupt or passwor wrong!");
+            msgBox2.exec();
+            print("ERROR Connection File not corupt or passwor wrong!");
+            return [];
+        except IndexError:
             msgBox2 = QtWidgets.QMessageBox();
             msgBox2.setText("ERROR Connection File not corupt or passwor wrong!");
             msgBox2.exec();
@@ -458,14 +459,13 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
     def start_listen_Server(self, port):
         while True:
             try:
-                self.update_progress_info("Server listen..", 0, 100);
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM);
                 s.bind(("", port));
                 print("Server gestartet");
                 return s;
             except OSError:
                 print("Die Adresse wird bereits verwendet");
-                sleep(15);
+                time.sleep(60);
         return -1;
 
     def read_connection_simple_mode(self, addr, komm):
@@ -491,11 +491,57 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
             i =i +1;
         return s1;
 
+    def send_encrypt(self, addr, s, aeskey, iv, messege):
+        bout = self.bytes_encryption(aeskey ,iv, messege.encode());
+        size = len(bout);
+        self.wirte_connection_simple_mode(addr, s, str(size));
+        s.send(bout);
+        return 0;
+
+    def recive_decrypt(self, addr, s, aeskey, iv):
+        size = self.read_connection_simple_mode(addr, s);
+        size = int(size);
+        i = 0;
+        b1 = b'';
+        while True:
+            if(i >= size):
+                break;
+            b1 = b1 + s.recv(1);
+            i = i +1;
+        b1 = self.bytes_decryption(aeskey ,iv, b1);
+        return b1.decode();
+
+    def send_stream_encrypt(self, addr, s, aeskey, iv, messege):
+        bout = self.bytes_encryption(aeskey ,iv, messege);
+        size = len(bout);
+        self.wirte_connection_simple_mode(addr, s, str(size));
+        s.send(bout);
+        return 0;
+
+    def recive_stream_decrypt(self, addr, s, aeskey, iv):
+        size = self.read_connection_simple_mode(addr, s);
+        size = int(size);
+        i = 0;
+        b1 = b'';
+        block = 32;
+        while True:
+            if(i >= size):
+                break;
+            if(i + block >= size):
+                sizetemp = size -i;
+            else:
+                sizetemp = block;
+            b2 = s.recv(sizetemp);
+            sizetemp = len(b2);
+            b1 = b1 + b2;
+            i = i +sizetemp;
+        b1 = self.bytes_decryption(aeskey ,iv, b1);
+        return b1;
+
     def Clinet_file_upload_clinet(self, addr, s, aeskey, iv, folder, id):
         #try:
             self.update_progress_info("upload file..",0, 100);
             block = 1024;
-            #self.wirte_connection_simple_mode(addr, s, "1");
             sdir = "";
             array = [0, sdir];
             array = self.listpath(folder, "", array, [], [], []);
@@ -506,20 +552,13 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
             sfileid = "";
             id = int(id);
             print(folder);
-            #sfile = os.path.join(folder, patharray[id]);
             sfile = "";
             if(Betribsystem == False):
                 sfile = folder + patharray[id];
             else:
                 sfile = folder + self.flips_schlasch(patharray[id]);
-            sfileaes = sfile + ".aes";
-            print("file encryption..");
-            self.update_progress_info("file encryption..",0, 100);
-            self.file_encrypt(aeskey, iv, sfile, sfileaes);
-            print("file encryption..ende");
-            self.update_progress_info("file encryption..ende",100, 100)
-            self.wirte_connection_simple_mode(addr, s, patharray[id] + ".aes");
-            fobj = open(sfileaes, "rb");
+            self.send_encrypt(addr, s,  aeskey, iv, patharray[id]);
+            fobj = open(sfile, "rb");
             hash = hashlib.sha256();
             fobj.seek(0, 2);
             size = fobj.tell();
@@ -540,37 +579,36 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
                     sizetemp = block;
                 s1 = fobj.read(sizetemp);
                 hash.update(s1);
-                s.send(s1)
+                self.send_stream_encrypt(addr, s, aeskey, iv, s1);
                 i = i + sizetemp;
-                if(i != 0 and i % 1500000 == 0):
+                if(i != 0 and i % 45 == 0):
                     s2 = float(i) * float(100) / float(size);
                     s1 = str(i) + "/" + str(size) + ":" + str(s2) + "%";
                     self.update_progress_info("file upload..", self.float_to_int(s2), 100);
-                    print("upload: ", s1);
+                    #print("upload: ", s1);
             fobj.close();
             print("upload: ", 100.0);
             self.update_progress_info("file upload..",100, 100);
-            self.update_progress_info("file decryption andere PC..",0, 100);
-            print("file decryption andere PC");
             shash = hash.hexdigest();
             hash_  = shash;
             sok = self.read_connection_simple_mode(addr, s);
-            self.update_progress_info("file decryption andere PC..",100, 100);
             if(sok == "OK"):
-                self.wirte_connection_simple_mode(addr, s, shash);
+                self.send_encrypt(addr, s, aeskey, iv, hash_);
                 b1 = self.read_connection_simple_mode(addr, s);
                 if(b1 == "0"):
                     print(shash);
                     print("Ubertragung FAIL");
                     s.close();
+                    os.remove(filename);
                     return -1;
                 else:
                     print("Ubertragung OK");
-            os.remove(sfileaes);
+            #os.remove(sfileaes);
         #except:
         #    s.close();
         #    return -1;
             s.close();
+            self.aufraumen(folder);
             return 0;
 
 
@@ -582,7 +620,8 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
             block = 1024;
             print("file encryption andere PC..");
             self.update_progress_info("file encryption andere PC..",0, 100);
-            filename = self.read_connection_simple_mode(addr, komm);
+            filename = self.recive_decrypt(addr, komm, aeskey, iv);
+            #filename = self.read_connection_simple_mode(addr, komm);
             print("file encryption andere PC..ende");
             self.update_progress_info("file encryption andere PC..ende",100, 100);
             size = self.read_connection_simple_mode(addr, komm);
@@ -592,11 +631,12 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
                 filename = folder + filename;
             else:
                 filename = folder + self.flips_schlasch(filename);
-            if(os.path.isfile(filename) == True):
-                komm.close();
-                return 0;
             dir = self.filepath_to_mkdirpath(filename);
-            os.system("mkdir -p " + "\"" + dir + "\"");
+            if(Betribsystem == False):
+                os.system("mkdir -p " + "\"" + dir + "\"");
+            else:
+                os.system("mkdir " + "\"" + dir + "\"");
+            print("filename: ", filename);
             fobj = open(filename, "wb");
             hash = hashlib.sha256();
             data = "";
@@ -610,46 +650,38 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
                     sizetemp = size - i;
                 else:
                     sizetemp = block;
-                data = komm.recv(sizetemp);
+                data = self.recive_stream_decrypt(addr, komm, aeskey, iv);
                 sizetemp = len(data);
                 hash.update(data);
                 fobj.write(data);
                 i = i +sizetemp;
-                if(i != 0 and i % 150000 == 0):
+                if(i != 0 and i % 45 == 0):
                     s2 = float(i) * float(100) / float(size);
                     s1 = str(i) + "/" + str(size) + ":" + str(s2) + "%";
-                    print("Downlaod: ", s1);
+                    #print("Downlaod: ", s1);
                     self.update_progress_info("file download..", self.float_to_int(s2), 100);
             hash_ = hash.hexdigest();
             fobj.close();
-            print("Downlaod: ", 100.0);
-            self.update_progress_info("file download..",100, 100);
-            finame_out = self.remove_punkt_aes(filename);
-            print("file decryption..");
-            self.update_progress_info("file decryption..",0, 100);
-            self.file_decrypt(aeskey, iv, filename, finame_out)
             self.wirte_connection_simple_mode(addr, komm, "OK");
-            self.update_progress_info("file decryption..ende",100, 100);
-            #komm.send("OK;".encode());
-            shash = self.read_connection_simple_mode(addr, komm);
-            os.remove(filename);
+
+            shash = self.recive_decrypt(addr, komm, aeskey, iv);
             if(shash == hash_):
                 print("Ubertragung OK");
                 self.wirte_connection_simple_mode(addr, komm, "1");
-                #komm.send("1;".encode());
             else:
                 print(shash);
                 print(hash_);
                 print("Ubertragung FAIL");
                 self.wirte_connection_simple_mode(addr, komm, "0");
-                #komm.send("0;".encode());
                 print(filename);
-                os.remove(finame_out);
+                os.remove(filename);
                 komm.close();
-                return 0;
+                self.aufraumen(folder);
+                return -1;
             ctime = ctime.split(",");
-            os.utime(finame_out,(float(ctime[0]), float(ctime[1])));
+            os.utime(filename,(float(ctime[0]), float(ctime[1])));
             komm.close();
+            self.aufraumen(folder);
             return 0;
         #except:
         #    komm.close();
@@ -666,7 +698,7 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
             if(i >= size2):
                 break;
             sfilepath = "";
-            sfilepath = self.read_connection_simple_mode(addr, komm);
+            sfilepath = self.recive_decrypt(addr, komm, aeskey, iv);
             file_timestampserver = self.read_connection_simple_mode(addr, komm);
             spath = folder + sfilepath;
             servetime = file_timestampserver.split(",");
@@ -763,7 +795,7 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
                 sdata = patharray[i];
             else:
                 sdata = patharray[i];
-            self.wirte_connection_simple_mode(addr, komm, sdata);
+            self.send_encrypt(addr, komm, aeskey, iv, sdata);
             check = self.read_connection_simple_mode(addr, komm);
             if(check == "0"):
                 up.append(str(i));
@@ -783,7 +815,7 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
             if( i>= size):
                 break;
             sfilepath = "";
-            sfilepath = self.read_connection_simple_mode(0, komm);
+            sfilepath = self.recive_decrypt(addr, komm, aeskey, iv);
             spath = "";
             if(Betribsystem == False):
                 spath = folder + sfilepath;
@@ -813,7 +845,7 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
             if(i >= size2):
                 break;
             sdata = patharray[i];
-            self.wirte_connection_simple_mode(addr, komm, sdata);
+            self.send_encrypt(addr, komm, aeskey, iv, sdata);
             s1 = "";
             if(Betribsystem == False):
                 s1 = folder + patharray[i];
@@ -862,46 +894,73 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
         array = [0, sdir];
         array = self.listpath(folder, "", array, [], [], []);
         sdir = array[1];
-        self.wirte_connection_simple_mode(addr, komm, sdir);
+        self.send_encrypt(addr, komm, aeskey, iv, sdir.encode());
+        #self.wirte_connection_simple_mode(addr, komm, sdir);
         komm.close();
         return 0;
 
 
     def start_Clinet_prozess(self, mode, id, folder, myip, key, iv, port):
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM);
-        s.connect((myip, port));
+        self.aufraumen(folder);
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM);
+            s.connect((myip, port));
+        except OSError:
+            print("ERROR no Server found!");
+            msgBox2 = QtWidgets.QMessageBox();
+            msgBox2.setText("ERROR no Server found!");
+            msgBox2.exec();
+            return [-1];
 
         if(mode == "1"):
             #up
-            self.wirte_connection_simple_mode(0, s, "1");
-            self.Clinet_file_upload_clinet(0, s, key, iv, folder, id);
+            self.send_encrypt(0, s, key, iv, "1");
+            while True:
+                if(self.Clinet_file_upload_clinet(0, s, key, iv, folder, id) == 0):
+                    break;
         elif(mode == "3"):
-            self.wirte_connection_simple_mode(0, s, "3");
+            self.send_encrypt(0, s, key, iv, "3");
             sdir = self.read_connection_simple_mode(0, s);
             print(sdir);
         elif(mode == "4"):
             #dwid
-            self.wirte_connection_simple_mode(0, s, "4");
+            self.send_encrypt(0, s, key, iv, "4");
             self.wirte_connection_simple_mode(0, s, id);
-            self.Server_file_upload_client(0, s, key, iv, folder);
+            while True:
+                if(self.Server_file_upload_client(0, s, key, iv, folder) == 0):
+                    break;
         elif(mode == "5"):
             #sync
-            self.wirte_connection_simple_mode(0, s, "5");
+            self.send_encrypt(0, s, key, iv, "5");
             array = self.clinet_sync(0, s, key, iv, folder);
             s.close();
             return array;
         elif(mode == "7"):
             #sync add
-            self.wirte_connection_simple_mode(0, s, "7");
+            self.send_encrypt(0, s, key, iv, "7");
             array = self.clinet_sync_add(0, s, key, iv, folder);
             s.close();
             return array;
         elif(mode == "8"):
             #server size of file server
-            self.wirte_connection_simple_mode(0, s, "8");
+            self.send_encrypt(0, s, key, iv, "8");
             self.wirte_connection_simple_mode(0, s, str(self.maxfilecount));
             s.close();
             return [];
+        elif(mode == "9"):
+            self.send_encrypt(0, s, key, iv, "9");
+            self.wirte_connection_simple_mode(0, s, version);
+            tmp = self.read_connection_simple_mode(0, s);
+            if(tmp == "0"):
+                print("ERROR version nicht comptible!");
+                s.close();
+                msgBox2 = QtWidgets.QMessageBox();
+                msgBox2.setText("ERROR version nicht comptible!");
+                msgBox2.exec();
+                return [-1];
+            s.close();
+            return [];
+
 
 
 
@@ -931,11 +990,15 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
         key = connection_file[2];
         iv =  connection_file[3];
         print(connection_file);
+        tmp = self.start_Clinet_prozess("9", "0", folder, myip, key, iv, port);
+        if(len(tmp) == 1):
+            if(tmp[0] == -1):
+                return -1;
         array = self.start_Clinet_prozess(mode, id, folder, myip, key, iv, port);
         if(len(array) != 0):
             dwid = array[0];
             up = array[1];
-            self.filecount = 1;
+            self.filecount = 0;
             self.maxfilecount = len(up) + len(dwid);
             self.start_Clinet_prozess("8", "0", folder, myip, key, iv, port);
             #server size of file server
@@ -948,7 +1011,7 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
                 self.start_Clinet_prozess("1",  str(tmp), folder, myip, key, iv, port);
                 self.filecount = self.filecount + 1;
             #sync add
-            self.filecount = 1;
+            self.filecount = 0;
             array = self.start_Clinet_prozess("7",  "0", folder, myip, key, iv, port);
             self.maxfilecount = len(array);
             self.start_Clinet_prozess("8", "0", folder, myip, key, iv, port);
@@ -960,10 +1023,14 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
             self.maxfilecount = 0;
             self.filecount = 0;
             self.start_Clinet_prozess("8", "0", folder, myip, key, iv, port);
+        self.aufraumen(folder);
         return 0;
 
 
     def start_Server(self):
+        self.button_start_Server.setDisabled(True);
+        self.button_start_Client.setDisabled(True);
+        self.b1 = 1;
         #folder = self.question_folder();
         aes_key = self.question_aes_key();
         iv_ = self.question_iv_key();
@@ -1007,16 +1074,18 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
         if(testmode != 1):
             self.sav();
         self.update_progress_info("sync ende", 0, 100);
+        self.button_start_Server.setDisabled(False);
+        self.button_start_Client.setDisabled(False);
         return 0;
 
 
     def start_Server_prozess(self, folder, aes_key, iv_):
+        self.aufraumen(folder);
         if(Betribsystem == True):
             #widnows
             folder = self.flips_schlasch(folder);
         #s = socket.socket(socket.AF_INET, socket.SOCK_STREAM);
         #s.bind(("", port));
-        self.aufraumen(folder);
         stxt = os.path.join(folder, "1.txt");
         if(os.path.isfile(stxt) == True):
             connection_file = self.read_Connetion_file(folder, aes_key, iv_);
@@ -1050,20 +1119,27 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
         iv =  connection_file[3];
         print(connection_file);
 
-        if(testmode == 1):
-            msgBox2 = QtWidgets.QMessageBox();
-            msgBox2.setText("Test Mode aktivirt!");
-            msgBox2.exec();
-            myip = "127.0.0.1";
-        else:
-            myip = requests.get('https://www.wikipedia.org').headers['X-Client-IP'];
-            if(self.question_dns_or_ip() == 1):
-                myip = input("DNS name: ");
+        if(self.b1 == 1):
+            if(testmode == 1):
+                self.b1 = 2;
+                msgBox2 = QtWidgets.QMessageBox();
+                msgBox2.setText("Test Mode aktivirt!");
+                msgBox2.exec();
+                myip = "127.0.0.1";
+                self.create_Connetion_file(aes_key, iv_, myip, port, folder, key, iv);
+            else:
+                self.b1 = 3;
+                myip = requests.get('https://www.wikipedia.org').headers['X-Client-IP'];
+                if(self.question_dns_or_ip() == 1):
+                    myip = input("DNS name: ");
+                self.create_Connetion_file(aes_key, iv_, myip, port, folder, key, iv);
 
-        self.create_Connetion_file(aes_key, iv_, myip, port, folder, key, iv);
+        if(self.b1 == 1):
+            self.create_Connetion_file(aes_key, iv_, myip, port, folder, key, iv);
         connection_file = self.read_Connetion_file(folder, aes_key, iv_);
         server = self.start_listen_Server(port);
         while True:
+            self.update_progress_info("Server listen..", 0, 100);
             server.listen(1);
             komm, addr = server.accept();
             #server_socket = server[0];
@@ -1071,7 +1147,8 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
             #server_addr = server[2];
             print(server);
             #print(server_connection);
-            mode = self.read_connection_simple_mode(0, komm);
+            #mode = self.read_connection_simple_mode(0, komm);
+            mode = self.recive_decrypt(0, komm, key, iv);
             if(mode == "1"):
                 #file upload Client
                 self.Server_file_upload_client(0, komm, key, iv, folder);
@@ -1083,18 +1160,58 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
                 self.Clinet_file_upload_clinet(0, komm, key, iv, folder, id);
                 self.filecount = self.filecount + 1;
             elif(mode == "5"):
+                self.update_progress_info("start sync.. ",0, 100);
                 self.server_sync(0, komm, key, iv, folder);
+                self.update_progress_info("start sync.. ende",100, 100);
             elif(mode == "7"):
+                self.update_progress_info("start sync add.. ",0, 100);
                 self.server_sync_add(0, komm, key, iv, folder);
+                self.update_progress_info("start sync add.. ende",0, 100);
             elif(mode == "8"):
                 #server size of file server
+                self.update_progress_info("start size of files.. ",0, 100);
                 tmp = self.read_connection_simple_mode(0, komm);
                 tmp = int(tmp);
                 komm.close();
+                self.update_progress_info("start size of files.. ",100, 100);
                 self.maxfilecount = tmp;
                 self.filecount = 1;
+            elif(mode == "9"):
+                self.update_progress_info("start version check.. ",0, 100);
+                tmp = self.read_connection_simple_mode(0, komm);
+                if(tmp == version):
+                    self.wirte_connection_simple_mode(0, komm, "1");
+                    self.update_progress_info("start version check.. ok",100, 100);
+                    print("start version check.. OK");
+                else:
+                    self.wirte_connection_simple_mode(0, komm, "0");
+                    self.update_progress_info("start version check.. ERROR",100, 100);
+                    print("start version check.. ERROR");
+                komm.close();
         self.aufraumen(folder);
         return 0;
+
+    def file_hash(self, fielpath):
+        block = 1024;
+        filein = open(fielpath, "rb");
+        filein.seek(0, 2);
+        size = "";
+        size = filein.tell();
+        filein.seek(0, 0);
+        hash = hashlib.sha256();
+        i = 0;
+        while True:
+            if(i >= size):
+                break;
+            if(i + block >= size):
+                size_temp = size -i;
+            else:
+                 size_temp = block;
+            sin = filein.read(size_temp);
+            hash.update(sin);
+            i = i + size_temp;
+        return hash.hexdigest();
+
 
 
     def file_decrypt(self, key, iv, fileinpath, fileoutpath):
@@ -1113,6 +1230,12 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
             filein.close();
             fileout.close();
             return 0;
+        key_ = decryptor.update(filein.read(32));
+        iv_ = decryptor.update(filein.read(16));
+        decryptor.finalize();
+        backend = default_backend();
+        cipher = Cipher(algorithms.AES(key_), modes.CBC(iv_), backend=backend);
+        decryptor = cipher.decryptor();
         size = "";
         while True:
             b1 = filein.read(1).decode();
@@ -1146,8 +1269,10 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
             i = i + size_temp;
         sout = decryptor.finalize();
         fileout.write(sout);
+        fileout.close();
+        filein.close();
         print("Decrypt file ende");
-        return 0;
+        return self.file_hash(fileoutpath);
 
     def file_encrypt(self, key, iv, fileinpath, fileoutpath):
         print("Encrypt file: " + fileinpath);
@@ -1160,10 +1285,19 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
         filein.seek(0, 2);
         size = filein.tell();
         filein.seek(0, 0);
+
         if(size == 0):
             filein.close();
             fileout.close();
             return 0;
+        key_ = os.urandom(32);
+        iv_ = os.urandom(16);
+        fileout.write(encryptor.update(key_));
+        fileout.write(encryptor.update(iv_));
+        encryptor.finalize();
+        backend = default_backend();
+        cipher = Cipher(algorithms.AES(key_), modes.CBC(iv_), backend=backend);
+        encryptor = cipher.encryptor();
         fileout.write( ( str(size) + "#" ).encode());
         i = 0;
         while True:
@@ -1181,14 +1315,16 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
                 sout = encryptor.update(sin);
                 fileout.write(sout)
             else:
-                #print(len(sin));
+                print(len(sin));
                 sout = encryptor.update(sin);
                 fileout.write(sout);
             i = i + size_temp;
         sout = encryptor.finalize();
         fileout.write(sout);
+        fileout.close();
+        filein.close();
         print("Encrypt file ende");
-        return 0;
+        return self.file_hash(fileinpath);
 
     def copy(self, sin, size):
         out = [];
@@ -1236,6 +1372,7 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
                 break;
             key = key + " ".encode();
         return key;
+
     def iv_size_anpassen(self, key):
         if(len(key) > 16):
             key = self.array_remove(key, 16);
@@ -1260,41 +1397,31 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
     def update_ip(self):
         myip = requests.get('https://www.wikipedia.org').headers['X-Client-IP']
         return myip;
+
     def string_to_hex(self, s1):
         return binascii.hexlify(s1).decode();
+
     def hex_to_String(self, hex):
         return binascii.unhexlify(hex);
 
 
-    def create_Connetion_file(self, aeskey, iv, myip, port, folder, newkey, newiv):
-        bin1 = os.path.join(folder, "1.bin");
-        bin1_aes = bin1 + ".aes";
 
+    def create_Connetion_file(self, aeskey, iv, myip, port, folder, newkey, newiv):
         hash_aes_key = hashlib.sha256();
         hash_aes_key.update(str(myip).encode());
         hash_aes_key.update(str(port).encode());
         hash_aes_key.update(newkey);
         hash_aes_key.update(newiv);
         hash_aes_key = hash_aes_key.hexdigest();
-
-        fobj = open(bin1, "wb")
         s1 = myip + "^" + str(port) + "^" + self.string_to_hex(newkey) + "^" + self.string_to_hex(newiv) + "^" + hash_aes_key;
-        fobj.write(s1.encode());
-        fobj.close();
-        self.file_encrypt(aeskey, iv, bin1, bin1_aes);
-        fobj2 = open(bin1_aes, "rb")
-        fobj2.seek(0, 2)
-        size = fobj2.tell()
-        fobj2.seek(0, 0)
-        s2 = fobj2.read(size);
-        fobj2.close();
-        hex=binascii.hexlify(s2)
+        bin1_aes = self.bytes_encryption(aeskey, iv, s1.encode());
+        hex=binascii.hexlify(bin1_aes)
         txt1 = os.path.join(folder, "1.txt");
         fobj = open(txt1, "wb")
         fobj.write(hex);
         fobj.close();
-        os.remove(bin1_aes);
-        os.remove(bin1);
+        #os.remove(bin1_aes);
+        #os.remove(bin1);
         return 0;
 
     def listpath(self, path, rpath, array, idarray, patharray, ctime):
@@ -1357,10 +1484,9 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
                 break;
             if(self.find_AES_file(patharray[i]) == True):
                 sfile = "";
-                if(Betribsystem == False):
-                    sfile = os_path_dir + patharray[i];
-                else:
-                    sfile = os_path_dir + self.flips_schlasch(patharray[i]);
+                sfile = os_path_dir + patharray[i];
+                if(Betribsystem == True):
+                    sfile = self.flips_schlasch(sfile);
                 print(sfile);
                 os.remove(sfile);
                 j = j +1;
@@ -1495,6 +1621,108 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
     							return True;
     			i = i +1;
     	return False;
+
+    def copy_2(self, sin, i,  size):
+        out = [];
+        while True:
+            if(i >= len(sin)):
+                break;
+            if(i >= size):
+                break;
+            out.append(sin[i]);
+            i = i +1;
+        return bytes(out);
+
+    def bytes_decryption(self, key, iv, sin):
+        backend = default_backend();
+        cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=backend);
+        decryptor = cipher.decryptor();
+        block = 32;
+        size2 = len(sin);
+        s1 = [];
+        bout = b"";
+        j = 0;
+        key_ =  decryptor.update(self.copy_2(sin, j, j+ 32));
+        j = j + 32;
+        iv_ =  decryptor.update(self.copy_2(sin, j, j+ 16));
+        j = j + 16;
+        decryptor.finalize();
+        backend = default_backend();
+        cipher = Cipher(algorithms.AES(key_), modes.CBC(iv_), backend=backend);
+        decryptor = cipher.decryptor();
+        while True:
+            if(sin[j] == "#".encode()[0]):
+                j = j +1;
+                break;
+            s1.append(sin[j]);
+            j = j +1;
+        s1 = bytes(s1).decode();
+        size = int(s1);
+        i = 0;
+        while True:
+            if(i >= size):
+                break;
+            if(j >= size2):
+                break;
+            if(i + block >= size):
+                size_temp = size -i;
+            else:
+                 size_temp = block;
+            bin = self.copy_2(sin,j, j+ 32);
+            #sin = filein.read(size_temp);
+            if(size_temp == block):
+                bin = decryptor.update(bin);
+                bout = bout + bin;
+            else:
+                bin = decryptor.update(bin);
+                a = self.analyse(bin);
+                bout = bout + self.copy(bin, a);
+            i = i + size_temp;
+            j = j + size_temp;
+        bin = decryptor.finalize();
+        #bout = bout + bin;
+        #print("ende decrypt");
+        return bout;
+
+    def bytes_encryption(self, key, iv, sin):
+        backend = default_backend();
+        cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=backend);
+        encryptor = cipher.encryptor();
+        block = 32;
+        key_ = os.urandom(32);
+        iv_ = os.urandom(16);
+        bout = encryptor.update(key_);
+        bout = bout  + encryptor.update(iv_);
+        encryptor.finalize();
+        backend = default_backend();
+        cipher = Cipher(algorithms.AES(key_), modes.CBC(iv_), backend=backend);
+        encryptor = cipher.encryptor();
+        size = len(sin);
+        bout = bout + (str(size) + "#" ).encode();
+        i = 0;
+        j = 0;
+        while True:
+            if(i >= size):
+                break;
+            if(i + block >= size):
+                size_temp = size -i;
+            else:
+                 size_temp = block;
+            bin = self.data_array_Schreiben(self.copy_2(sin,j, j+ size_temp));
+            #sin = filein.read(size_temp);
+            #print(len(bin));
+            if(size_temp == block):
+                bin = encryptor.update(bin);
+                bout = bout + bin;
+            else:
+                bin = encryptor.update(bin);
+                bout = bout + bin;
+            i = i + size_temp;
+            j = j + size_temp;
+        bin = encryptor.finalize();
+        #bout = bout + bin;
+        #print("ende encrypt");
+        return bout;
 
 
 
