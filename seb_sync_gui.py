@@ -9,7 +9,7 @@
 from PyQt5 import QtWidgets
 from PyQt5 import QtGui
 import math
-version = "v0.6a"
+version = "v0.6b"
 print(version)
 appname = "Sebs Sync App";
 
@@ -1012,22 +1012,35 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
             key = connection_file[2];
             iv =  connection_file[3];
             print(connection_file);
+            tmp = self.start_Clinet_prozess("10", "0", folder, myip, key, iv, port);
+            if(len(tmp) == 1):
+                if(tmp[0] == -1):
+                    myip = self.question_ip();
+                    port = self.question_port();
+                    key = "";
+                    iv = "";
+                    tmp = self.start_Clinet_prozess("10", "0", folder, myip, key, iv, port);
+                    if(len(tmp) == 1):
+                        if(tmp[0] == -1):
+                            return -1;
         else:
             myip = self.question_ip();
             port = self.question_port();
             key = "";
             iv = "";
             tmp = self.start_Clinet_prozess("10", "0", folder, myip, key, iv, port);
-            if(tmp == -1):
-                return -1;
+            if(len(tmp) == 1):
+                if(tmp[0] == -1):
+                    return -1;
 
         tmp = self.start_Clinet_prozess("10", "0", folder, myip, key, iv, port);
-        if(tmp == -1):
-            myip = self.question_ip();
-            port = self.question_port();
-            key = "";
-            iv = "";
-            tmp = self.start_Clinet_prozess("10", "0", folder, myip, key, iv, port);
+        if(len(tmp) == 1):
+            if(tmp[0] == -1):
+                myip = self.question_ip();
+                port = self.question_port();
+                key = "";
+                iv = "";
+                tmp = self.start_Clinet_prozess("10", "0", folder, myip, key, iv, port);
         connection_file = self.read_Connetion_file(folder, aes_key, iv_);
         if(len(connection_file) == 0):
             return -1;
@@ -1146,6 +1159,7 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
                 myip = requests.get('https://www.wikipedia.org').headers['X-Client-IP'];
                 if(testmode == 1 and self.b1 != 2):
                     myip = "127.0.0.1";
+                    #myip = "192.168.111.9"
                     msgBox2 = QtWidgets.QMessageBox();
                     msgBox2.setText("Test Mode aktivirt!");
                     msgBox2.exec();
