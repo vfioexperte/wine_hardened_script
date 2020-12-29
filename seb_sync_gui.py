@@ -9,7 +9,7 @@
 from PyQt5 import QtWidgets
 from PyQt5 import QtGui
 import math
-version = "v0.5c"
+version = "v0.6a"
 print(version)
 appname = "Sebs Sync App";
 
@@ -149,8 +149,8 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
         self.layoutv1.addLayout(self.layouth3)
         self.layoutv1.addLayout(self.layouth4)
         self.layoutv1.addLayout(self.layouth5)
-        self.layoutv1.addWidget(self.button)
-        self.button.clicked.connect(self.button_Clickes)
+        #self.layoutv1.addWidget(self.button)
+        #self.button.clicked.connect(self.button_Clickes)
         self.button_start_Server = QtWidgets.QPushButton("Start Server");
         self.button_start_Server.clicked.connect(self.start_Server);
         self.button_start_Client = QtWidgets.QPushButton("Start Client");
@@ -313,7 +313,7 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
 
     def browse_dir(self):
         fieldialog = QtWidgets.QFileDialog;
-        dir = fieldialog.getExistingDirectory(self, "bowse sync folder", home,);
+        dir = fieldialog.getExistingDirectory(self, "browse sync folder", home,);
         return dir;
 
     def browse1(self):
@@ -417,6 +417,7 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
         else:
             exit(-1);
 
+
     def question_port(self):
         i, okPressed = QtWidgets.QInputDialog.getInt(self, "Get integer","Your port:", 9044, 1, 65000, 1);
         if okPressed:
@@ -439,6 +440,13 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
         text, okPressed = QtWidgets.QInputDialog.getText(self, "Get text", "your aes key", QtWidgets.QLineEdit.Normal, "");
         if(okPressed and text != ""):
             return self.key_size_anpassen(text.encode());
+        else:
+            exit(-1);
+
+    def question_ip(self):
+        text, okPressed = QtWidgets.QInputDialog.getText(self, "Get text", "your aes ip or dns name", QtWidgets.QLineEdit.Normal, "");
+        if(okPressed and text != ""):
+            return text.encode();
         else:
             exit(-1);
 
@@ -900,7 +908,7 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
         return 0;
 
 
-    def start_Clinet_prozess(self, mode, id, folder, myip, key, iv, port):
+    def start_Clinet_prozess(self, mode, id, folder, myip, key_, iv_, port):
         self.aufraumen(folder);
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM);
@@ -911,7 +919,23 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
             msgBox2.setText("ERROR no Server found!");
             msgBox2.exec();
             return [-1];
-
+        if(mode == "10"):
+            #connection file download
+            self.wirte_connection_simple_mode(0, s, "0");
+            b1 = self.read_connection_simple_mode(0, s);
+            spath = os.path.join(folder, "1.txt");
+            if(Betribsystem == True):
+                spath = self.flips_schlasch(spath);
+            file1 = open(spath, "w");
+            file1.write(b1);
+            file1.close();
+            s.close();
+            return [];
+        self.wirte_connection_simple_mode(0, s, "1");
+        key = self.recive_stream_decrypt(0, s, key_, iv_);
+        iv = self.recive_stream_decrypt(0, s, key_, iv_);
+        print(len(key));
+        print(len(iv));
         if(mode == "1"):
             #up
             self.send_encrypt(0, s, key, iv, "1");
@@ -982,7 +1006,29 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
         #aes_key = self.question_aes_key();
         #iv_ = self.question_iv_key();
         connection_file = self.read_Connetion_file(folder, aes_key, iv_);
+        if(len(connection_file) != 0):
+            myip = connection_file[0];
+            port = connection_file[1];
+            key = connection_file[2];
+            iv =  connection_file[3];
+            print(connection_file);
+        else:
+            myip = self.question_ip();
+            port = self.question_port();
+            key = "";
+            iv = "";
+            tmp = self.start_Clinet_prozess("10", "0", folder, myip, key, iv, port);
+            if(tmp == -1):
+                return -1;
 
+        tmp = self.start_Clinet_prozess("10", "0", folder, myip, key, iv, port);
+        if(tmp == -1):
+            myip = self.question_ip();
+            port = self.question_port();
+            key = "";
+            iv = "";
+            tmp = self.start_Clinet_prozess("10", "0", folder, myip, key, iv, port);
+        connection_file = self.read_Connetion_file(folder, aes_key, iv_);
         if(len(connection_file) == 0):
             return -1;
         myip = connection_file[0];
@@ -1078,65 +1124,80 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
         self.button_start_Client.setDisabled(False);
         return 0;
 
-
-    def start_Server_prozess(self, folder, aes_key, iv_):
-        self.aufraumen(folder);
+    def server_read_connectionfile(self, folder, aes_key, iv_):
+        stxt = "";
         if(Betribsystem == True):
-            #widnows
-            folder = self.flips_schlasch(folder);
-        #s = socket.socket(socket.AF_INET, socket.SOCK_STREAM);
-        #s.bind(("", port));
-        stxt = os.path.join(folder, "1.txt");
+            #widnwos
+            stxt = folder + "\1.txt";
+        else:
+            #Linux
+            stxt = folder + "/1.txt";
         if(os.path.isfile(stxt) == True):
             connection_file = self.read_Connetion_file(folder, aes_key, iv_);
+            if(len(connection_file) != 0 and testmode == 0 and self.question_dns_or_ip() == 1):
+                myip = input("DNS name: ");
+                port = connection_file[1];
+                aes_key_new = connection_file[2];
+                newiv = connection_file[3];
+                print(connection_file);
+                self.create_Connetion_file(aes_key, iv_, myip, port, folder, aes_key_new, newiv);
+                return(self.read_Connetion_file(folder, aes_key, iv_));
+            else:
+                myip = requests.get('https://www.wikipedia.org').headers['X-Client-IP'];
+                if(testmode == 1 and self.b1 != 2):
+                    myip = "127.0.0.1";
+                    msgBox2 = QtWidgets.QMessageBox();
+                    msgBox2.setText("Test Mode aktivirt!");
+                    msgBox2.exec();
+                    self.b1 = 2;
+                port = connection_file[1];
+                aes_key_new = connection_file[2];
+                newiv = connection_file[3];
+                #print(connection_file);
+                self.create_Connetion_file(aes_key, iv_, myip, port, folder, aes_key_new, newiv);
+                return(self.read_Connetion_file(folder, aes_key, iv_));
+
         else:
             msgBox2 = QtWidgets.QMessageBox();
             msgBox2.setText("Conection file (1.txt) not found in the fodler. the APP create a neu 1.txt fiel in the fodler. you must send the 1.txt to teh clinet");
             msgBox2.exec();
             print("Conection file (1.txt) not found in the fodler. the APP create a neu 1.txt fiel in the fodler. you must send the 1.txt to teh clinet");
             connection_file = [];
-        if(len(connection_file) == 0):
             if(self.question_dns_or_ip() == 1):
                 myip = input("DNS name: ");
                 port = self.question_port();
-                aes_key_new = os.urandom(32);
+                aes_key_new = os.urandom(64);
+
                 newiv = os.urandom(16);
                 self.create_Connetion_file(aes_key, iv_, myip, port, folder, aes_key_new, newiv);
-                connection_file = [myip, port, aes_key_new, newiv];
-
-
+                return(self.server_read_connectionfile(folder, aes_key, iv_));
             else:
-                myip = self.update_ip();
+                myip = requests.get('https://www.wikipedia.org').headers['X-Client-IP'];
+                if(testmode == 1 and self.b1 != 2):
+                    myip = "127.0.0.1";
+                    msgBox2 = QtWidgets.QMessageBox();
+                    msgBox2.setText("Test Mode aktivirt!");
+                    msgBox2.exec();
+                    self.b1 = 2;
                 port = self.question_port();
-                aes_key_new = os.urandom(32);
+                aes_key_new = os.urandom(256);
+
                 newiv = os.urandom(16);
                 self.create_Connetion_file(aes_key, iv_, myip, port, folder, aes_key_new, newiv);
-                connection_file = [myip, port, aes_key_new, newiv];
+                return(self.read_Connetion_file(folder, aes_key, iv_));
+            return 0;
 
+    def start_Server_prozess(self, folder, aes_key, iv_):
+        self.aufraumen(folder);
+        if(Betribsystem == True):
+            #widnows
+            folder = self.flips_schlasch(folder);
+        connection_file = self.server_read_connectionfile(folder, aes_key, iv_);
         myip = connection_file[0];
         port = connection_file[1];
-        key = connection_file[2];
-        iv =  connection_file[3];
+        key2 = connection_file[2];
+        iv2 =  connection_file[3];
         print(connection_file);
-
-        if(self.b1 == 1):
-            if(testmode == 1):
-                self.b1 = 2;
-                msgBox2 = QtWidgets.QMessageBox();
-                msgBox2.setText("Test Mode aktivirt!");
-                msgBox2.exec();
-                myip = "127.0.0.1";
-                self.create_Connetion_file(aes_key, iv_, myip, port, folder, key, iv);
-            else:
-                self.b1 = 3;
-                myip = requests.get('https://www.wikipedia.org').headers['X-Client-IP'];
-                if(self.question_dns_or_ip() == 1):
-                    myip = input("DNS name: ");
-                self.create_Connetion_file(aes_key, iv_, myip, port, folder, key, iv);
-
-        if(self.b1 == 1):
-            self.create_Connetion_file(aes_key, iv_, myip, port, folder, key, iv);
-        connection_file = self.read_Connetion_file(folder, aes_key, iv_);
         server = self.start_listen_Server(port);
         while True:
             self.update_progress_info("Server listen..", 0, 100);
@@ -1148,48 +1209,71 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
             print(server);
             #print(server_connection);
             #mode = self.read_connection_simple_mode(0, komm);
-            mode = self.recive_decrypt(0, komm, key, iv);
-            if(mode == "1"):
-                #file upload Client
-                self.Server_file_upload_client(0, komm, key, iv, folder);
-                self.filecount = self.filecount + 1;
-            elif(mode == "3"):
-                self.server_liste_senden(0, komm, key, iv, folder);
-            elif(mode == "4"):
-                id = self.read_connection_simple_mode(0, komm);
-                self.Clinet_file_upload_clinet(0, komm, key, iv, folder, id);
-                self.filecount = self.filecount + 1;
-            elif(mode == "5"):
-                self.update_progress_info("start sync.. ",0, 100);
-                self.server_sync(0, komm, key, iv, folder);
-                self.update_progress_info("start sync.. ende",100, 100);
-            elif(mode == "7"):
-                self.update_progress_info("start sync add.. ",0, 100);
-                self.server_sync_add(0, komm, key, iv, folder);
-                self.update_progress_info("start sync add.. ende",0, 100);
-            elif(mode == "8"):
-                #server size of file server
-                self.update_progress_info("start size of files.. ",0, 100);
-                tmp = self.read_connection_simple_mode(0, komm);
-                tmp = int(tmp);
+            connectifileexist = self.read_connection_simple_mode(0, komm);
+            if(connectifileexist == "0"):
+                spath = os.path.join(folder, "1.txt");
+                if(Betribsystem == True):
+                    spath = self.flips_schlasch(spath);
+                file1 = open(spath, "r");
+                file1.seek(0, 2);
+                size = file1.tell();
+                file1.seek(0, 0);
+                b1 = file1.read(size);
+                file1.close();
+                self.wirte_connection_simple_mode(0, komm, b1);
                 komm.close();
-                self.update_progress_info("start size of files.. ",100, 100);
-                self.maxfilecount = tmp;
-                self.filecount = 1;
-            elif(mode == "9"):
-                self.update_progress_info("start version check.. ",0, 100);
-                tmp = self.read_connection_simple_mode(0, komm);
-                if(tmp == version):
-                    self.wirte_connection_simple_mode(0, komm, "1");
-                    self.update_progress_info("start version check.. ok",100, 100);
-                    print("start version check.. OK");
-                else:
-                    self.wirte_connection_simple_mode(0, komm, "0");
-                    self.update_progress_info("start version check.. ERROR",100, 100);
-                    print("start version check.. ERROR");
-                komm.close();
+            else:
+                key = os.urandom(512);
+                iv = os.urandom(16);
+                self.send_stream_encrypt(0, komm, key2, iv2, key);
+                self.send_stream_encrypt(0, komm, key2, iv2, iv);
+                mode = self.recive_decrypt(0, komm, key, iv);
+                if(mode == "1"):
+                    #file upload Client
+                    self.Server_file_upload_client(0, komm, key, iv, folder);
+                    self.filecount = self.filecount + 1;
+                elif(mode == "3"):
+                    self.server_liste_senden(0, komm, key, iv, folder);
+                elif(mode == "4"):
+                    id = self.read_connection_simple_mode(0, komm);
+                    self.Clinet_file_upload_clinet(0, komm, key, iv, folder, id);
+                    self.filecount = self.filecount + 1;
+                elif(mode == "5"):
+                    self.update_progress_info("start sync.. ",0, 100);
+                    self.server_sync(0, komm, key, iv, folder);
+                    self.update_progress_info("start sync.. ende",100, 100);
+                elif(mode == "7"):
+                    self.update_progress_info("start sync add.. ",0, 100);
+                    self.server_sync_add(0, komm, key, iv, folder);
+                    self.update_progress_info("start sync add.. ende",0, 100);
+                elif(mode == "8"):
+                    #server size of file server
+                    self.update_progress_info("start size of files.. ",0, 100);
+                    tmp = self.read_connection_simple_mode(0, komm);
+                    tmp = int(tmp);
+                    komm.close();
+                    self.update_progress_info("start size of files.. ",100, 100);
+                    self.maxfilecount = tmp;
+                    self.filecount = 1;
+                elif(mode == "9"):
+                    self.update_progress_info("start version check.. ",0, 100);
+                    tmp = self.read_connection_simple_mode(0, komm);
+                    if(tmp == version):
+                        self.wirte_connection_simple_mode(0, komm, "1");
+                        self.update_progress_info("start version check.. ok",100, 100);
+                        print("start version check.. OK");
+                    else:
+                        self.wirte_connection_simple_mode(0, komm, "0");
+                        self.update_progress_info("start version check.. ERROR",100, 100);
+                        print("start version check.. ERROR");
+                    komm.close();
         self.aufraumen(folder);
         return 0;
+
+    def string_to_hash(self, s1):
+        hash = hashlib.sha256();
+        hash.update(s1);
+        return binascii.unhexlify(hash.hexdigest());
 
     def file_hash(self, fielpath):
         block = 1024;
@@ -1467,19 +1551,20 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
 
 
     def aufraumen(self, os_path_dir):
-    	print("aufraumen..");
-    	sdir  = "";
-    	array = [0, sdir];
-    	array = self.listpath(os_path_dir, "", array, [], [], []);
-    	sdir = array[1];
-    	patharray = array[3];
-    	ctime = array[4];
-    	print(sdir);
-    	sfileid = "";
-    	#id = int(id);
-    	i = 0;
-    	j = 0;
-    	while True:
+        return 0;
+        print("aufraumen..");
+        sdir  = "";
+        array = [0, sdir];
+        array = self.listpath(os_path_dir, "", array, [], [], []);
+        sdir = array[1];
+        patharray = array[3];
+        ctime = array[4];
+        print(sdir);
+        sfileid = "";
+        #id = int(id);
+        i = 0;
+        j = 0;
+        while True:
             if(i >= len(patharray)):
                 break;
             if(self.find_AES_file(patharray[i]) == True):
@@ -1491,7 +1576,7 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
                 os.remove(sfile);
                 j = j +1;
             i = i +1;
-            print("Datei gelöscht: " + str(j));
+        print("Datei gelöscht: " + str(j));
 
     def setfilename(self, filename):
     	s1 = filename;
@@ -1634,6 +1719,7 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
         return bytes(out);
 
     def bytes_decryption(self, key, iv, sin):
+        key = self.string_to_hash(key);
         backend = default_backend();
         cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=backend);
         decryptor = cipher.decryptor();
@@ -1685,6 +1771,7 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
         return bout;
 
     def bytes_encryption(self, key, iv, sin):
+        key = self.string_to_hash(key);
         backend = default_backend();
         cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=backend);
         encryptor = cipher.encryptor();
