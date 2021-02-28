@@ -5,11 +5,11 @@
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #Warnung der Programmierer hafte nicht auf Schäden oder auf unsachgemäßen Umgang der APP
 #19.12.2020 #start wirting app
-#22.20.2020 last edit
+#10.02.2021 last edit
 from PyQt5 import QtWidgets
 from PyQt5 import QtGui
 import math
-version = "v0.6b"
+version = "v0.6d"
 print(version)
 appname = "Sebs Sync App";
 
@@ -549,7 +549,7 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
     def Clinet_file_upload_clinet(self, addr, s, aeskey, iv, folder, id):
         #try:
             self.update_progress_info("upload file..",0, 100);
-            block = 1024;
+            block = 1024*500;
             sdir = "";
             array = [0, sdir];
             array = self.listpath(folder, "", array, [], [], []);
@@ -625,7 +625,7 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
 
     def Server_file_upload_client(self, addr, komm, aeskey, iv, folder):
         #try:
-            block = 1024;
+            block = 1024*500;
             print("file encryption andere PC..");
             self.update_progress_info("file encryption andere PC..",0, 100);
             filename = self.recive_decrypt(addr, komm, aeskey, iv);
@@ -995,23 +995,46 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
 
 
     def start_Client(self, mode, id, folder, aes_key, iv_):
-        if(Betribsystem == True):
-            #windows
-            folder = self.flips_schlasch(folder);
-        self.filecount = 0;
-        self.maxfilecount = 0;
-        #folder = self.question_folder();
-        self.aufraumen(folder);
-        #print("folder: ", folder);
-        #aes_key = self.question_aes_key();
-        #iv_ = self.question_iv_key();
-        connection_file = self.read_Connetion_file(folder, aes_key, iv_);
-        if(len(connection_file) != 0):
-            myip = connection_file[0];
-            port = connection_file[1];
-            key = connection_file[2];
-            iv =  connection_file[3];
-            print(connection_file);
+        while True:
+            b1 = 0;
+            if(Betribsystem == True):
+                #windows
+                folder = self.flips_schlasch(folder);
+            self.filecount = 0;
+            self.maxfilecount = 0;
+            #folder = self.question_folder();
+            self.aufraumen(folder);
+            #print("folder: ", folder);
+            #aes_key = self.question_aes_key();
+            #iv_ = self.question_iv_key();
+            connection_file = self.read_Connetion_file(folder, aes_key, iv_);
+            if(len(connection_file) != 0):
+                myip = connection_file[0];
+                port = connection_file[1];
+                key = connection_file[2];
+                iv =  connection_file[3];
+                print(connection_file);
+                tmp = self.start_Clinet_prozess("10", "0", folder, myip, key, iv, port);
+                if(len(tmp) == 1):
+                    if(tmp[0] == -1):
+                        myip = self.question_ip();
+                        port = self.question_port();
+                        key = "";
+                        iv = "";
+                        tmp = self.start_Clinet_prozess("10", "0", folder, myip, key, iv, port);
+                        if(len(tmp) == 1):
+                            if(tmp[0] == -1):
+                                return -1;
+            else:
+                myip = self.question_ip();
+                port = self.question_port();
+                key = "";
+                iv = "";
+                tmp = self.start_Clinet_prozess("10", "0", folder, myip, key, iv, port);
+                if(len(tmp) == 1):
+                    if(tmp[0] == -1):
+                        return -1;
+
             tmp = self.start_Clinet_prozess("10", "0", folder, myip, key, iv, port);
             if(len(tmp) == 1):
                 if(tmp[0] == -1):
@@ -1020,70 +1043,55 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
                     key = "";
                     iv = "";
                     tmp = self.start_Clinet_prozess("10", "0", folder, myip, key, iv, port);
-                    if(len(tmp) == 1):
-                        if(tmp[0] == -1):
-                            return -1;
-        else:
-            myip = self.question_ip();
-            port = self.question_port();
-            key = "";
-            iv = "";
-            tmp = self.start_Clinet_prozess("10", "0", folder, myip, key, iv, port);
+            connection_file = self.read_Connetion_file(folder, aes_key, iv_);
+            if(len(connection_file) == 0):
+                return -1;
+            myip = connection_file[0];
+            port = connection_file[1];
+            key = connection_file[2];
+            iv =  connection_file[3];
+            print(connection_file);
+            tmp = self.start_Clinet_prozess("9", "0", folder, myip, key, iv, port);
             if(len(tmp) == 1):
                 if(tmp[0] == -1):
                     return -1;
-
-        tmp = self.start_Clinet_prozess("10", "0", folder, myip, key, iv, port);
-        if(len(tmp) == 1):
-            if(tmp[0] == -1):
-                myip = self.question_ip();
-                port = self.question_port();
-                key = "";
-                iv = "";
-                tmp = self.start_Clinet_prozess("10", "0", folder, myip, key, iv, port);
-        connection_file = self.read_Connetion_file(folder, aes_key, iv_);
-        if(len(connection_file) == 0):
-            return -1;
-        myip = connection_file[0];
-        port = connection_file[1];
-        key = connection_file[2];
-        iv =  connection_file[3];
-        print(connection_file);
-        tmp = self.start_Clinet_prozess("9", "0", folder, myip, key, iv, port);
-        if(len(tmp) == 1):
-            if(tmp[0] == -1):
-                return -1;
-        array = self.start_Clinet_prozess(mode, id, folder, myip, key, iv, port);
-        if(len(array) != 0):
-            dwid = array[0];
-            up = array[1];
-            self.filecount = 0;
-            self.maxfilecount = len(up) + len(dwid);
-            self.start_Clinet_prozess("8", "0", folder, myip, key, iv, port);
-            #server size of file server
-            print("dwid: ", dwid);
-            print("up: ", up);
-            for tmp in dwid:
-                self.start_Clinet_prozess("4", str(tmp), folder, myip, key, iv, port);
-                self.filecount = self.filecount + 1;
-            for tmp in up:
-                self.start_Clinet_prozess("1",  str(tmp), folder, myip, key, iv, port);
-                self.filecount = self.filecount + 1;
-            #sync add
-            self.filecount = 0;
-            array = self.start_Clinet_prozess("7",  "0", folder, myip, key, iv, port);
-            self.maxfilecount = len(array);
-            self.start_Clinet_prozess("8", "0", folder, myip, key, iv, port);
-            #server size of file server
-            print("sync_add: ", array);
-            for tmp in array:
-                self.filecount = self.filecount + 1;
-                self.start_Clinet_prozess("1",  str(tmp), folder, myip, key, iv, port);
-            self.maxfilecount = 0;
-            self.filecount = 0;
-            self.start_Clinet_prozess("8", "0", folder, myip, key, iv, port);
-        self.aufraumen(folder);
+            array = self.start_Clinet_prozess(mode, id, folder, myip, key, iv, port);
+            if(len(array) != 0):
+                dwid = array[0];
+                up = array[1];
+                if(len(dwid) == 0 and len(up) == 0):
+                    b1 = 1;
+                self.filecount = 0;
+                self.maxfilecount = len(up) + len(dwid);
+                self.start_Clinet_prozess("8", "0", folder, myip, key, iv, port);
+                #server size of file server
+                print("dwid: ", dwid);
+                print("up: ", up);
+                for tmp in dwid:
+                    self.start_Clinet_prozess("4", str(tmp), folder, myip, key, iv, port);
+                    self.filecount = self.filecount + 1;
+                for tmp in up:
+                    self.start_Clinet_prozess("1",  str(tmp), folder, myip, key, iv, port);
+                    self.filecount = self.filecount + 1;
+                #sync add
+                self.filecount = 0;
+                array = self.start_Clinet_prozess("7",  "0", folder, myip, key, iv, port);
+                self.maxfilecount = len(array);
+                self.start_Clinet_prozess("8", "0", folder, myip, key, iv, port);
+                #server size of file server
+                print("sync_add: ", array);
+                for tmp in array:
+                    self.filecount = self.filecount + 1;
+                    self.start_Clinet_prozess("1",  str(tmp), folder, myip, key, iv, port);
+                self.maxfilecount = 0;
+                self.filecount = 0;
+                self.start_Clinet_prozess("8", "0", folder, myip, key, iv, port);
+                print("sync ende")
+            if(b1 == 1):
+                self.aufraumen(folder);
+                break;
         return 0;
+
 
 
     def start_Server(self):
@@ -1159,7 +1167,7 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
                 myip = requests.get('https://www.wikipedia.org').headers['X-Client-IP'];
                 if(testmode == 1 and self.b1 != 2):
                     myip = "127.0.0.1";
-                    #myip = "192.168.111.9"
+                    myip = "192.168.111.30"
                     msgBox2 = QtWidgets.QMessageBox();
                     msgBox2.setText("Test Mode aktivirt!");
                     msgBox2.exec();
