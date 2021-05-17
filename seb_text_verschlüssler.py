@@ -46,7 +46,7 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 import time
 
-version = "v0.1a"
+version = "v0.1b"
 print(version)
 appname = "Text_verschlüssler"
 
@@ -222,7 +222,7 @@ class sebs_text_verschluessler(QtWidgets.QWidget):
             return 0
         text = self.textbox.toPlainText()
         bencrypt = self.bytes_encryption(
-            self.key.text().encode(), self.iv.text().encode(), text.encode())
+            self.remove_sapce(self.key.text()).encode(), self.remove_sapce(self.iv.text()).encode(), text.encode())
         self.textbox.setPlainText(self.byte_to_hex(bencrypt).decode())
         return 0
 
@@ -236,7 +236,7 @@ class sebs_text_verschluessler(QtWidgets.QWidget):
         text = self.remove_sapce(text)
         text = self.hex_to_String(text)
         bencrypt = self.bytes_decryption(
-            self.key.text().encode(), self.iv.text().encode(), text)
+            self.remove_sapce(self.key.text()).encode(), self.remove_sapce(self.iv.text()).encode(), text)
         self.textbox.setPlainText(bencrypt.decode())
         return 0
 
