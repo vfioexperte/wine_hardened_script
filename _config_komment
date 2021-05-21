@@ -1,0 +1,28 @@
+docker_user = empty #user anme
+docker_build = archlinux_std_docker #docker iameg name
+gpu_render = 1 # gpu redner auswahl bei mehren gpu im system #funktionirt nur mit opengl
+disk_device_name = cd/dvd #cd-rom im docker continer nutzen
+zugriff_auf_media = 0 #zugriff auf /run/media
+sav_home_docker_folder = 0 #sav home folder
+share_folder_daten = 1 # daten share folder
+share_folder1_aktiv = 0 #custome share folder 0 diable 1 enable
+share_folder1 = /NAS #custome share fodler path #/mnt^/mnt2 #mehere fodler auf einmal
+network_disable = 0 #network 0 an 1 aus
+steam_controller_bool = 1 #steam contreoller nutzen 1 an 0 aus
+usb_sharing = 1 #usb sharing mode 1 an 0 aus
+usb_name = Valve Software Wireless Steam Controller #usb passthrouhg name
+usb_hidraw_name = Valve Software Steam Controller #usb hidraw passthrouhg name #scuhe device "cat < /sys/class/hidraw/hidraw9/device/uevent | grep "Valve Software Steam Controller" "
+docker_input = * #* alle inputs erlaubt "" alle input nciht erlaubt #device id name# /dev/input/by-id
+docker_maxmemory = -1 #-1 ganze ramm #200 nur 200 mb
+docker_maxcpus = -1 #-1 alle cups # 2 nur 2 cpus
+network_host =  # network_host "" aus 1 an #network ist dann host netzwerk für server gedacht "host"
+portforwding = #"" aus 9044:9044 #shie docker -p options #9044:9044 port 9044 wird zum host fei gegeben
+dbus_rw = 0 #dbus #1 ist schreib bar # wenn man es bracuht #0 disable
+pacman_cache = /NAS/Daten/Backup/archlinux_pacman_cache/cache #folder sav pacman packages in folder iwrd zwigend benötigt für erst install and update image
+dns = 192.168.111.63^8.8.8.8 #dns erver use in dcoekr container
+ip = #leer ist keine static ip #172.17.0.199 staict ip
+wireguard_fix = 0 #auf 1 wenn man einen wireguard client toder server nutzen will im docker continer
+nosudo = 0 #disale pacman cahce #1=on kine root rechte per sudo benötigt #0=off bauen von conatiner
+run_in_background = 0# 0 disable 1 aktvieted #starten den docker container im background und kann nur mit "docker stop ID" gestopt werden #ideal für server
+ttyon = 0 #0 disable terminal for start with gui #1 dsiable terminal output disable gui
+
