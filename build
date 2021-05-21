@@ -1,0 +1,1958 @@
+#!/usr/bin/python
+#Copyright (C) 2021  vfio_experte
+#This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
+#This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
+
+version = "0.23c_gui beta"
+appname = "sebs docker contianer gaming app"
+#0.23a pacman_pakgage_install variable add
+#0.22g def system(cmd): edit os.system
+#0.22e without -t command without tty
+#0.22d #--ipc="host"
+#0.22b add /tmp/.X11-unix:/tmp/.X11-unix:rw
+#22a LANG variable passthrough
+#0.21i add create_a_cdrom_mount_file_per_dev #group cdemu
+#0.21f unbound pacman install
+#last edit 16.05.2021
+
+print(version);
+
+import platform
+import os
+import sys
+import string
+import subprocess
+import time
+
+#from PyQt5 import QtWidgets
+#from PyQt5 import QtGui
+import math
+
+
+#app = QtWidgets.QApplication(sys.argv)
+
+pacman_downloads = 1;
+
+pacman_pkgage_install = "unbound qt5pas teamspeak3 python-ntlm-auth  python-requests-ntlm perl-ntlm python-ntlm-auth python-requests-ntlm  lutris python-beaker python-mako valgrind llvm lib32-llvm meson vulkan-swrast net-tools wireguard-tools nautilus shared-mime-info gdk-pixbuf2 thunderbird-i18n-de python-pyqt5  gnu-netcat opendoas retroarch-assets-glui retroarch-assets-ozone ninja ccache glm openvr yad archlinux-keyring base base-devel xf86-video-ati xf86-video-amdgpu  xorg xorg-server xorg-xinit mesa-demos vulkan-tools  vulkan-mesa-layers vulkan-radeon  vulkan-icd-loader pulseaudio alsa-tools alsa-utils pulseaudio-alsa pavucontrol  wine lib32-mpg123 openra winetricks openal firefox-i18n-de xfce4-terminal openvpn dotnet-runtime dotnet-sdk thunar ntfs-3g exfat-utils boost mpv desmume mgba-qt mgba-sdl xfce4 xfce4-goodies blender opencl-mesa  gst-plugins-ugly  qt5-webengine qt5-base qt5-multimedia qt5-tools fmt libxkbcommon-x11 sdl2 desktop-file-utils shared-mime-info nlohmann-json boost catch2 cmake git  nano adriconf   qt5-webglplugin qt5-webkit qt5-websockets qt5-webview  veracrypt desmume libretro-desmume nano p7zip snes9x retroarch libretro-mesen  mgba-qt python-pyqt5 mkvtoolnix-gui k3b qt5 sndio rkhunter qutebrowser hexedit youtube-dl vlc lib32-libpulse lib32-alsa-plugins hexedit qutebrowser youtube-dl obs-studio cdemu-client  cdemu-daemon vhba-module-dkms  virtualbox blender  gimp gimp-help-de   nfs-utils rsync subversion qemu cdrtools dolphin-emu lib32-mesa-vdpau mesa-vdpau  lib32-vulkan-radeon vulkan-radeon lib32-libva-mesa-driver libva-mesa-driver exfat-utils  python3 python-pip   python2-pip  python2 python-lz4 python2-apipkg python-lz4 python python-setuptools python-pip gphoto2 gvfs-gphoto2 libgphoto2  mono  wine-mono wine_gecko kvantum-qt5   qtcreator  falkon glfw-x11  git cmake  gcc clang htop shotcut archiso vulkan-headers vulkan-tools vulkan-extra-layers gimp-nufraw xdotool xorg-xinput gnu-netcat   gimp-help-de opencl-mesa  firefox-i18n-de vkd3d lib32-vkd3d  gparted libreoffice-still-de  inkscape  partclone pigz gedit pkgstats scons python-pyusb clamav clamtk  cura encfs playonlinux cura encfs steam xmlto docbook-xsl kmod inetutils bc git libelf steam-native-runtime xreader rawtherapee  nautilus minetest-server minetest";
+
+
+tmpfile = "/tmp/lsscsi1i3u45hz835z8345z3-384534875z3485z487";
+
+config_file = ".config";
+
+
+lsusb_temp_file = "/tmp/873264832654893775963457967hsdifhreufgdurbgfkuseb"
+
+def system(cmd):
+    try:
+        #out = subprocess.check_output(cmd, shell=True).decode().split("\n")
+        os.system(cmd)
+        #return out
+    except subprocess.CalledProcessError:
+        return []
+
+def list_all_devices():
+    devinput = "/dev/input/by-id/";
+    array = list_path_einfache(devinput, 0);
+    patharray = array[3];
+    print(patharray);
+    return patharray;
+
+def add_input_device(namedeives):
+    devinput = "/dev/input/by-id";
+    found_devices = list_all_devices();
+    tmp = namedeives.split(",");
+    out = [];
+    if(len(tmp) >= 1):
+        for tmp3 in found_devices:
+            for tmp2 in tmp:
+                if(tmp3.find(tmp2) >= 1):
+                    out.append(devinput + tmp3);
+    return out;
+
+
+
+def list_path_einfache(path, link_ignore):
+    sdir  = "";
+    array = [0, sdir];
+    if(link_ignore == 1):
+        array = listpath_ohne_link(path, "", array, [], [], []);
+        return array;
+    else:
+        array = listpath(path, "", array, [], [], []);
+        return array;
+    return array;
+
+
+def listpath_ohne_link(path, rpath, array, idarray, patharray, ctime):
+    #File list
+    sdir = array[1];
+    list = os.listdir(path)
+    size = len(list);
+    sout = "";
+    i = 0;
+    j = 0;
+    if(size == 0):
+        return [j, sdir, idarray, patharray];
+    while True:
+        spath = path + "/" + list[i];
+        if(os.path.isdir(spath) == True):
+            rpath2 = rpath + "/" + list[i];
+            i =  i+1;
+            array = [j, sdir];
+            array = listpath(spath, rpath2, array, idarray, patharray, ctime);
+            idarray = array[2];
+            patharray = array[3];
+            ctime = array[4];
+            j = array[0];
+            sdir = array[1];
+            if( i== size):
+                break;
+        elif(os.path.islink(spath) == True):
+            i = i+ 1;
+            j = j +1;
+            if( i== size):
+                break;
+        elif(os.path.isfile(spath) == True):
+            sdir = sdir + "ID: " + str(j) + " | " + rpath + "/" + list[i] + "\n";
+            idarray.append(j);
+            s1 = rpath + "/" + list[i];
+            patharray.append(s1);
+            ctime.append(os.path.getmtime(spath));
+            i = i+ 1;
+            j = j +1;
+            if( i== size):
+                break;
+        else:
+            sdir = sdir + "ID: " + str(j) + " | " + rpath + "/" + list[i] + "\n";
+            idarray.append(j);
+            s1 = rpath + "/" + list[i];
+            patharray.append(s1);
+            ctime.append(os.path.getmtime(spath));
+            i = i+ 1;
+            j = j +1;
+            if( i== size):
+                break;
+    return [j, sdir, idarray, patharray, ctime]
+
+
+def listpath(path, rpath, array, idarray, patharray, ctime):
+    #File list
+    sdir = array[1];
+    list = os.listdir(path)
+    size = len(list);
+    sout = "";
+    i = 0;
+    j = 0;
+    if(size == 0):
+        return [j, sdir, idarray, patharray];
+    while True:
+        spath = path + "/" + list[i];
+        if(os.path.isdir(spath) == True):
+            rpath2 = rpath + "/" + list[i];
+            i =  i+1;
+            array = [j, sdir];
+            array = listpath(spath, rpath2, array, idarray, patharray, ctime);
+            idarray = array[2];
+            patharray = array[3];
+            ctime = array[4];
+            j = array[0];
+            sdir = array[1];
+            if( i== size):
+                break;
+        elif(os.path.islink(spath) == True):
+            sdir = sdir + "ID: " + str(j) + " | " + rpath + "/" + list[i] + "\n";
+            idarray.append(j);
+            s1 = rpath + "/" + list[i];
+            patharray.append(s1);
+            ctime.append(os.path.getmtime(spath));
+            i = i+ 1;
+            j = j +1;
+            if( i== size):
+                break;
+        elif(os.path.isfile(spath) == True):
+            sdir = sdir + "ID: " + str(j) + " | " + rpath + "/" + list[i] + "\n";
+            idarray.append(j);
+            s1 = rpath + "/" + list[i];
+            patharray.append(s1);
+            ctime.append(os.path.getmtime(spath));
+            i = i+ 1;
+            j = j +1;
+            if( i== size):
+                break;
+        else:
+            sdir = sdir + "ID: " + str(j) + " | " + rpath + "/" + list[i] + "\n";
+            idarray.append(j);
+            s1 = rpath + "/" + list[i];
+            patharray.append(s1);
+            ctime.append(os.path.getmtime(spath));
+            i = i+ 1;
+            j = j +1;
+            if( i== size):
+                break;
+    return [j, sdir, idarray, patharray, ctime]
+
+
+
+def patching_pulse_audio_config(id):
+    s0 = "#version 0.1\n"
+    s1 = "default-server = unix:/run/user/" + id + "/pulse/native\n";
+    s2 = "autospawn = no\n";
+    s3 = "daemon-binary = /bin/true\n";
+    s4 = "enable-shm = false\n"
+    file1 = open("pulse-client.conf", "w");
+    file1.write(s0);
+    file1.write(s1);
+    file1.write(s2);
+    file1.write(s3);
+    file1.write(s4);
+    file1.close();
+    print("patching_pulse_audio_config ok");
+    return 0;
+
+
+def patching_user(docker_user, command, id):
+    s0 = "#!/bin/bash\n#version=0.1\n";
+    s1 = "usermod -u "+ id + " "  + docker_user + "\n";
+    s1_2 = "rm /dev/input/* \n";
+    s1 = s1  + s1_2;
+    s2 = "/root/chmod_check.py '" + docker_user + "' '" + id + "' \n";
+    #steam fix PWD 1
+    s2 = s2 + "export PWD=/home/" + docker_user + "\n";
+    #s2 = "chown -R "+ docker_user +":users /home/" + docker_user + "\n";
+    s3 = "";
+    if(command != ""):
+        s3 = command + "\n";
+    else:
+        s3 = "su" + "\n";
+    file1 = open("user_patched.bash", "w");
+    file1.write(s0);
+    file1.write(s1);
+    file1.write(s2);
+    file1.write(s3);
+    file1.close();
+    print("patching_user ok");
+    patching_pulse_audio_config(id);
+    system("chmod +x user_patched.bash");
+    return 0;
+
+def check_device_isopen(filepath):
+    try:
+        tmp = os.open(filepath, os.O_RDONLY);
+        os.close(tmp);
+        return 1;
+    except PermissionError:
+        return 0;
+    except TypeError:
+        return 0;
+    except FileNotFoundError:
+        return 0;
+    return 1;
+
+def check_device_isopen_hidraw(filepath):
+    try:
+        tmp = os.open(filepath, os.O_RDONLY);
+        os.close(tmp);
+        return 1;
+    except PermissionError:
+        return 1;
+    except TypeError:
+        return 1;
+    except FileNotFoundError:
+        return 0;
+    return 1;
+
+
+
+def system(cmd):
+    try:
+        output = subprocess.check_output(cmd, shell=True).decode().split("\n");
+        return output;
+    except subprocess.CalledProcessError:
+        return "";
+    except FileNotFoundError:
+        return "";
+
+def read_hidraw_device(suche):
+    i = 0;
+    dev = [];
+    while True:
+        if(i >= 100):
+            break;
+        if(check_device_isopen("/dev/hidraw" + str(i)) == 0):
+            i = i +1;
+            continue;
+        output = system("/usr/bin/cat < /sys/class/hidraw/hidraw" + str(i) +  "/device/uevent | /usr/bin/grep \"" + suche + "\"");
+        if(output != ""):
+            if(output[0].find(suche) != -1):
+                #system("sudo chmod 700 " + "/dev/hidraw" + str(i));
+                dev.append("/dev/hidraw" + str(i));
+        i = i +1;
+    if(os.path.isfile(tmpfile) == True):
+        os.remove(tmpfile);
+    return dev;
+
+def read_steam_Controller():
+    devs = ["/dev/input/by-id/usb-Valve_Software_Steam_Controller-event-mouse", "/dev/input/by-id/usb-Valve_Software_Steam_Controller-if01-event-joystick", "/dev/input/by-id/usb-Valve_Software_Steam_Controller-if01-joystick", "/dev/input/by-id/usb-Valve_Software_Steam_Controller-mouse"];
+    i = 0;
+    devices_add = [];
+    while True:
+        if(i >= len(devs)):
+            break;
+        if(check_device_isopen(devs[i]) == 1):
+            devices_add.append(os.path.realpath(devs[i]));
+        i = i +1;
+    i = 0;
+    while True:
+        if(i >= 100):
+            break;
+        if(check_device_isopen("/dev/input/event" + str(i) == 1)):
+            devices_add.append("/dev/input/event" + str(i));
+        if(check_device_isopen("/dev/input/js" + str(i) == 1)):
+            devices_add.append("/dev/input/js" + str(i));
+        if(check_device_isopen("/dev/input/mouse" + str(i) == 1)):
+            devices_add.append("/dev/input/mouse" + str(i));
+        i = i +1;
+    return devices_add;
+
+
+devices = read_steam_Controller();
+
+def usb_pasthrough(name):
+    if(name == ""):
+        system("lsusb >"+ lsusb_temp_file);
+    else:
+        system("lsusb | grep \"" + name + "\" >"+ lsusb_temp_file);
+    if(os.path.isfile(lsusb_temp_file) == False):
+        print("usb_pasthrough() ERROR not find file: lsusb_temp_file: "+ lsusb_temp_file);
+        return 0;
+    file1 = open(lsusb_temp_file, "r");
+    file1.seek(0, 2);
+    size = file1.tell();
+    file1.seek(0, 0);
+    b1 = file1.read(size);
+    i = 0;
+    bus = [];
+    bus_temp = "";
+    dev = [];
+    dev_temp = "";
+    l1 = -1;
+    while True:
+        if(i >= len(b1)):
+            break;
+        if(i+ 2 < len(b1) and  (b1[i] == 'B' and b1[i + 1] == 'u') and b1[i + 2] == 's'):
+            l1 = 0;
+            i = i +3;
+        elif(i+ 5 < len(b1) and (b1[i] == 'D' and b1[i + 1] == 'e') and (b1[i + 2] == 'v' and b1[i + 3] == 'i') and (b1[i + 4] == 'c' and b1[i + 5] == 'e')):
+            l1 = 1;
+            i = i +6;
+        elif(l1 == 0):
+            if(b1[i] == ' '):
+                l1 = -1;
+            else:
+                bus_temp = bus_temp + b1[i];
+
+        elif(l1 == 1):
+            if(b1[i] == ' '):
+                l1 = -1;
+            elif(b1[i] == ':'):
+                l1 = -1;
+            else:
+                dev_temp = dev_temp + b1[i];
+        elif(b1[i] == '\n'):
+            if(bus_temp != "" and dev_temp != ""):
+                bus.append(bus_temp);
+                dev.append(dev_temp);
+                bus_temp = "";
+                dev_temp = "";
+        i = i +1;
+    if(os.path.isfile(lsusb_temp_file) == True):
+        os.remove(lsusb_temp_file);
+    return [bus, dev];
+
+
+
+def read_config():
+    if(os.path.isfile(config_file) == False):
+        print("read_config() ERROR not found " + config_file + " file in the fodler");
+        exir(1);
+    file1 = open(config_file, "r");
+    file1.seek(0, 2);
+    size = file1.tell();
+    file1.seek(0, 0);
+    b1 = file1.read(size);
+    file1.close();
+    i = 0;
+    config = [];
+    config_temp = "";
+    config_temp1 = [];
+    l1 = -1;
+    l2 = -1;
+    while True:
+        if(i >= len(b1)):
+            break;
+        if(i + 11 < len(b1) and (b1[i] == 'd' and b1[i+1] == 'o' ) and (b1[i+2] == 'c' and b1[i+3] == 'k' ) and (b1[i+4] == 'e' and b1[i+5] == 'r' ) and (b1[i+6] == '_' and b1[i+7] == 'u' ) and (b1[i+8] == 's' and b1[i+9] == 'e' ) and (b1[i+10] == 'r' )):
+            l1 = 1;
+        elif(i + 10 < len(b1) and (b1[i] == 'g' and b1[i+1] == 'p' ) and (b1[i+2] == 'u' and b1[i+3] == '_' ) and (b1[i+4] == 'r' and b1[i+5] == 'e' ) and (b1[i+6] == 'n' and b1[i+7] == 'd' ) and (b1[i+8] == 'e' and b1[i+9] == 'r' )):
+             l1 = 2;
+        elif(i + 15 < len(b1) and (b1[i] == 'd' and b1[i+1] == 'i' ) and (b1[i+2] == 's' and b1[i+3] == 'k' ) and (b1[i+4] == '_' and b1[i+5] == 'd' ) and (b1[i+6] == 'e' and b1[i+7] == 'v' ) and (b1[i+8] == 'i' and b1[i+9] == 'c' ) and (b1[i+10] == 'e'  and  b1[i+11] == '_' ) and   (b1[i+12] == 'n'  and  b1[i+13] == 'a' ) and (b1[i+14] == 'm'  and  b1[i+15] == 'e' )):
+            l1 = 3;
+        elif(i + 16 < len(b1) and (b1[i] == 'z' and b1[i+1] == 'u' ) and (b1[i+2] == 'g' and b1[i+3] == 'r' ) and (b1[i+4] == 'i' and b1[i+5] == 'f' ) and (b1[i+6] == 'f' and b1[i+7] == '_' ) and (b1[i+8] == 'a' and b1[i+9] == 'u' ) and (b1[i+10] == 'f'  and  b1[i+11] == '_' ) and   (b1[i+12] == 'm'  and  b1[i+13] == 'e' ) and (b1[i+14] == 'd'  and  b1[i+15] == 'i' ) and  b1[i+16] == 'a' ):
+            l1 = 4;
+        elif(i + 21 < len(b1) and (b1[i] == 's' and b1[i+1] == 'a' ) and (b1[i+2] == 'v' and b1[i+3] == '_' ) and (b1[i+4] == 'h' and b1[i+5] == 'o' ) and (b1[i+6] == 'm' and b1[i+7] == 'e' ) and (b1[i+8] == '_' and b1[i+9] == 'd' ) and (b1[i+10] == 'o'  and  b1[i+11] == 'c' ) and   (b1[i+12] == 'k'  and  b1[i+13] == 'e' ) and (b1[i+14] == 'r'  and  b1[i+15] == '_' ) and  (b1[i+16] == 'f' and b1[i+17] == 'o') and (b1[i+18] == 'l' and b1[i+19] == 'd') and  (b1[i+20] == 'e' and b1[i+21] == 'r') ):
+            l1 = 5;
+        elif(i + 11 < len(b1) and (b1[i] == 's' and b1[i+1] == 'h' ) and (b1[i+2] == 'a' and b1[i+3] == 'r' ) and (b1[i+4] == 'e' and b1[i+5] == '_' ) and (b1[i+6] == 'f' and b1[i+7] == 'o' ) and (b1[i+8] == 'l' and b1[i+9] == 'd' ) and (b1[i+10] == 'e'  and  b1[i+11] == 'r' )):
+            if(i + 17 < len(b1) and (b1[i+12] == '_' and b1[i+13] == 'd' ) and (b1[i+14] == 'a' and b1[i+15] == 't' ) and (b1[i+16] == 'e' and b1[i+17] == 'n' )):
+                l1 = 6;
+            elif(i + 18 < len(b1) and (b1[i+12] == '1' and b1[i+13] == '_' ) and (b1[i+14] == 'a' and b1[i+15] == 'k' ) and (b1[i+16] == 't' and b1[i+17] == 'i' )  and (b1[i+18] == 'v')):
+                l1 = 7;
+            elif(i + 18 < len(b1) and (b1[i+12] == '1')):
+                l1 = 8;
+        elif(i + 13 < len(b1) and (b1[i] == 'n' and b1[i+1] == 'e' ) and (b1[i+2] == 't' and b1[i+3] == 'w' ) and (b1[i+4] == 'o' and b1[i+5] == 'r' ) and (b1[i+6] == 'k' and b1[i+7] == '_' ) and (b1[i+8] == 'd' and b1[i+9] == 'i' ) and (b1[i+10] == 's'  and  b1[i+11] == 'a' ) and   (b1[i+12] == 'b'  and  b1[i+13] == 'l' ) ):
+            l1 = 9;
+        elif(i + 20 < len(b1) and (b1[i] == 's' and b1[i+1] == 't' ) and (b1[i+2] == 'e' and b1[i+3] == 'a' ) and (b1[i+4] == 'm' and b1[i+5] == '_' ) and (b1[i+6] == 'c' and b1[i+7] == 'o' ) and (b1[i+8] == 'n' and b1[i+9] == 't' ) and (b1[i+10] == 'r'  and  b1[i+11] == 'o' ) and   (b1[i+12] == 'l'  and  b1[i+13] == 'l' ) and (b1[i+14] == 'e'  and  b1[i+15] == 'r' ) and (b1[i+16] == '_'  and  b1[i+17] == 'b' )and (b1[i+18] == 'o'  and  b1[i+19] == 'o' )and  b1[i+20] == 'l' ):
+            l1 = 10;
+        elif(i + 10 < len(b1) and (b1[i] == 'u' and b1[i+1] == 's' ) and (b1[i+2] == 'b' and b1[i+3] == '_' ) and (b1[i+4] == 's' and b1[i+5] == 'h' ) and (b1[i+6] == 'a' and b1[i+7] == 'r' ) and (b1[i+8] == 'i' and b1[i+9] == 'n' ) and (b1[i+10] == 'g' )):
+            l1 = 11;
+        elif(i + 7 < len(b1) and (b1[i] == 'u' and b1[i+1] == 's' ) and (b1[i+2] == 'b' and b1[i+3] == '_' ) and (b1[i+4] == 'n' and b1[i+5] == 'a' ) and (b1[i+6] == 'm' and b1[i+7] == 'e' ) ):
+            l1 = 12;
+        elif(i + 14 < len(b1) and (b1[i] == 'u' and b1[i+1] == 's' ) and (b1[i+2] == 'b' and b1[i+3] == '_' ) and (b1[i+4] == 'h' and b1[i+5] == 'i' ) and (b1[i+6] == 'd' and b1[i+7] == 'r' ) and (b1[i+8] == 'a' and b1[i+9] == 'w' ) and (b1[i+10] == '_'  and  b1[i+11] == 'n' ) and   (b1[i+12] == 'a'  and  b1[i+13] == 'm' ) and (b1[i+14] == 'e' )):
+            l1 = 13;
+        elif(i + 11 < len(b1) and (b1[i] == 'd' and b1[i+1] == 'o' ) and (b1[i+2] == 'c' and b1[i+3] == 'k' ) and (b1[i+4] == 'e' and b1[i+5] == 'r' ) and (b1[i+6] == '_' and b1[i+7] == 'b' ) and (b1[i+8] == 'u' and b1[i+9] == 'i' ) and (b1[i+10] == 'l' and b1[i+11] == 'd')):
+            l1 = 14;
+        elif(i + 11 < len(b1) and (b1[i] == 'd' and b1[i+1] == 'o' ) and (b1[i+2] == 'c' and b1[i+3] == 'k' ) and (b1[i+4] == 'e' and b1[i+5] == 'r' ) and (b1[i+6] == '_' and b1[i+7] == 'i' ) and (b1[i+8] == 'n' and b1[i+9] == 'p' ) and (b1[i+10] == 'u' and b1[i+11] == 't')):
+            l1 = 15;
+        elif(i + 15 < len(b1) and (b1[i] == 'd' and b1[i+1] == 'o' ) and (b1[i+2] == 'c' and b1[i+3] == 'k' ) and (b1[i+4] == 'e' and b1[i+5] == 'r' ) and (b1[i+6] == '_' and b1[i+7] == 'm' ) and (b1[i+8] == 'a' and b1[i+9] == 'x' ) and (b1[i+10] == 'm' and b1[i+11] == 'e')  and   (b1[i+12] == 'm' and b1[i+13] == 'o') and (b1[i+14] == 'r' and b1[i+15] == 'y') ):
+            l1 = 16;#maxmemory
+        elif(i + 13 < len(b1) and (b1[i] == 'd' and b1[i+1] == 'o' ) and (b1[i+2] == 'c' and b1[i+3] == 'k' ) and (b1[i+4] == 'e' and b1[i+5] == 'r' ) and (b1[i+6] == '_' and b1[i+7] == 'm' ) and (b1[i+8] == 'a' and b1[i+9] == 'x' ) and (b1[i+10] == 'c' and b1[i+11] == 'p')  and   (b1[i+12] == 'u' and b1[i+13] == 's') ):
+            l1 = 17;#maxcpus
+        elif(i + 11 < len(b1) and (b1[i] == 'n' and b1[i+1] == 'e' ) and (b1[i+2] == 't' and b1[i+3] == 'w' ) and (b1[i+4] == 'o' and b1[i+5] == 'r' ) and (b1[i+6] == 'k' and b1[i+7] == '_' ) and (b1[i+8] == 'h' and b1[i+9] == 'o' ) and (b1[i+10] == 's' and b1[i+11] == 't')  ):
+            l1 = 18;#network_host
+        elif(i + 11 < len(b1) and (b1[i] == 'p' and b1[i+1] == 'o' ) and (b1[i+2] == 'r' and b1[i+3] == 't' ) and (b1[i+4] == 'f' and b1[i+5] == 'o' ) and (b1[i+6] == 'r' and b1[i+7] == 'w' ) and (b1[i+8] == 'd' and b1[i+9] == 'i' ) and (b1[i+10] == 'n' and b1[i+11] == 'g')  ):
+            l1 = 19;#portforwding
+        elif(i + 6 < len(b1) and (b1[i] == 'd' and b1[i+1] == 'b' ) and (b1[i+2] == 'u' and b1[i+3] == 's' ) and (b1[i+4] == '_' and b1[i+5] == 'r' ) and (b1[i+6] == 'w' ) ):
+            l1 = 20;#dbus_rw
+        elif(i + 11 < len(b1) and (b1[i] == 'p' and b1[i+1] == 'a' ) and (b1[i+2] == 'c' and b1[i+3] == 'm' ) and (b1[i+4] == 'a' and b1[i+5] == 'n' ) and (b1[i+6] == '_' and  b1[i+7] == 'c') and (b1[i+8] == 'a' and  b1[i+9] == 'c') and (b1[i+10] == 'h' and  b1[i+11] == 'e') ):
+            l1 = 21;#pacman_cache
+        elif(i + 2 < len(b1) and (b1[i] == 'd' and b1[i+1] == 'n' ) and (b1[i+2] == 's') ):
+            l1 = 22;#dns
+        elif(i + 3 < len(b1) and (b1[i] == 'i' and b1[i+1] == 'p' ) and  (b1[i+2] == 'v' and b1[i+3] == '4' ) ):
+            l1 = 23;#ipv4
+        elif(i + 12 < len(b1) and (b1[i] == 'w' and b1[i+1] == 'i' ) and  (b1[i+2] == 'r' and b1[i+3] == 'e' ) and (b1[i+4] == 'g' and b1[i+5] == 'u' ) and (b1[i+6] == 'a' and b1[i+7] == 'r' )and (b1[i+8] == 'd' and b1[i+9] == '_' )and (b1[i+10] == 'f' and b1[i+11] == 'i' )and (b1[i+12] == 'x') ):
+            l1 = 24;#wireguard_fix
+        elif(i + 5 < len(b1) and (b1[i] == 'n' and b1[i+1] == 'o' ) and  (b1[i+2] == 's' and b1[i+3] == 'u' ) and (b1[i+4] == 'd' and b1[i+5] == 'o' )  ):
+            l1 = 25#nosudo
+        elif(i + 16 < len(b1) and (b1[i] == 'r' and b1[i+1] == 'u' ) and (b1[i+2] == 'n' and b1[i+3] == '_' ) and (b1[i+4] == 'i' and b1[i+5] == 'n' ) and (b1[i+6] == '_' and b1[i+7] == 'b' ) and (b1[i+8] == 'a' and b1[i+9] == 'c' ) and (b1[i+10] == 'k' and b1[i+11] == 'g')  and   (b1[i+12] == 'r' and b1[i+13] == 'o') and (b1[i+14] == 'u' and b1[i+15] == 'n') and (b1[i+16] == 'd') ):
+            l1 = 26;#run_in_background
+        elif(i + 4 < len(b1) and (b1[i] == 't' and b1[i+1] == 't' ) and (b1[i+2] == 'y' and b1[i+3] == 'o' ) and (b1[i+4] == 'n' )):
+            l1 = 27;#ttyon
+        elif(i + 21 < len(b1) and (b1[i] == 'p' and b1[i+1] == 'a' ) and (b1[i+2] == 'c' and b1[i+3] == 'm' ) and (b1[i+4] == 'a' and b1[i+5] == 'n' ) and (b1[i+6] == '_' and b1[i+7] == 'p' ) and (b1[i+8] == 'a' and b1[i+9] == 'k' ) and (b1[i+10] == 'g' and b1[i+11] == 'a')  and   (b1[i+12] == 'g' and b1[i+13] == 'e') and b1[i+14] == "_" and (b1[i+15] == 'i' and b1[i+16] == 'n') and (b1[i+17] == 's' and b1[i+18] == 't') and (b1[i+19] == 'a' and b1[i+20] == 'l') and (b1[i+21] == 'l' )):
+            l1 = 28#pacman_pakgage_install
+        elif(l1 == 1):
+            i = i +1;
+            if(b1[i] != ' '):
+                #config_temp = config_temp  + b1[i];
+                i = i +1;
+                while True:
+                    if(i >= len(b1)):
+                        break;
+                    if(b1[i] == '\n'):
+                        break;
+                    if(b1[i] == '='):
+                        l2 = 1;
+                        if(b1[i+1] == ' '):
+                            i = i +1;
+                    elif(l2 == 1):
+                        config_temp = config_temp  + b1[i];
+                    i = i +1;
+                config_temp1.append("docker_user");
+                config_temp1.append(config_temp);
+                config.append(config_temp1);
+                config_temp1 = [];
+                config_temp = "";
+                l1 = -1;
+                l2 = -1;
+
+        elif(l1 == 2):
+            i = i +1;
+            if(b1[i] != ' '):
+                #config_temp = config_temp  + b1[i];
+                i = i +1;
+                while True:
+                    if(i >= len(b1)):
+                        break;
+                    if(b1[i] == '\n'):
+                        break;
+                    if(b1[i] == '='):
+                        l2 = 1;
+                        if(b1[i+1] == ' '):
+                            i = i +1;
+                    elif(l2 == 1):
+                        config_temp = config_temp  + b1[i];
+                    i = i +1;
+                config_temp1.append("gpu_render");
+                config_temp1.append(config_temp);
+                config.append(config_temp1);
+                config_temp1 = [];
+                config_temp = "";
+                l1 = -1;
+                l2 = -1;
+
+        elif(l1 == 3):
+            i = i +1;
+            if(b1[i] != ' '):
+                #config_temp = config_temp  + b1[i];
+                i = i +1;
+                while True:
+                    if(i >= len(b1)):
+                        break;
+                    if(b1[i] == '\n'):
+                        break;
+                    if(b1[i] == '='):
+                        l2 = 1;
+                        if(b1[i+1] == ' '):
+                            i = i +1;
+                    elif(l2 == 1):
+                        config_temp = config_temp  + b1[i];
+                    i = i +1;
+                config_temp1.append("disk_device_name");
+                config_temp1.append(config_temp);
+                config.append(config_temp1);
+                config_temp1 = [];
+                config_temp = "";
+                l1 = -1;
+                l2 = -1;
+
+        elif(l1 == 4):
+            i = i +1;
+            if(b1[i] != ' '):
+                #config_temp = config_temp  + b1[i];
+                i = i +1;
+                while True:
+                    if(i >= len(b1)):
+                        break;
+                    if(b1[i] == '\n'):
+                        break;
+                    if(b1[i] == '='):
+                        l2 = 1;
+                        if(b1[i+1] == ' '):
+                            i = i +1;
+                    elif(l2 == 1):
+                        config_temp = config_temp  + b1[i];
+                    i = i +1;
+                config_temp1.append("zugriff_auf_media");
+                config_temp1.append(config_temp);
+                config.append(config_temp1);
+                config_temp1 = [];
+                config_temp = "";
+                l1 = -1;
+                l2 = -1;
+
+        elif(l1 == 5):
+            i = i +1;
+            if(b1[i] != ' '):
+                #config_temp = config_temp  + b1[i];
+                i = i +1;
+                while True:
+                    if(i >= len(b1)):
+                        break;
+                    if(b1[i] == '\n'):
+                        break;
+                    if(b1[i] == '='):
+                        l2 = 1;
+                        if(b1[i+1] == ' '):
+                            i = i +1;
+                    elif(l2 == 1):
+                        config_temp = config_temp  + b1[i];
+                    i = i +1;
+                config_temp1.append("sav_home_docker_folder");
+                config_temp1.append(config_temp);
+                config.append(config_temp1);
+                config_temp1 = [];
+                config_temp = "";
+                l1 = -1;
+                l2 = -1;
+
+        elif(l1 == 6):
+            i = i +1;
+            if(b1[i] != ' '):
+                #config_temp = config_temp  + b1[i];
+                i = i +1;
+                while True:
+                    if(i >= len(b1)):
+                        break;
+                    if(b1[i] == '\n'):
+                        break;
+                    if(b1[i] == '='):
+                        l2 = 1;
+                        if(b1[i+1] == ' '):
+                            i = i +1;
+                    elif(l2 == 1):
+                        config_temp = config_temp  + b1[i];
+                    i = i +1;
+                config_temp1.append("share_folder_daten");
+                config_temp1.append(config_temp);
+                config.append(config_temp1);
+                config_temp1 = [];
+                config_temp = "";
+                l1 = -1;
+                l2 = -1;
+
+        elif(l1 == 7):
+            i = i +1;
+            if(b1[i] != ' '):
+                #config_temp = config_temp  + b1[i];
+                i = i +1;
+                while True:
+                    if(i >= len(b1)):
+                        break;
+                    if(b1[i] == '\n'):
+                        break;
+                    if(b1[i] == '='):
+                        l2 = 1;
+                        if(b1[i+1] == ' '):
+                            i = i +1;
+                    elif(l2 == 1):
+                        config_temp = config_temp  + b1[i];
+                    i = i +1;
+                config_temp1.append("share_folder1_aktiv");
+                config_temp1.append(config_temp);
+                config.append(config_temp1);
+                config_temp1 = [];
+                config_temp = "";
+                l1 = -1;
+                l2 = -1;
+
+        elif(l1 == 8):
+            i = i +1;
+            if(b1[i] != ' '):
+                #config_temp = config_temp  + b1[i];
+                i = i +1;
+                while True:
+                    if(i >= len(b1)):
+                        break;
+                    if(b1[i] == '\n'):
+                        break;
+                    if(b1[i] == '='):
+                        l2 = 1;
+                        if(b1[i+1] == ' '):
+                            i = i +1;
+                    elif(l2 == 1):
+                        config_temp = config_temp  + b1[i];
+                    i = i +1;
+                config_temp1.append("share_folder1");
+                config_temp1.append(config_temp);
+                config.append(config_temp1);
+                config_temp1 = [];
+                config_temp = "";
+                l1 = -1;
+                l2 = -1;
+
+        elif(l1 == 9):
+            i = i +1;
+            if(b1[i] != ' '):
+                #config_temp = config_temp  + b1[i];
+                i = i +1;
+                while True:
+                    if(i >= len(b1)):
+                        break;
+                    if(b1[i] == '\n'):
+                        break;
+                    if(b1[i] == '='):
+                        l2 = 1;
+                        if(b1[i+1] == ' '):
+                            i = i +1;
+                    elif(l2 == 1):
+                        config_temp = config_temp  + b1[i];
+                    i = i +1;
+                config_temp1.append("network_disable");
+                config_temp1.append(config_temp);
+                config.append(config_temp1);
+                config_temp1 = [];
+                config_temp = "";
+                l1 = -1;
+                l2 = -1;
+
+        elif(l1 == 10):
+            i = i +1;
+            if(b1[i] != ' '):
+                #config_temp = config_temp  + b1[i];
+                i = i +1;
+                while True:
+                    if(i >= len(b1)):
+                        break;
+                    if(b1[i] == '\n'):
+                        break;
+                    if(b1[i] == '='):
+                        l2 = 1;
+                        if(b1[i+1] == ' '):
+                            i = i +1;
+                    elif(l2 == 1):
+                        config_temp = config_temp  + b1[i];
+                    i = i +1;
+                config_temp1.append("steam_controller_bool");
+                config_temp1.append(config_temp);
+                config.append(config_temp1);
+                config_temp1 = [];
+                config_temp = "";
+                l1 = -1;
+                l2 = -1;
+
+        elif(l1 == 11):
+            i = i +1;
+            if(b1[i] != ' '):
+                #config_temp = config_temp  + b1[i];
+                i = i +1;
+                while True:
+                    if(i >= len(b1)):
+                        break;
+                    if(b1[i] == '\n'):
+                        break;
+                    if(b1[i] == '='):
+                        l2 = 1;
+                        if(b1[i+1] == ' '):
+                            i = i +1;
+                    elif(l2 == 1):
+                        config_temp = config_temp  + b1[i];
+                    i = i +1;
+                config_temp1.append("usb_sharing");
+                config_temp1.append(config_temp);
+                config.append(config_temp1);
+                config_temp1 = [];
+                config_temp = "";
+                l1 = -1;
+                l2 = -1;
+
+        elif(l1 == 12):
+            i = i +1;
+            if(b1[i] != ' '):
+                #config_temp = config_temp  + b1[i];
+                i = i +1;
+                while True:
+                    if(i >= len(b1)):
+                        break;
+                    if(b1[i] == '\n'):
+                        break;
+                    if(b1[i] == '='):
+                        l2 = 1;
+                        if(b1[i+1] == ' '):
+                            i = i +1;
+                    elif(l2 == 1):
+                        config_temp = config_temp  + b1[i];
+                    i = i +1;
+                config_temp1.append("usb_name");
+                config_temp1.append(config_temp);
+                config.append(config_temp1);
+                config_temp1 = [];
+                config_temp = "";
+                l1 = -1;
+                l2 = -1;
+
+        elif(l1 == 13):
+            i = i +1;
+            if(b1[i] != ' '):
+                #config_temp = config_temp  + b1[i];
+                i = i +1;
+                while True:
+                    if(i >= len(b1)):
+                        break;
+                    if(b1[i] == '\n'):
+                        break;
+                    if(b1[i] == '='):
+                        l2 = 1;
+                        if(b1[i+1] == ' '):
+                            i = i +1;
+                    elif(l2 == 1):
+                        config_temp = config_temp  + b1[i];
+                    i = i +1;
+                config_temp1.append("usb_hidraw_name");
+                config_temp1.append(config_temp);
+                config.append(config_temp1);
+                config_temp1 = [];
+                config_temp = "";
+                l1 = -1;
+                l2 = -1;
+        elif(l1 == 14):
+            i = i +1;
+            if(b1[i] != ' '):
+                #config_temp = config_temp  + b1[i];
+                i = i +1;
+                while True:
+                    if(i >= len(b1)):
+                        break;
+                    if(b1[i] == '\n'):
+                        break;
+                    if(b1[i] == '='):
+                        l2 = 1;
+                        if(b1[i+1] == ' '):
+                            i = i +1;
+                    elif(l2 == 1):
+                        config_temp = config_temp  + b1[i];
+                    i = i +1;
+                config_temp1.append("docker_build");
+                config_temp1.append(config_temp);
+                config.append(config_temp1);
+                config_temp1 = [];
+                config_temp = "";
+                l1 = -1;
+                l2 = -1;
+        elif(l1 == 15):
+            i = i +1;
+            if(b1[i] != ' '):
+                #config_temp = config_temp  + b1[i];
+                i = i +1;
+                while True:
+                    if(i >= len(b1)):
+                        break;
+                    if(b1[i] == '\n'):
+                        break;
+                    if(b1[i] == '='):
+                        l2 = 1;
+                        if(b1[i+1] == ' '):
+                            i = i +1;
+                    elif(l2 == 1):
+                        config_temp = config_temp  + b1[i];
+                    i = i +1;
+                config_temp1.append("docker_input");
+                config_temp1.append(config_temp);
+                config.append(config_temp1);
+                config_temp1 = [];
+                config_temp = "";
+                l1 = -1;
+                l2 = -1;
+        elif(l1 == 16):
+            i = i +1;
+            if(b1[i] != ' '):
+                #config_temp = config_temp  + b1[i];
+                i = i +1;
+                while True:
+                    if(i >= len(b1)):
+                        break;
+                    if(b1[i] == '\n'):
+                        break;
+                    if(b1[i] == '='):
+                        l2 = 1;
+                        if(b1[i+1] == ' '):
+                            i = i +1;
+                    elif(l2 == 1):
+                        config_temp = config_temp  + b1[i];
+                    i = i +1;
+                config_temp1.append("maxmemory");
+                config_temp1.append(config_temp);
+                config.append(config_temp1);
+                config_temp1 = [];
+                config_temp = "";
+                l1 = -1;
+                l2 = -1;
+        elif(l1 == 17):
+            i = i +1;
+            if(b1[i] != ' '):
+                #config_temp = config_temp  + b1[i];
+                i = i +1;
+                while True:
+                    if(i >= len(b1)):
+                        break;
+                    if(b1[i] == '\n'):
+                        break;
+                    if(b1[i] == '='):
+                        l2 = 1;
+                        if(b1[i+1] == ' '):
+                            i = i +1;
+                    elif(l2 == 1):
+                        config_temp = config_temp  + b1[i];
+                    i = i +1;
+                config_temp1.append("maxcpus");
+                config_temp1.append(config_temp);
+                config.append(config_temp1);
+                config_temp1 = [];
+                config_temp = "";
+                l1 = -1;
+                l2 = -1;
+        elif(l1 == 18):
+            i = i +1;
+            if(b1[i] != ' '):
+                #config_temp = config_temp  + b1[i];
+                i = i +1;
+                while True:
+                    if(i >= len(b1)):
+                        break;
+                    if(b1[i] == '\n'):
+                        break;
+                    if(b1[i] == '='):
+                        l2 = 1;
+                        if(b1[i+1] == ' '):
+                            i = i +1;
+                    elif(l2 == 1):
+                        config_temp = config_temp  + b1[i];
+                    i = i +1;
+                config_temp1.append("network_host");
+                config_temp1.append(config_temp);
+                config.append(config_temp1);
+                config_temp1 = [];
+                config_temp = "";
+                l1 = -1;
+                l2 = -1;
+        elif(l1 == 19):
+            i = i +1;
+            if(b1[i] != ' '):
+                #config_temp = config_temp  + b1[i];
+                i = i +1;
+                while True:
+                    if(i >= len(b1)):
+                        break;
+                    if(b1[i] == '\n'):
+                        break;
+                    if(b1[i] == '='):
+                        l2 = 1;
+                        if(b1[i+1] == ' '):
+                            i = i +1;
+                    elif(l2 == 1):
+                        config_temp = config_temp  + b1[i];
+                    i = i +1;
+                config_temp1.append("portforwding");
+                config_temp1.append(config_temp);
+                config.append(config_temp1);
+                config_temp1 = [];
+                config_temp = "";
+                l1 = -1;
+                l2 = -1;
+        elif(l1 == 20):
+            i = i +1;
+            if(b1[i] != ' '):
+                #config_temp = config_temp  + b1[i];
+                i = i +1;
+                while True:
+                    if(i >= len(b1)):
+                        break;
+                    if(b1[i] == '\n'):
+                        break;
+                    if(b1[i] == '='):
+                        l2 = 1;
+                        if(b1[i+1] == ' '):
+                            i = i +1;
+                    elif(l2 == 1):
+                        config_temp = config_temp  + b1[i];
+                    i = i +1;
+                config_temp1.append("dbus_rw");
+                config_temp1.append(config_temp);
+                config.append(config_temp1);
+                config_temp1 = [];
+                config_temp = "";
+                l1 = -1;
+                l2 = -1;
+        elif(l1 == 21):
+            i = i +1;
+            if(b1[i] != ' '):
+                #config_temp = config_temp  + b1[i];
+                i = i +1;
+                while True:
+                    if(i >= len(b1)):
+                        break;
+                    if(b1[i] == '\n'):
+                        break;
+                    if(b1[i] == '='):
+                        l2 = 1;
+                        if(b1[i+1] == ' '):
+                            i = i +1;
+                    elif(l2 == 1):
+                        config_temp = config_temp  + b1[i];
+                    i = i +1;
+                config_temp1.append("pacman_cache");
+                config_temp1.append(config_temp);
+                config.append(config_temp1);
+                config_temp1 = [];
+                config_temp = "";
+                l1 = -1;
+                l2 = -1;
+        elif(l1 == 22):
+            i = i +1;
+            if(b1[i] != ' '):
+                #config_temp = config_temp  + b1[i];
+                i = i +1;
+                while True:
+                    if(i >= len(b1)):
+                        break;
+                    if(b1[i] == '\n'):
+                        break;
+                    if(b1[i] == '='):
+                        l2 = 1;
+                        if(b1[i+1] == ' '):
+                            i = i +1;
+                    elif(l2 == 1):
+                        config_temp = config_temp  + b1[i];
+                    i = i +1;
+                config_temp1.append("dns");
+                config_temp1.append(config_temp);
+                config.append(config_temp1);
+                config_temp1 = [];
+                config_temp = "";
+                l1 = -1;
+                l2 = -1;
+        elif(l1 == 23):
+            i = i +1;
+            if(b1[i] != ' '):
+                #config_temp = config_temp  + b1[i];
+                i = i +1;
+                while True:
+                    if(i >= len(b1)):
+                        break;
+                    if(b1[i] == '\n'):
+                        break;
+                    if(b1[i] == '='):
+                        l2 = 1;
+                        if(b1[i+1] == ' '):
+                            i = i +1;
+                    elif(l2 == 1):
+                        config_temp = config_temp  + b1[i];
+                    i = i +1;
+                config_temp1.append("ipv4");
+                config_temp1.append(config_temp);
+                config.append(config_temp1);
+                config_temp1 = [];
+                config_temp = "";
+                l1 = -1;
+                l2 = -1;
+        elif(l1 == 24):
+            i = i +1;
+            if(b1[i] != ' '):
+                #config_temp = config_temp  + b1[i];
+                i = i +1;
+                while True:
+                    if(i >= len(b1)):
+                        break;
+                    if(b1[i] == '\n'):
+                        break;
+                    if(b1[i] == '='):
+                        l2 = 1;
+                        if(b1[i+1] == ' '):
+                            i = i +1;
+                    elif(l2 == 1):
+                        config_temp = config_temp  + b1[i];
+                    i = i +1;
+                config_temp1.append("wireguard_fix");
+                config_temp1.append(config_temp);
+                config.append(config_temp1);
+                config_temp1 = [];
+                config_temp = "";
+                l1 = -1;
+                l2 = -1;
+
+
+        elif(l1 == 25):
+            i = i +1;
+            if(b1[i] != ' '):
+                #config_temp = config_temp  + b1[i];
+                i = i +1;
+                while True:
+                    if(i >= len(b1)):
+                        break;
+                    if(b1[i] == '\n'):
+                        break;
+                    if(b1[i] == '='):
+                        l2 = 1;
+                        if(b1[i+1] == ' '):
+                            i = i +1;
+                    elif(l2 == 1):
+                        config_temp = config_temp  + b1[i];
+                    i = i +1;
+                config_temp1.append("nosudo");
+                config_temp1.append(config_temp);
+                config.append(config_temp1);
+                config_temp1 = [];
+                config_temp = "";
+                l1 = -1;
+                l2 = -1;
+
+        elif(l1 == 26):
+            i = i +1;
+            if(b1[i] != ' '):
+                #config_temp = config_temp  + b1[i];
+                i = i +1;
+                while True:
+                    if(i >= len(b1)):
+                        break;
+                    if(b1[i] == '\n'):
+                        break;
+                    if(b1[i] == '='):
+                        l2 = 1;
+                        if(b1[i+1] == ' '):
+                            i = i +1;
+                    elif(l2 == 1):
+                        config_temp = config_temp  + b1[i];
+                    i = i +1;
+                config_temp1.append("run_in_background");
+                config_temp1.append(config_temp);
+                config.append(config_temp1);
+                config_temp1 = [];
+                config_temp = "";
+                l1 = -1;
+                l2 = -1;
+
+        elif(l1 == 27):
+            i = i +1;
+            if(b1[i] != ' '):
+                #config_temp = config_temp  + b1[i];
+                i = i +1;
+                while True:
+                    if(i >= len(b1)):
+                        break;
+                    if(b1[i] == '\n'):
+                        break;
+                    if(b1[i] == '='):
+                        l2 = 1;
+                        if(b1[i+1] == ' '):
+                            i = i +1;
+                    elif(l2 == 1):
+                        config_temp = config_temp  + b1[i];
+                    i = i +1;
+                config_temp1.append("ttyon");
+                config_temp1.append(config_temp);
+                config.append(config_temp1);
+                config_temp1 = [];
+                config_temp = "";
+                l1 = -1;
+                l2 = -1;
+
+        elif(l1 == 28):
+            i = i +1;
+            if(b1[i] != ' '):
+                #config_temp = config_temp  + b1[i];
+                i = i +1;
+                while True:
+                    if(i >= len(b1)):
+                        break;
+                    if(b1[i] == '\n'):
+                        break;
+                    if(b1[i] == '='):
+                        l2 = 1;
+                        if(b1[i+1] == ' '):
+                            i = i +1;
+                    elif(l2 == 1):
+                        config_temp = config_temp  + b1[i];
+                    i = i +1;
+                config_temp1.append("pacman_pakgage_install");
+                config_temp1.append(config_temp);
+                config.append(config_temp1);
+                config_temp1 = [];
+                config_temp = "";
+                l1 = -1;
+                l2 = -1;
+
+
+
+
+        i = i +1;
+    print(config);
+    return config;
+
+def link_device(device, i):
+    abspath = os.path.abspath(sys.argv[0]);
+    basename = os.path.basename(abspath);
+    dirname = os.path.dirname(abspath);
+    scsi_fodler = dirname + "/scsi";
+    if(os.path.isdir(scsi_fodler) == False):
+        system("mkdir "+ scsi_fodler)
+    system("ln -sf " + device + " \"" +scsi_fodler + "/" + str(i)+ "\"");
+    return (scsi_fodler + "/" + str(i));
+
+
+def read_scsi(device_name):
+    dev = [];
+    dev2 = [];
+    sg = [];
+    try:
+        output = subprocess.check_output("lsscsi -g | grep " + device_name, shell=True).decode().split("\n");
+        for tmp in output:
+            if(len(tmp) != 0):
+                #print(tmp.split())
+                scssiport = tmp.split()[0];
+                #print(scssiport)
+                scssiport = scssiport.split("[")[1].split("]")[0];
+                scssiport = "/dev/bsg/" + scssiport;
+                dev2.append(scssiport)
+                #print(scssiport)
+                cdromdev = tmp.split("/dev")[1].split(" ")[0];
+                #print(cdromdev)
+                cdromdev = "/dev" + cdromdev;
+                dev.append(cdromdev)
+        i = 0;
+        for tmp in dev2:
+            sg.append(link_device(tmp, i));
+            i = i +1;
+        return [dev, sg];
+    except subprocess.CalledProcessError:
+        return [dev, sg]
+    except FileNotFoundError:
+        return [dev, sg]
+
+def patch_wine_fodler_cdrom(device, mountpoint, buchstabe, sg):
+    abspath = os.path.abspath(sys.argv[0]);
+    basename = os.path.basename(abspath);
+    dirname = os.path.dirname(abspath);
+    if(os.path.isdir("home/.wine/dosdevices/") == False):
+        return 0;
+
+    print("sg", sg);
+    print("buchstabe", buchstabe)
+    print("mountpoint", mountpoint)
+    #print(device);
+    #print(mountpoint);
+    #print("ln -sf "+ device + " home/.wine/dosdevices/" + buchstabe + "::");
+    system("rm home/.wine/dosdevices/" + buchstabe + "::")
+    system("rm home/.wine/dosdevices/" + buchstabe + ":")
+    print("ln -sf "+ sg + " home/.wine/dosdevices/" + buchstabe + "::")
+    system("ln -sf "+ sg + " home/.wine/dosdevices/" + buchstabe + "::");
+    print("ln -sf "+ mountpoint + " home/.wine/dosdevices/" + buchstabe +":");
+    system("ln -sf "+ mountpoint + " home/.wine/dosdevices/" + buchstabe +":");
+    print("wine fodler gepatch");
+    return 0;
+
+
+def create_a_cdrom_mount_file_per_dev(devarray, docker_user):
+    dev = devarray[0];
+    sg = devarray[1];
+    if(os.path.isdir("daten/") == False):
+        system("mkdir -p daten");
+    file1 = open("daten/cdrom.bash", "w");
+    file1.write("#!/bin/bash\n");
+    file1.write("usermod -aG optical " + docker_user + "\n");
+    file1.write("usermod -aG cdemu " + docker_user + "\n");
+    i = 0;
+    buchstabe = list(string.ascii_lowercase);
+    buchstabe_i = 3;
+    while True:
+        if(i >= len(dev)):
+            break;
+        tmp = dev[i];
+        tmp2 = sg[i];
+        if(i == 0):
+            file1.write("ln -sf " + tmp + " /dev/cdrom\n");
+        file1.write("mkdir "+ " /mnt/cdrom"+ str(i+1) + "\n");
+        file1.write("mount "+ tmp +" /mnt/cdrom"+ str(i+1) + "\n");
+        patch_wine_fodler_cdrom(tmp ,"/mnt/cdrom"+ str(i+1), buchstabe[buchstabe_i], tmp2);
+        buchstabe_i = buchstabe_i +1;
+        i = i +1;
+    file1.write("su " + docker_user + "\n");
+    file1.close();
+    file2 = open("with_cdrom.bash", "w");
+    file2.write("#!/bin/bash\n");
+    file2.write("./command_root \"/home/empty/daten/cdrom.bash\"\n");
+    file2.close();
+    abspath = os.path.abspath(sys.argv[0]);
+    basename = os.path.basename(abspath);
+    dirname = os.path.dirname(abspath);
+    system("chmod 777 " + dirname + "/daten/cdrom.bash");
+    #system("chmod +x daten/cdrom.bash");
+    return 0;
+
+def filter_docker_build(cmdarray):
+    i = 0;
+    out = [];
+    while True:
+        if(i >= len(cmdarray)):
+            break;
+        tmp = cmdarray[i];
+        if(tmp == "--privileged"):
+            i = i +1;
+            continue;
+        elif(tmp == "-e"):
+            i = i + 1;
+            i = i +1;
+            continue;
+        elif(tmp == "-v"):
+            i = i + 1;
+            i = i +1;
+            continue;
+        elif(tmp == "--group-add"):
+            i = i + 1;
+            i = i +1;
+            continue;
+        elif(tmp == "--device"):
+            i = i + 1;
+            i = i +1;
+            continue;
+        elif(tmp == "-h"):
+            i = i + 1;
+            i = i +1;
+            continue;
+
+        else:
+            out.append(tmp);
+        i = i +1;
+    return out;
+
+
+def read_docker_ps(suche):
+    try:
+        cmd = subprocess.check_output("docker ps ", shell=True).decode().split("\n");
+        for tmp in cmd:
+            if(tmp.split()[0] == "CONTAINER"):
+                continue;
+            elif(tmp.split()[1] == suche):
+                return tmp.split()[0];
+        return "";
+    except subprocess.CalledProcessError:
+        return "";
+    except FileNotFoundError:
+        return "";
+    except IndexError:
+        return "";
+
+def args_array_to_str(array):
+    s1 = "";
+    for tmp in array:
+        s1 = s1 + tmp + " ";
+    return s1;
+
+def wait_build_fertig(sfile, dirname_tmp):
+    dockerid = read_docker_ps(dirname_tmp);
+    if(os.path.isfile(sfile) == True):
+        os.remove(sfile);
+    while True:
+        id = read_docker_ps(dirname_tmp);
+        if(id != dockerid):
+            print("ERROR dcoekr coantiner is exit can not svae it!");
+            exit();
+        if(os.path.isfile(sfile) == True):
+            os.remove(sfile);
+            break;
+    return 0;
+
+import threading
+
+class cmd_thread(threading.Thread):
+    def __init__(self):
+        super(cmd_thread, self).__init__()
+        self.total=0
+    def set(self, cmd):
+        self.cmd = cmd;
+        self.exit = 0;
+        return 0;
+    def run(self):
+        #system(self.cmd);
+        #cmd = subprocess.check_output(self.cmd, shell=True).decode();
+        os.system(self.cmd);
+        #print(cmd);
+        self.exit = 1;
+    def exit(self):
+        return self.exit;
+
+thread = cmd_thread();
+
+def start_thread_wait(cmd):
+    os.system(cmd);
+    return 0;
+
+def start_thread(cmd):
+    thread.set(cmd);
+    thread.start();
+    return 0;
+
+def thread_wait_is_exit():
+    thread.join();
+    return 0;
+
+def main():
+    nosudo = 1;
+    docker_user = "empty"
+    docker_build = "folder_name";
+    gpu_render = "1";
+
+    disk_device_name = "cd/dvd";
+    zugriff_auf_media = 0; #1 = True
+    sav_home_docker_folder = 0;
+    share_folder_daten = 0;
+    share_folder1_aktiv = 0;
+    share_folder1 = "/NAS";
+    network_disable = 0;
+    steam_controller_bool = 0;
+    usb_sharing = 0;
+    usb_name = ""
+    usb_hidraw_name = "";#cat < /sys/class/hidraw/hidraw5/device/uevent | grep "Valve Software Steam Controller"
+    config = read_config();
+    docker_input = "";
+    maxmemory = -1;
+    maxcpus = -1;
+    network_host = "0";
+    portforwding = "";
+    dbus_rw = 0;
+    pacman_cache = "";
+    dns = "";
+    ipv4 = "";
+    wireguard_fix = 0;
+    run_in_background = 0;
+    ttyon = 0;
+    pacman_pakgage_install = pacman_pkgage_install;
+
+
+    i = 0;
+    while True:
+        if(i >= len(config)):
+            break;
+        tmp = config[i];
+        if(tmp[0] == "docker_user"):
+            docker_user = tmp[1];
+        elif(tmp[0] == "gpu_render"):
+            gpu_render = tmp[1];
+        elif(tmp[0] == "disk_device_name"):
+            disk_device_name = tmp[1];
+        elif(tmp[0] == "zugriff_auf_media"):
+            zugriff_auf_media = int(tmp[1]);
+        elif(tmp[0] == "sav_home_docker_folder"):
+            sav_home_docker_folder = int(tmp[1]);
+        elif(tmp[0] == "share_folder_daten"):
+            share_folder_daten = int(tmp[1]);
+        elif(tmp[0] == "share_folder1_aktiv"):
+            share_folder1_aktiv = int(tmp[1]);
+        elif(tmp[0] == "share_folder1"):
+            share_folder1 = tmp[1];
+        elif(tmp[0] == "network_disable"):
+            network_disable = int(tmp[1]);
+        elif(tmp[0] == "steam_controller_bool"):
+            steam_controller_bool = int(tmp[1]);
+        elif(tmp[0] == "usb_sharing"):
+            usb_sharing = int(tmp[1]);
+        elif(tmp[0] == "usb_name"):
+            usb_name = tmp[1];
+        elif(tmp[0] == "usb_hidraw_name"):
+            usb_hidraw_name = tmp[1];
+        elif(tmp[0] == "docker_build"):
+            docker_build = tmp[1];
+        elif(tmp[0] == "docker_input"):
+            docker_input = tmp[1];
+        elif(tmp[0] == "maxmemory"):
+            maxmemory = int(tmp[1]);
+        elif(tmp[0] == "maxcpus"):
+            maxcpus = int(tmp[1]);
+        elif(tmp[0] == "network_host"):
+            network_host = tmp[1];
+        elif(tmp[0] == "portforwding"):
+            portforwding = tmp[1];
+        elif(tmp[0] == "dbus_rw"):
+            dbus_rw = int(tmp[1]);
+        elif(tmp[0] == "pacman_cache"):
+            pacman_cache = tmp[1];
+        elif(tmp[0] == "dns"):
+            dns = tmp[1];
+        elif(tmp[0] == "ipv4"):
+            ipv4 = tmp[1];
+        elif(tmp[0] == "wireguard_fix"):
+            wireguard_fix = int(tmp[1]);
+        elif(tmp[0] == "nosudo"):
+            nosudo = int(tmp[1]);
+        elif(tmp[0] == "run_in_background"):
+            run_in_background = int(tmp[1]);
+        elif(tmp[0] == "ttyon"):
+            ttyon = int(tmp[1]);
+        elif(tmp[0] == "pacman_pakgage_install"):
+            pacman_pakgage_install = tmp[1];
+            print("pacman_pakgage_install aktiv!");
+        else:
+            print("ERROR config file corrupt");
+            print(tmp);
+            exit(1);
+        i = i +1;
+
+
+
+    custom_command = "";
+    optical_disk = read_scsi(disk_device_name);
+    create_a_cdrom_mount_file_per_dev(optical_disk, docker_user);
+
+
+    abspath = os.path.abspath(sys.argv[0])
+    basename = os.path.basename(abspath)
+    dirname = os.path.dirname(abspath)
+
+    emptyfolder = dirname + "/xinput_tmp";
+
+    if(basename == "command"):
+        if(len(sys.argv) == 2):
+            custom_command = sys.argv[1];
+    if(basename == "command_root"):
+        if(len(sys.argv) == 2):
+            custom_command = sys.argv[1];
+    if(basename == "build"):
+        print("disable nosudo!")
+        nosudo = 0;
+
+    base_args = [
+        "docker", "--privileged",
+        "-e", "DISPLAY=" + os.environ["DISPLAY"],
+        "-e", "DRI_PRIME=" + gpu_render,
+        "-e", "XDG_RUNTIME_DIR=" + os.environ["XDG_RUNTIME_DIR"],
+        "-e", "DBUS_SESSION_BUS_ADDRESS=" + os.environ["DBUS_SESSION_BUS_ADDRESS"],
+        "-e", "LANG=" + os.environ["LANG"],
+        #"-e", "PWD=/home/" + docker_user,
+        "-h", platform.node(),
+        "-v", os.environ["XAUTHORITY"] + ":/home/" + docker_user + "/.Xauthority:ro",
+        "-v", "/dev/dri:/dev/dri",
+        "-v", "/dev/shm:/dev/shm",
+        "-v", "/dev/vga_arbiter:/dev/vga_arbiter",
+        "-v", "/etc/localtime:/etc/localtime:ro",
+        #"-v", "/etc/machine-id:/etc/machine-id:ro",
+        "-v", "/run/user/" + str(os.getuid()) + "/pulse:/run/user/" + str(os.getuid()) + "/pulse:ro",
+        "-v", "/run/user/" + str(os.getuid()) + ":/run/user/" + str(os.getuid()) + ":rw",
+        #"-v", "/dev/snd:/dev/snd",
+        #"-v", "/tmp/.X11-unix:/tmp/.X11-unix:rw",
+        "-v", "/var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro",
+        #"-v", "/var/lib/dbus:/var/lib/dbus",
+        "-v", dirname+"/pulse-client.conf:/etc/pulse/client.conf:ro",
+        "-v", "/dev/loop0:/dev/loop0:ro",
+        #"-v", dirname+"/hostname:/etc/hostname:ro",
+        #"-v", dirname+"/mirrorlist:/etc/pacman.d/mirrorlist:ro",
+        "-v", "/etc/locale.conf:/etc/locale.conf:ro",
+        "-v", "/etc/locale.gen:/etc/locale.gen:ro",
+        "--device", "/dev/fb0:/dev/fb0:rw",
+        "--group-add", "video",
+        "--group-add", "render",
+        "--group-add", "optical",
+        "--group-add", "input",
+        #"-v", "/dev/input/:/dev/input/:ro",
+        "-v", dirname+"/chmod_check.py:/root/chmod_check.py:ro",
+    ]
+    if(basename != "build"):
+        base_args.append("--ipc=\"host\"");
+        base_args.append("--shm-size=\"4G\"");
+
+    if(ttyon == 1):
+        print("ttyon aktive");
+        print("Terminal on Gui off");
+        #base_args.append("-t");
+    if(os.path.isfile(dirname+"/machine-id") == True):
+        print("found machine-id from fodler");
+        base_args.append("-v");
+        base_args.append(dirname+"/machine-id:/etc/machine-id:ro");
+    else:
+        print("found machine-id from /etc/ fodler");
+        base_args.append("-v");
+        base_args.append("/etc/machine-id:/etc/machine-id:ro");
+
+    if(dbus_rw == 1):
+        print("dbus_rw on");
+        base_args.append("-v");
+        base_args.append("/var/lib/dbus:/var/lib/dbus:rw",);
+        base_args.append("-v");
+        base_args.append("/tmp/.X11-unix:/tmp/.X11-unix:rw");
+        base_args.append("-v");
+        base_args.append("/dev/snd:/dev/snd");
+    else:
+        base_args.append("-v");
+        base_args.append("/tmp/.X11-unix:/tmp/.X11-unix:ro");
+
+    if(os.path.isfile(dirname+"/mirrorlist") == True):
+        base_args.append("-v");
+        base_args.append(dirname+"/mirrorlist:/etc/pacman.d/mirrorlist:ro");
+        print("add pacman mirrolist");
+    if(docker_input != ""):
+        if(docker_input == "*"):
+            base_args.append("-v");
+            base_args.append("/dev/input/:/dev/input/:ro");
+            print("xinput device all add");
+        elif(docker_input == "block"):
+            print("add block empty folder for xinput");
+            base_args.append("-v");
+            base_args.append(emptyfolder + ":"+ "/dev/input" + ":rw");
+            base_args.append("-v");
+            base_args.append(emptyfolder + ":"+ "/dev/input/event3" + ":rw");
+            #out = add_input_device(docker_input);
+        else:
+            #print("add empty folder for xinput");
+            base_args.append("-v");
+            base_args.append(emptyfolder + ":"+ "/dev/input" + ":rw");
+            out = add_input_device(docker_input);
+            print("xinput device add");
+            for tmp in out:
+                tmp2 = os.path.realpath(tmp);
+                base_args.append("-v");
+                base_args.append(tmp2 + ":"+ tmp2 + ":ro");
+                print(tmp);
+                print(tmp2 + ":"+ tmp2 + ":ro");
+
+    i = 0;
+    for tmp in optical_disk[0]:
+        base_args.append("--device");
+        base_args.append(tmp);
+    for tmp in optical_disk[1]:
+        base_args.append("--device");
+        base_args.append(tmp);
+
+    if(zugriff_auf_media == 1):
+        if(os.path.isdir("/run/media") == False):
+            print("ERROR /run/media folder not found");
+        else:
+            base_args.append("-v");
+            base_args.append("/run/media:/run/media:rw");
+            print("acces allow from /run/media on");
+
+    if(sav_home_docker_folder == 1):
+        base_args.append("-v");
+        base_args.append(dirname+"/home:/home/" + docker_user + ":rw");
+        print("sav home folder");
+
+    if(share_folder_daten == 1):
+        base_args.append("-v");
+        base_args.append(dirname+"/daten:/home/" + docker_user + "/daten:rw");
+        base_args.append("-v");
+        base_args.append(dirname+"/daten:/root" + "/daten:rw");
+        print("share daten fodler");
+
+    if(share_folder1_aktiv == 1):
+        sharingfolders = share_folder1.split("^");
+        if(True):
+            for tmp in sharingfolders:
+                if(len(tmp) >= 1 and tmp[0] != "/" and tmp.find(":") == -1):
+                    if(os.path.isdir(dirname+"/"+tmp) == True):
+                        base_args.append("-v");
+                        base_args.append(dirname+"/"+tmp + ":" + "/home/" + docker_user  + "/" + tmp + ":rw");
+                        base_args.append("-v");
+                        base_args.append(dirname+"/"+tmp + ":" + "/root/" + tmp + ":rw");
+                        print("share fodler " +dirname+"/"+tmp + ":" + "/home/" + docker_user + "/" + tmp + ":rw" + " aktive");
+                        print("share fodler " +dirname+"/"+tmp + ":" + "/root/" + tmp + ":rw" + " aktive");
+                    else:
+                        print("ERROR share_folder1 folder not found : " + dirname+"/"+tmp);
+                elif(tmp.find(":") == -1):
+                    if(os.path.isdir(tmp) == False):
+                        if(os.path.isdir(dirname+"/"+tmp) == True):
+                            base_args.append("-v");
+                            base_args.append(dirname+"/"+tmp + ":" + tmp + ":rw");
+                            print("share fodler " + tmp + " aktive");
+                        else:
+                            base_args.append("-v");
+                            base_args.append(tmp + ":" + tmp + ":rw");
+                            print("share fodler " + tmp + " aktive");
+                    else:
+                        base_args.append("-v");
+                        base_args.append(tmp + ":" + tmp + ":rw");
+                        print("share fodler " + tmp + " aktive");
+                else:
+                    s1 = tmp.split(":")[0];
+                    if(os.path.isdir(dirname+"/"+s1) == True):
+                        base_args.append("-v");
+                        base_args.append(dirname+"/"+tmp);
+                        print("share fodler " + dirname+s1 + " aktive");
+                    elif(os.path.isdir(s1) == True ):
+                        base_args.append("-v");
+                        base_args.append(tmp);
+                        print("share fodler " + tmp + " aktive");
+                    elif(os.path.isdir(dirname+"/"+s1) == False ):
+                        if(os.path.isfile(dirname+"/"+s1) == False):
+                            print("ERROR share_folder1 folder not found : " + dirname+"/"+s1);
+                        else:
+                            base_args.append("-v");
+                            base_args.append(dirname+"/"+tmp);
+                            print("share fodler " + tmp + " aktive");
+                    else:
+                        base_args.append("-v");
+                        base_args.append(dirname+"/"+tmp);
+                        print("share fodler " + tmp + " aktive");
+
+
+    if(network_disable == 1):
+        base_args.append("--network");
+        base_args.append("none");
+        print("Network disable");
+
+
+    if(os.path.isfile(dirname+"/hostname") == True):
+        base_args.append("-v");
+        base_args.append(dirname+"/hostname:/etc/hostname:ro");
+
+
+    if(usb_sharing == 1):
+        base_args.append("-v");
+        base_args.append("/dev/bus/:/dev/bus/:rw");
+        base_args.append("-v");
+        base_args.append("/dev/usb:/dev/usb:rw");
+
+    if(os.path.isdir(dirname+"/share") == True or os.path.islink(dirname+"/share") == True):
+        print("sharing the share fodler on");
+        base_args.append("-v");
+        base_args.append(dirname+"/share:/home/" + docker_user + "/share:rw");
+        base_args.append("-v");
+        base_args.append(dirname+"/share:/root/share:rw");
+    if(usb_sharing == 1):
+        print("usb_sharing enabled");
+        print(usb_name);
+        print(usb_hidraw_name);
+        usb = usb_pasthrough(usb_name);
+        usbdir = usb[0];
+        usbdev = usb[1]
+
+        print(usb);
+        if(len(usbdir) != 0):
+            i = 0;
+            while True:
+                if(i >= len(usbdir)):
+                    break;
+                if(os.path.isdir("/dev/bus/usb/" +usbdir[i]) == True):
+                    if(check_device_isopen("/dev/bus/usb/" +usbdir[i] + "/" + usbdev[i]) == 1):
+                        base_args.append("-v");
+                        base_args.append("/dev/bus/usb/" +usbdir[i] + "/" + usbdev[i]+ ":" + "/dev/bus/usb/" +usbdir[i] + "/" + usbdev[i]);
+                    else:
+                        print("ERROR usb dev file not found!");
+                        print("/dev/bus/usb/" +usbdir[i] + "/" + usbdev[i]);
+                        break;
+                else:
+                    print("ERROR usb dev dir not found!");
+                    print("/dev/bus/usb/" +usbdir[i]);
+                    break;
+                i = i +1;
+        else:
+            print("usb_name: \"" + usb_name + "\" not found");
+
+        dev = read_hidraw_device(usb_hidraw_name);
+        if(len(dev) != 0):
+            i = 0;
+            while True:
+                if(i >= len(dev)):
+                    break;
+                base_args.append("--device");
+                base_args.append(dev[i]);
+                i = i +1;
+        else:
+            print("usb_hidraw_name: \"" + usb_hidraw_name + "\" not found");
+
+
+
+    if(steam_controller_bool == 1):
+        if(usb_sharing != 1 and usb_name != "" and usb_hidraw_name != ""):
+            print("ERRROR enable usb_sharing and usb_name and usb_hidraw_name setzen");
+        inputs = read_steam_Controller();
+        i = 0;
+        while True:
+            if(i >= len(inputs)):
+                break;
+            base_args.append("--device");
+            #base_args.append(inputs[i] + ":" + inputs[i]);
+            base_args.append(inputs[i]);
+            i = i +1;
+        base_args.append("-v");
+        base_args.append("/run/dbus:/run/dbus");
+
+    if(maxmemory != -1):
+        print("set maxmemory to", maxmemory);
+        base_args.append("--memory="+str(maxmemory) + "MB");
+    if(maxcpus != -1):
+        print("set cpus to", maxcpus);
+        base_args.append("--cpus="+str(maxcpus));
+    if(network_host != "" and network_host != "0" and network_disable == 0):
+        print("network_host aktive");
+        base_args.append("--net="+network_host);
+    if(portforwding != ""):
+        print("portforwding aktive");
+        base_args.append("-p")
+        base_args.append(portforwding);
+        #-p 8080:80
+    if(pacman_cache != "" and nosudo == 0):
+        print("pacman_cache aktive");
+        base_args.append("-v");
+        base_args.append(pacman_cache+":"+"/var/cache/pacman/pkg:ro");
+        base_args.append("-v");
+        base_args.append(pacman_cache+":"+"/mnt/pacman_cache_rw");
+        system("sudo chmod -R 777 " + pacman_cache);
+        user = home = os.environ['USER'];
+        system("sudo chown -R "+ user + ":users " + pacman_cache);
+    dirname_tmp = "";
+    if(docker_build != "folder_name"):
+        dirname_tmp = docker_build;
+    else:
+        dirname_tmp = os.path.split(dirname)[-1];
+
+    if(dns != ""):
+        dns_ = dns.split("^");
+        if(len(dns_) >= 1):
+            for tmp in dns_:
+                base_args.append("--dns");
+                base_args.append(tmp);
+                print("DNS Server wird auf", dns, "gesezt!");
+        else:
+            base_args.append("--dns");
+            base_args.append(dns);
+            print("DNS Server wird auf", dns, "gesezt!");
+
+    print(ipv4)
+    if(ipv4 != ""):
+        print("static ip gestzt auf " + ipv4);
+        base_args.append("--ip");
+        base_args.append(ipv4);
+    #if(os.path.isfile("/etc/resolv.conf") == True):
+    #    base_args.append("-v");
+    #    base_args.append("/etc/resolv.conf:/etc/resolv.conf:ro");
+    #    print("add /etc/resolv.conf to docker container!");
+
+    if(wireguard_fix == 1):
+        #wire guard patch
+        base_args.append("--cap-add");
+        base_args.append("net_admin");
+        base_args.append("--cap-add");
+        base_args.append("sys_module");
+        base_args.append("-v");
+        base_args.append("/usr/lib/modules:/usr/lib/modules:ro");
+        base_args.append("--sysctl");
+        base_args.append("net.ipv6.conf.all.disable_ipv6=0");
+        base_args.append("--sysctl");
+        base_args.append("net.ipv4.conf.all.src_valid_mark=1");
+        base_args.append("-v");
+        base_args.append("/sys/fs/cgroup:/sys/fs/cgroup:ro");
+        print("wireguard_fix aktive!");
+
+    if(run_in_background == 1):
+        print("run_in_background aktiv!");
+        base_args.append("-d");
+    if(True):
+        base_args.append("-v");
+        base_args.append(dirname + "/user_patched.bash:/etc/user_patched.bash:ro");
+        if(basename == "command"):
+            patching_user(docker_user, "su " + docker_user + " -c " + custom_command, str(os.getuid()));
+        elif(basename == "command_root"):
+            patching_user(docker_user, custom_command, str(os.getuid()));
+        elif(basename == "login"):
+            patching_user(docker_user, "su "+docker_user , str(os.getuid()));
+        elif(basename == "login_root"):
+            patching_user(docker_user, "su", str(os.getuid()));
+        elif(basename == "openra-ra"):
+            patching_user(docker_user, "su " + docker_user + " -c openra-ra", str(os.getuid()));
+        elif(basename == "firefox"):
+            patching_user(docker_user, "su " + docker_user + " -c firefox", str(os.getuid()));
+        elif(basename == "firefox"):
+            patching_user(docker_user, "su " + docker_user + " -c firefox", str(os.getuid()));
+        elif(basename == "firefox"):
+            patching_user(docker_user, "su " + docker_user + " -c firefox", str(os.getuid()));
+        elif(basename == "build"):
+            pass;
+        elif(basename == "run"):
+            pass;
+        else:
+            print("Command not found!");
+            exit();
+    #base_args.append(os.path.split(dirname)[-1]);
+
+    build_args = filter_docker_build(base_args);
+    print(build_args)
+    base_args.append(dirname_tmp);
+    if(ttyon == 0):
+        #gui aktiv
+        args = {
+            #"build": [build_args[0], "build", "-f", dirname + "/src/Dockerfile", "-t" ,dirname_tmp ] +  (build_args[1:] + [dirname]),
+            "build": [build_args[0], "build", "-f", dirname + "/src/Dockerfile", "-t" ,dirname_tmp ] +  (build_args[1:] + [dirname]),
+            "run": [base_args[0], "run"] + (base_args[1:]),
+            "login": [base_args[0], "run", "-it"] + (base_args[1:] + ["bash", "-c", "/etc/user_patched.bash"]),
+            "login_root": [base_args[0], "run", "-it"] + (base_args[1:] + ["bash", "-c", "/etc/user_patched.bash"]),
+            "openra-ra": [base_args[0], "run", "-i"] + (base_args[1:] + ["bash", "-c", "/etc/user_patched.bash"]),
+            "firefox": [base_args[0], "run", "-i"] + (base_args[1:] + ["bash", "-c", "/etc/user_patched.bash"]),
+            "command": [base_args[0], "run", "-i"] + (base_args[1:] + ["bash", "-c", "/etc/user_patched.bash"]),
+            "command_root": [base_args[0], "run", "-i"] + (base_args[1:] + ["bash", "-c", "/etc/user_patched.bash"]),
+        }
+        if __name__ == "__main__":
+            print(args[basename]);
+            #cmd = subprocessvhba-module-dkms.check_output(base_args[0] + , shell=True).decode().split("\n");
+            #os.s(base_args[0], args[basename])
+            cmd = args_array_to_str(args[basename]);
+            if(basename == "login" or basename == "login_root" ):
+                os.system(cmd);
+            else:
+                os.system(cmd);
+            print(cmd)
+        if(basename == "build" and pacman_cache != ""):
+            fertigfile = os.path.join(pacman_cache, "fertig");
+            if(os.path.isfile(fertigfile) == True):
+                os.remove(fertigfile);
+            print("starting mod")
+            start_thread_wait("bash install.bash");
+            for i in range(pacman_downloads):
+                start_thread_wait("./command_root 'pacman -Sy archlinux-keyring --noconfirm -y --cachedir /var/cache/pacman/pkg && pacman -Syu " + pacman_pakgage_install + " --noconfirm -y --downloadonly --cachedir /mnt/pacman_cache_rw/ && exit'");
+            start_thread("./command_root 'pacman -Sy archlinux-keyring archiso --noconfirm -y --cachedir /var/cache/pacman/pkg && pacman -Syu " + pacman_pakgage_install + " --noconfirm -y --cachedir /var/cache/pacman/pkg  && echo 1 > /mnt/pacman_cache_rw/fertig && sleep 180 &&  exit '");#start_thread
+            #start_thread("./command_root 'pacman -Sy archlinux-keyring archiso --noconfirm -y --cachedir /var/cache/pacman/pkg && mkdir /mnt/2 &&  mount -B / /mnt/2 && mount -B /var/cache/pacman/pkg/ /mnt/2/var/cache/pacman/pkg/ && pacman -Syu  " + pacman_pakgage_install + " --noconfirm -y --cachedir /var/cache/pacman/pkg --root /mnt/2  && echo 1 > /mnt/pacman_cache_rw/fertig && sleep 180 &&  exit '");#start_thread
+            time.sleep(30);
+            wait_build_fertig(fertigfile, dirname_tmp);
+            dockerid = read_docker_ps(dirname_tmp);
+            tmp = "";
+            if(dockerid != ""):
+                print("sav docker image")
+                print(dockerid);
+                print(tmp);
+                cmd = "docker commit " + dockerid + " " + dirname_tmp;
+                os.system(cmd);
+                print("docker save!");
+                exit();
+            else:
+                print("ERROR docker id not found");
+                exit(-1);
+            thread_wait_is_exit();
+    else:
+        #ttyon 1 #gui off terminal on
+        print("Terminal on!")
+        args = {
+            #"build": [build_args[0], "build", "-f", dirname + "/src/Dockerfile", "-t" ,dirname_tmp ] +  (build_args[1:] + [dirname]),
+            "build": [build_args[0], "build", "-f", dirname + "/src/Dockerfile", "-t" ,dirname_tmp ] +  (build_args[1:] + [dirname]),
+            "run": [base_args[0], "run"] + (base_args[1:]),
+            "login": [base_args[0], "run", "-it"] + (base_args[1:] + ["bash", "-c", "/etc/user_patched.bash"]),
+            "login_root": [base_args[0], "run", "-it"] + (base_args[1:] + ["bash", "-c", "/etc/user_patched.bash"]),
+            "openra-ra": [base_args[0], "run", "-it"] + (base_args[1:] + ["bash", "-c", "/etc/user_patched.bash"]),
+            "firefox": [base_args[0], "run", "-it"] + (base_args[1:] + ["bash", "-c", "/etc/user_patched.bash"]),
+            "command": [base_args[0], "run", "-it"] + (base_args[1:] + ["bash", "-c", "/etc/user_patched.bash"]),
+            "command_root": [base_args[0], "run", "-it"] + (base_args[1:] + ["bash", "-c", "/etc/user_patched.bash"]),
+        }
+        if __name__ == "__main__":
+            print(args[basename]);
+            #cmd = subprocessvhba-module-dkms.check_output(base_args[0] + , shell=True).decode().split("\n");
+            #os.s(base_args[0], args[basename])
+            cmd = args_array_to_str(args[basename]);
+            if(basename == "login" or basename == "login_root" ):
+                os.system(cmd);
+            else:
+                os.system(cmd);
+            print(cmd)
+        if(basename == "build" and pacman_cache != ""):
+            fertigfile = os.path.join(pacman_cache, "fertig");
+            if(os.path.isfile(fertigfile) == True):
+                os.remove(fertigfile);
+            print("starting mod")
+            start_thread_wait("bash install.bash");
+            for i in range(pacman_downloads):
+                start_thread_wait("./command_root 'pacman -Sy archlinux-keyring --noconfirm -y --cachedir /var/cache/pacman/pkg && pacman -Syu " + pacman_pakgage_install + " --noconfirm -y --downloadonly --cachedir /mnt/pacman_cache_rw/ && exit'");
+            start_thread("./command_root 'pacman -Sy archlinux-keyring archiso --noconfirm -y --cachedir /var/cache/pacman/pkg && pacman -Syu " + pacman_pakgage_install + " --noconfirm -y --cachedir /var/cache/pacman/pkg  && echo 1 > /mnt/pacman_cache_rw/fertig && sleep 180 &&  exit '");#start_thread
+            #start_thread("./command_root 'pacman -Sy archlinux-keyring archiso --noconfirm -y --cachedir /var/cache/pacman/pkg && mkdir /mnt/2 &&  mount -B / /mnt/2 && mount -B /var/cache/pacman/pkg/ /mnt/2/var/cache/pacman/pkg/ && pacman -Syu  " + pacman_pakgage_install + " --noconfirm -y --cachedir /var/cache/pacman/pkg --root /mnt/2  && echo 1 > /mnt/pacman_cache_rw/fertig && sleep 180 &&  exit '");#start_thread
+            #start_thread
+            time.sleep(30);
+            wait_build_fertig(fertigfile, dirname_tmp);
+            dockerid = read_docker_ps(dirname_tmp);
+            tmp = "";
+            if(dockerid != ""):
+                print("sav docker image")
+                print(dockerid);
+                print(tmp);
+                cmd = "docker commit " + dockerid + " " + dirname_tmp;
+                os.system(cmd);
+                print("docker save!");
+                exit();
+            else:
+                print("ERROR docker id not found");
+                exit(-1);
+            thread_wait_is_exit();
+
+
+    return 0;
+
+main();
+
+#class seb_sync_clinet_gui(QtWidgets.QWidget):
+#    def __init__(self):
+#        QtWidgets.QWidget.__init__(self)
+#        #self.ip = "127.0.0.1";
+#        #self.port = 9044;
+#        #self.self.statusBar().showMessage('Message in statusbar.');
+#        self.statusbar = QtWidgets.QStatusBar()
+#        self.statusbar.showMessage("test")
+#        self.title = appname + " - " + version
+#        self.setWindowTitle(self.title)
+#        self.resize(600, 200)
+#
+#        main();
+#
+#mainwindow = seb_sync_clinet_gui()
+#mainwindow.show()
+#app.exec_()
+exit();
