@@ -1,4 +1,6 @@
 #!/bin/bash
+#v0.1b
+ln -sf _config .config
 #ln -sf ../build build
 ln -sf build login_root 
 ln -sf build login
