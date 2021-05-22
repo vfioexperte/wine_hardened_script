@@ -4,7 +4,7 @@
 #This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 
-version = "0.23c_gui beta"
+version = "0.23c_gui"
 appname = "sebs docker contianer gaming app"
 #0.23a pacman_pakgage_install variable add
 #0.22g def system(cmd): edit os.system
@@ -32,7 +32,7 @@ import math
 
 #app = QtWidgets.QApplication(sys.argv)
 
-pacman_downloads = 1;
+pacman_downloads = 3;
 
 pacman_pkgage_install = "unbound qt5pas teamspeak3 python-ntlm-auth  python-requests-ntlm perl-ntlm python-ntlm-auth python-requests-ntlm  lutris python-beaker python-mako valgrind llvm lib32-llvm meson vulkan-swrast net-tools wireguard-tools nautilus shared-mime-info gdk-pixbuf2 thunderbird-i18n-de python-pyqt5  gnu-netcat opendoas retroarch-assets-glui retroarch-assets-ozone ninja ccache glm openvr yad archlinux-keyring base base-devel xf86-video-ati xf86-video-amdgpu  xorg xorg-server xorg-xinit mesa-demos vulkan-tools  vulkan-mesa-layers vulkan-radeon  vulkan-icd-loader pulseaudio alsa-tools alsa-utils pulseaudio-alsa pavucontrol  wine lib32-mpg123 openra winetricks openal firefox-i18n-de xfce4-terminal openvpn dotnet-runtime dotnet-sdk thunar ntfs-3g exfat-utils boost mpv desmume mgba-qt mgba-sdl xfce4 xfce4-goodies blender opencl-mesa  gst-plugins-ugly  qt5-webengine qt5-base qt5-multimedia qt5-tools fmt libxkbcommon-x11 sdl2 desktop-file-utils shared-mime-info nlohmann-json boost catch2 cmake git  nano adriconf   qt5-webglplugin qt5-webkit qt5-websockets qt5-webview  veracrypt desmume libretro-desmume nano p7zip snes9x retroarch libretro-mesen  mgba-qt python-pyqt5 mkvtoolnix-gui k3b qt5 sndio rkhunter qutebrowser hexedit youtube-dl vlc lib32-libpulse lib32-alsa-plugins hexedit qutebrowser youtube-dl obs-studio cdemu-client  cdemu-daemon vhba-module-dkms  virtualbox blender  gimp gimp-help-de   nfs-utils rsync subversion qemu cdrtools dolphin-emu lib32-mesa-vdpau mesa-vdpau  lib32-vulkan-radeon vulkan-radeon lib32-libva-mesa-driver libva-mesa-driver exfat-utils  python3 python-pip   python2-pip  python2 python-lz4 python2-apipkg python-lz4 python python-setuptools python-pip gphoto2 gvfs-gphoto2 libgphoto2  mono  wine-mono wine_gecko kvantum-qt5   qtcreator  falkon glfw-x11  git cmake  gcc clang htop shotcut archiso vulkan-headers vulkan-tools vulkan-extra-layers gimp-nufraw xdotool xorg-xinput gnu-netcat   gimp-help-de opencl-mesa  firefox-i18n-de vkd3d lib32-vkd3d  gparted libreoffice-still-de  inkscape  partclone pigz gedit pkgstats scons python-pyusb clamav clamtk  cura encfs playonlinux cura encfs steam xmlto docbook-xsl kmod inetutils bc git libelf steam-native-runtime xreader rawtherapee  nautilus minetest-server minetest";
 
@@ -449,7 +449,7 @@ def read_config():
             l1 = 27;#ttyon
         elif(i + 21 < len(b1) and (b1[i] == 'p' and b1[i+1] == 'a' ) and (b1[i+2] == 'c' and b1[i+3] == 'm' ) and (b1[i+4] == 'a' and b1[i+5] == 'n' ) and (b1[i+6] == '_' and b1[i+7] == 'p' ) and (b1[i+8] == 'a' and b1[i+9] == 'k' ) and (b1[i+10] == 'g' and b1[i+11] == 'a')  and   (b1[i+12] == 'g' and b1[i+13] == 'e') and b1[i+14] == "_" and (b1[i+15] == 'i' and b1[i+16] == 'n') and (b1[i+17] == 's' and b1[i+18] == 't') and (b1[i+19] == 'a' and b1[i+20] == 'l') and (b1[i+21] == 'l' )):
             l1 = 28#pacman_pakgage_install
-        elif(l1 == 1):
+        elif(l1 >= 1):
             i = i +1;
             if(b1[i] != ' '):
                 #config_temp = config_temp  + b1[i];
@@ -466,681 +466,71 @@ def read_config():
                     elif(l2 == 1):
                         config_temp = config_temp  + b1[i];
                     i = i +1;
-                config_temp1.append("docker_user");
+                if(l1 == 1):
+                    config_temp1.append("docker_user");
+                elif(l1 == 2):
+                    config_temp1.append("gpu_render");
+                elif(l1 == 3):
+                    config_temp1.append("disk_device_name");
+                elif(l1 == 4):
+                    config_temp1.append("zugriff_auf_media");
+                elif(l1 == 5):
+                    config_temp1.append("sav_home_docker_folder");
+                elif(l1 == 6):
+                    config_temp1.append("share_folder_daten");
+                elif(l1 == 7):
+                    config_temp1.append("share_folder1_aktiv");
+                elif(l1 == 8):
+                    config_temp1.append("share_folder1");
+                elif(l1 == 9):
+                    config_temp1.append("network_disable");
+                elif(l1 == 10):
+                    config_temp1.append("steam_controller_bool");
+                elif(l1 == 11):
+                    config_temp1.append("usb_sharing");
+                elif(l1 == 12):
+                    config_temp1.append("usb_name");
+                elif(l1 == 13):
+                    config_temp1.append("usb_hidraw_name");
+                elif(l1 == 14):
+                    config_temp1.append("docker_build");
+                elif(l1 == 15):
+                    config_temp1.append("docker_input");
+                elif(l1 == 16):
+                    config_temp1.append("maxmemory");
+                elif(l1 == 17):
+                    config_temp1.append("maxcpus");
+                elif(l1 == 18):
+                    config_temp1.append("network_host");
+                elif(l1 == 19):
+                    config_temp1.append("portforwding");
+                elif(l1 == 20):
+                    config_temp1.append("dbus_rw");
+                elif(l1 == 21):
+                    config_temp1.append("pacman_cache");
+                elif(l1 == 22):
+                    config_temp1.append("dns");
+                elif(l1 == 23):
+                    config_temp1.append("ipv4");
+                elif(l1 == 24):
+                    config_temp1.append("wireguard_fix");
+                elif(l1 == 25):
+                    config_temp1.append("nosudo");
+                elif(l1 == 26):
+                    config_temp1.append("run_in_background");
+                elif(l1 == 27):
+                    config_temp1.append("ttyon");
+                elif(l1 == 28):
+                    config_temp1.append("pacman_pakgage_install");
+                else:
+                    print("ERROR l1 nciht gefunden!");
+                    exit(-1);
                 config_temp1.append(config_temp);
                 config.append(config_temp1);
                 config_temp1 = [];
                 config_temp = "";
                 l1 = -1;
                 l2 = -1;
-
-        elif(l1 == 2):
-            i = i +1;
-            if(b1[i] != ' '):
-                #config_temp = config_temp  + b1[i];
-                i = i +1;
-                while True:
-                    if(i >= len(b1)):
-                        break;
-                    if(b1[i] == '\n'):
-                        break;
-                    if(b1[i] == '='):
-                        l2 = 1;
-                        if(b1[i+1] == ' '):
-                            i = i +1;
-                    elif(l2 == 1):
-                        config_temp = config_temp  + b1[i];
-                    i = i +1;
-                config_temp1.append("gpu_render");
-                config_temp1.append(config_temp);
-                config.append(config_temp1);
-                config_temp1 = [];
-                config_temp = "";
-                l1 = -1;
-                l2 = -1;
-
-        elif(l1 == 3):
-            i = i +1;
-            if(b1[i] != ' '):
-                #config_temp = config_temp  + b1[i];
-                i = i +1;
-                while True:
-                    if(i >= len(b1)):
-                        break;
-                    if(b1[i] == '\n'):
-                        break;
-                    if(b1[i] == '='):
-                        l2 = 1;
-                        if(b1[i+1] == ' '):
-                            i = i +1;
-                    elif(l2 == 1):
-                        config_temp = config_temp  + b1[i];
-                    i = i +1;
-                config_temp1.append("disk_device_name");
-                config_temp1.append(config_temp);
-                config.append(config_temp1);
-                config_temp1 = [];
-                config_temp = "";
-                l1 = -1;
-                l2 = -1;
-
-        elif(l1 == 4):
-            i = i +1;
-            if(b1[i] != ' '):
-                #config_temp = config_temp  + b1[i];
-                i = i +1;
-                while True:
-                    if(i >= len(b1)):
-                        break;
-                    if(b1[i] == '\n'):
-                        break;
-                    if(b1[i] == '='):
-                        l2 = 1;
-                        if(b1[i+1] == ' '):
-                            i = i +1;
-                    elif(l2 == 1):
-                        config_temp = config_temp  + b1[i];
-                    i = i +1;
-                config_temp1.append("zugriff_auf_media");
-                config_temp1.append(config_temp);
-                config.append(config_temp1);
-                config_temp1 = [];
-                config_temp = "";
-                l1 = -1;
-                l2 = -1;
-
-        elif(l1 == 5):
-            i = i +1;
-            if(b1[i] != ' '):
-                #config_temp = config_temp  + b1[i];
-                i = i +1;
-                while True:
-                    if(i >= len(b1)):
-                        break;
-                    if(b1[i] == '\n'):
-                        break;
-                    if(b1[i] == '='):
-                        l2 = 1;
-                        if(b1[i+1] == ' '):
-                            i = i +1;
-                    elif(l2 == 1):
-                        config_temp = config_temp  + b1[i];
-                    i = i +1;
-                config_temp1.append("sav_home_docker_folder");
-                config_temp1.append(config_temp);
-                config.append(config_temp1);
-                config_temp1 = [];
-                config_temp = "";
-                l1 = -1;
-                l2 = -1;
-
-        elif(l1 == 6):
-            i = i +1;
-            if(b1[i] != ' '):
-                #config_temp = config_temp  + b1[i];
-                i = i +1;
-                while True:
-                    if(i >= len(b1)):
-                        break;
-                    if(b1[i] == '\n'):
-                        break;
-                    if(b1[i] == '='):
-                        l2 = 1;
-                        if(b1[i+1] == ' '):
-                            i = i +1;
-                    elif(l2 == 1):
-                        config_temp = config_temp  + b1[i];
-                    i = i +1;
-                config_temp1.append("share_folder_daten");
-                config_temp1.append(config_temp);
-                config.append(config_temp1);
-                config_temp1 = [];
-                config_temp = "";
-                l1 = -1;
-                l2 = -1;
-
-        elif(l1 == 7):
-            i = i +1;
-            if(b1[i] != ' '):
-                #config_temp = config_temp  + b1[i];
-                i = i +1;
-                while True:
-                    if(i >= len(b1)):
-                        break;
-                    if(b1[i] == '\n'):
-                        break;
-                    if(b1[i] == '='):
-                        l2 = 1;
-                        if(b1[i+1] == ' '):
-                            i = i +1;
-                    elif(l2 == 1):
-                        config_temp = config_temp  + b1[i];
-                    i = i +1;
-                config_temp1.append("share_folder1_aktiv");
-                config_temp1.append(config_temp);
-                config.append(config_temp1);
-                config_temp1 = [];
-                config_temp = "";
-                l1 = -1;
-                l2 = -1;
-
-        elif(l1 == 8):
-            i = i +1;
-            if(b1[i] != ' '):
-                #config_temp = config_temp  + b1[i];
-                i = i +1;
-                while True:
-                    if(i >= len(b1)):
-                        break;
-                    if(b1[i] == '\n'):
-                        break;
-                    if(b1[i] == '='):
-                        l2 = 1;
-                        if(b1[i+1] == ' '):
-                            i = i +1;
-                    elif(l2 == 1):
-                        config_temp = config_temp  + b1[i];
-                    i = i +1;
-                config_temp1.append("share_folder1");
-                config_temp1.append(config_temp);
-                config.append(config_temp1);
-                config_temp1 = [];
-                config_temp = "";
-                l1 = -1;
-                l2 = -1;
-
-        elif(l1 == 9):
-            i = i +1;
-            if(b1[i] != ' '):
-                #config_temp = config_temp  + b1[i];
-                i = i +1;
-                while True:
-                    if(i >= len(b1)):
-                        break;
-                    if(b1[i] == '\n'):
-                        break;
-                    if(b1[i] == '='):
-                        l2 = 1;
-                        if(b1[i+1] == ' '):
-                            i = i +1;
-                    elif(l2 == 1):
-                        config_temp = config_temp  + b1[i];
-                    i = i +1;
-                config_temp1.append("network_disable");
-                config_temp1.append(config_temp);
-                config.append(config_temp1);
-                config_temp1 = [];
-                config_temp = "";
-                l1 = -1;
-                l2 = -1;
-
-        elif(l1 == 10):
-            i = i +1;
-            if(b1[i] != ' '):
-                #config_temp = config_temp  + b1[i];
-                i = i +1;
-                while True:
-                    if(i >= len(b1)):
-                        break;
-                    if(b1[i] == '\n'):
-                        break;
-                    if(b1[i] == '='):
-                        l2 = 1;
-                        if(b1[i+1] == ' '):
-                            i = i +1;
-                    elif(l2 == 1):
-                        config_temp = config_temp  + b1[i];
-                    i = i +1;
-                config_temp1.append("steam_controller_bool");
-                config_temp1.append(config_temp);
-                config.append(config_temp1);
-                config_temp1 = [];
-                config_temp = "";
-                l1 = -1;
-                l2 = -1;
-
-        elif(l1 == 11):
-            i = i +1;
-            if(b1[i] != ' '):
-                #config_temp = config_temp  + b1[i];
-                i = i +1;
-                while True:
-                    if(i >= len(b1)):
-                        break;
-                    if(b1[i] == '\n'):
-                        break;
-                    if(b1[i] == '='):
-                        l2 = 1;
-                        if(b1[i+1] == ' '):
-                            i = i +1;
-                    elif(l2 == 1):
-                        config_temp = config_temp  + b1[i];
-                    i = i +1;
-                config_temp1.append("usb_sharing");
-                config_temp1.append(config_temp);
-                config.append(config_temp1);
-                config_temp1 = [];
-                config_temp = "";
-                l1 = -1;
-                l2 = -1;
-
-        elif(l1 == 12):
-            i = i +1;
-            if(b1[i] != ' '):
-                #config_temp = config_temp  + b1[i];
-                i = i +1;
-                while True:
-                    if(i >= len(b1)):
-                        break;
-                    if(b1[i] == '\n'):
-                        break;
-                    if(b1[i] == '='):
-                        l2 = 1;
-                        if(b1[i+1] == ' '):
-                            i = i +1;
-                    elif(l2 == 1):
-                        config_temp = config_temp  + b1[i];
-                    i = i +1;
-                config_temp1.append("usb_name");
-                config_temp1.append(config_temp);
-                config.append(config_temp1);
-                config_temp1 = [];
-                config_temp = "";
-                l1 = -1;
-                l2 = -1;
-
-        elif(l1 == 13):
-            i = i +1;
-            if(b1[i] != ' '):
-                #config_temp = config_temp  + b1[i];
-                i = i +1;
-                while True:
-                    if(i >= len(b1)):
-                        break;
-                    if(b1[i] == '\n'):
-                        break;
-                    if(b1[i] == '='):
-                        l2 = 1;
-                        if(b1[i+1] == ' '):
-                            i = i +1;
-                    elif(l2 == 1):
-                        config_temp = config_temp  + b1[i];
-                    i = i +1;
-                config_temp1.append("usb_hidraw_name");
-                config_temp1.append(config_temp);
-                config.append(config_temp1);
-                config_temp1 = [];
-                config_temp = "";
-                l1 = -1;
-                l2 = -1;
-        elif(l1 == 14):
-            i = i +1;
-            if(b1[i] != ' '):
-                #config_temp = config_temp  + b1[i];
-                i = i +1;
-                while True:
-                    if(i >= len(b1)):
-                        break;
-                    if(b1[i] == '\n'):
-                        break;
-                    if(b1[i] == '='):
-                        l2 = 1;
-                        if(b1[i+1] == ' '):
-                            i = i +1;
-                    elif(l2 == 1):
-                        config_temp = config_temp  + b1[i];
-                    i = i +1;
-                config_temp1.append("docker_build");
-                config_temp1.append(config_temp);
-                config.append(config_temp1);
-                config_temp1 = [];
-                config_temp = "";
-                l1 = -1;
-                l2 = -1;
-        elif(l1 == 15):
-            i = i +1;
-            if(b1[i] != ' '):
-                #config_temp = config_temp  + b1[i];
-                i = i +1;
-                while True:
-                    if(i >= len(b1)):
-                        break;
-                    if(b1[i] == '\n'):
-                        break;
-                    if(b1[i] == '='):
-                        l2 = 1;
-                        if(b1[i+1] == ' '):
-                            i = i +1;
-                    elif(l2 == 1):
-                        config_temp = config_temp  + b1[i];
-                    i = i +1;
-                config_temp1.append("docker_input");
-                config_temp1.append(config_temp);
-                config.append(config_temp1);
-                config_temp1 = [];
-                config_temp = "";
-                l1 = -1;
-                l2 = -1;
-        elif(l1 == 16):
-            i = i +1;
-            if(b1[i] != ' '):
-                #config_temp = config_temp  + b1[i];
-                i = i +1;
-                while True:
-                    if(i >= len(b1)):
-                        break;
-                    if(b1[i] == '\n'):
-                        break;
-                    if(b1[i] == '='):
-                        l2 = 1;
-                        if(b1[i+1] == ' '):
-                            i = i +1;
-                    elif(l2 == 1):
-                        config_temp = config_temp  + b1[i];
-                    i = i +1;
-                config_temp1.append("maxmemory");
-                config_temp1.append(config_temp);
-                config.append(config_temp1);
-                config_temp1 = [];
-                config_temp = "";
-                l1 = -1;
-                l2 = -1;
-        elif(l1 == 17):
-            i = i +1;
-            if(b1[i] != ' '):
-                #config_temp = config_temp  + b1[i];
-                i = i +1;
-                while True:
-                    if(i >= len(b1)):
-                        break;
-                    if(b1[i] == '\n'):
-                        break;
-                    if(b1[i] == '='):
-                        l2 = 1;
-                        if(b1[i+1] == ' '):
-                            i = i +1;
-                    elif(l2 == 1):
-                        config_temp = config_temp  + b1[i];
-                    i = i +1;
-                config_temp1.append("maxcpus");
-                config_temp1.append(config_temp);
-                config.append(config_temp1);
-                config_temp1 = [];
-                config_temp = "";
-                l1 = -1;
-                l2 = -1;
-        elif(l1 == 18):
-            i = i +1;
-            if(b1[i] != ' '):
-                #config_temp = config_temp  + b1[i];
-                i = i +1;
-                while True:
-                    if(i >= len(b1)):
-                        break;
-                    if(b1[i] == '\n'):
-                        break;
-                    if(b1[i] == '='):
-                        l2 = 1;
-                        if(b1[i+1] == ' '):
-                            i = i +1;
-                    elif(l2 == 1):
-                        config_temp = config_temp  + b1[i];
-                    i = i +1;
-                config_temp1.append("network_host");
-                config_temp1.append(config_temp);
-                config.append(config_temp1);
-                config_temp1 = [];
-                config_temp = "";
-                l1 = -1;
-                l2 = -1;
-        elif(l1 == 19):
-            i = i +1;
-            if(b1[i] != ' '):
-                #config_temp = config_temp  + b1[i];
-                i = i +1;
-                while True:
-                    if(i >= len(b1)):
-                        break;
-                    if(b1[i] == '\n'):
-                        break;
-                    if(b1[i] == '='):
-                        l2 = 1;
-                        if(b1[i+1] == ' '):
-                            i = i +1;
-                    elif(l2 == 1):
-                        config_temp = config_temp  + b1[i];
-                    i = i +1;
-                config_temp1.append("portforwding");
-                config_temp1.append(config_temp);
-                config.append(config_temp1);
-                config_temp1 = [];
-                config_temp = "";
-                l1 = -1;
-                l2 = -1;
-        elif(l1 == 20):
-            i = i +1;
-            if(b1[i] != ' '):
-                #config_temp = config_temp  + b1[i];
-                i = i +1;
-                while True:
-                    if(i >= len(b1)):
-                        break;
-                    if(b1[i] == '\n'):
-                        break;
-                    if(b1[i] == '='):
-                        l2 = 1;
-                        if(b1[i+1] == ' '):
-                            i = i +1;
-                    elif(l2 == 1):
-                        config_temp = config_temp  + b1[i];
-                    i = i +1;
-                config_temp1.append("dbus_rw");
-                config_temp1.append(config_temp);
-                config.append(config_temp1);
-                config_temp1 = [];
-                config_temp = "";
-                l1 = -1;
-                l2 = -1;
-        elif(l1 == 21):
-            i = i +1;
-            if(b1[i] != ' '):
-                #config_temp = config_temp  + b1[i];
-                i = i +1;
-                while True:
-                    if(i >= len(b1)):
-                        break;
-                    if(b1[i] == '\n'):
-                        break;
-                    if(b1[i] == '='):
-                        l2 = 1;
-                        if(b1[i+1] == ' '):
-                            i = i +1;
-                    elif(l2 == 1):
-                        config_temp = config_temp  + b1[i];
-                    i = i +1;
-                config_temp1.append("pacman_cache");
-                config_temp1.append(config_temp);
-                config.append(config_temp1);
-                config_temp1 = [];
-                config_temp = "";
-                l1 = -1;
-                l2 = -1;
-        elif(l1 == 22):
-            i = i +1;
-            if(b1[i] != ' '):
-                #config_temp = config_temp  + b1[i];
-                i = i +1;
-                while True:
-                    if(i >= len(b1)):
-                        break;
-                    if(b1[i] == '\n'):
-                        break;
-                    if(b1[i] == '='):
-                        l2 = 1;
-                        if(b1[i+1] == ' '):
-                            i = i +1;
-                    elif(l2 == 1):
-                        config_temp = config_temp  + b1[i];
-                    i = i +1;
-                config_temp1.append("dns");
-                config_temp1.append(config_temp);
-                config.append(config_temp1);
-                config_temp1 = [];
-                config_temp = "";
-                l1 = -1;
-                l2 = -1;
-        elif(l1 == 23):
-            i = i +1;
-            if(b1[i] != ' '):
-                #config_temp = config_temp  + b1[i];
-                i = i +1;
-                while True:
-                    if(i >= len(b1)):
-                        break;
-                    if(b1[i] == '\n'):
-                        break;
-                    if(b1[i] == '='):
-                        l2 = 1;
-                        if(b1[i+1] == ' '):
-                            i = i +1;
-                    elif(l2 == 1):
-                        config_temp = config_temp  + b1[i];
-                    i = i +1;
-                config_temp1.append("ipv4");
-                config_temp1.append(config_temp);
-                config.append(config_temp1);
-                config_temp1 = [];
-                config_temp = "";
-                l1 = -1;
-                l2 = -1;
-        elif(l1 == 24):
-            i = i +1;
-            if(b1[i] != ' '):
-                #config_temp = config_temp  + b1[i];
-                i = i +1;
-                while True:
-                    if(i >= len(b1)):
-                        break;
-                    if(b1[i] == '\n'):
-                        break;
-                    if(b1[i] == '='):
-                        l2 = 1;
-                        if(b1[i+1] == ' '):
-                            i = i +1;
-                    elif(l2 == 1):
-                        config_temp = config_temp  + b1[i];
-                    i = i +1;
-                config_temp1.append("wireguard_fix");
-                config_temp1.append(config_temp);
-                config.append(config_temp1);
-                config_temp1 = [];
-                config_temp = "";
-                l1 = -1;
-                l2 = -1;
-
-
-        elif(l1 == 25):
-            i = i +1;
-            if(b1[i] != ' '):
-                #config_temp = config_temp  + b1[i];
-                i = i +1;
-                while True:
-                    if(i >= len(b1)):
-                        break;
-                    if(b1[i] == '\n'):
-                        break;
-                    if(b1[i] == '='):
-                        l2 = 1;
-                        if(b1[i+1] == ' '):
-                            i = i +1;
-                    elif(l2 == 1):
-                        config_temp = config_temp  + b1[i];
-                    i = i +1;
-                config_temp1.append("nosudo");
-                config_temp1.append(config_temp);
-                config.append(config_temp1);
-                config_temp1 = [];
-                config_temp = "";
-                l1 = -1;
-                l2 = -1;
-
-        elif(l1 == 26):
-            i = i +1;
-            if(b1[i] != ' '):
-                #config_temp = config_temp  + b1[i];
-                i = i +1;
-                while True:
-                    if(i >= len(b1)):
-                        break;
-                    if(b1[i] == '\n'):
-                        break;
-                    if(b1[i] == '='):
-                        l2 = 1;
-                        if(b1[i+1] == ' '):
-                            i = i +1;
-                    elif(l2 == 1):
-                        config_temp = config_temp  + b1[i];
-                    i = i +1;
-                config_temp1.append("run_in_background");
-                config_temp1.append(config_temp);
-                config.append(config_temp1);
-                config_temp1 = [];
-                config_temp = "";
-                l1 = -1;
-                l2 = -1;
-
-        elif(l1 == 27):
-            i = i +1;
-            if(b1[i] != ' '):
-                #config_temp = config_temp  + b1[i];
-                i = i +1;
-                while True:
-                    if(i >= len(b1)):
-                        break;
-                    if(b1[i] == '\n'):
-                        break;
-                    if(b1[i] == '='):
-                        l2 = 1;
-                        if(b1[i+1] == ' '):
-                            i = i +1;
-                    elif(l2 == 1):
-                        config_temp = config_temp  + b1[i];
-                    i = i +1;
-                config_temp1.append("ttyon");
-                config_temp1.append(config_temp);
-                config.append(config_temp1);
-                config_temp1 = [];
-                config_temp = "";
-                l1 = -1;
-                l2 = -1;
-
-        elif(l1 == 28):
-            i = i +1;
-            if(b1[i] != ' '):
-                #config_temp = config_temp  + b1[i];
-                i = i +1;
-                while True:
-                    if(i >= len(b1)):
-                        break;
-                    if(b1[i] == '\n'):
-                        break;
-                    if(b1[i] == '='):
-                        l2 = 1;
-                        if(b1[i+1] == ' '):
-                            i = i +1;
-                    elif(l2 == 1):
-                        config_temp = config_temp  + b1[i];
-                    i = i +1;
-                config_temp1.append("pacman_pakgage_install");
-                config_temp1.append(config_temp);
-                config.append(config_temp1);
-                config_temp1 = [];
-                config_temp = "";
-                l1 = -1;
-                l2 = -1;
-
-
-
 
         i = i +1;
     print(config);
