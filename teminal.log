@@ -1,0 +1,7 @@
+Setting up Steam content in /home/empty/.local/share/Steam
+Running Steam on arch rolling 64-bit
+STEAM_RUNTIME is enabled automatically
+Pins potentially out-of-date, rebuilding...
+Can't find 'steam-runtime-check-requirements', continuing anyway
+WARNING: Using default/fallback debugger launch
+/home/empty/.local/share/Steam/ubuntu12_32/steam
