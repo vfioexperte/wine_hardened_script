@@ -4,8 +4,9 @@
 #This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 
-version = "0.23c_gui"
+version = "0.23g_gui"
 appname = "sebs docker contianer gaming app"
+#0.23f steam docker coantienr build fix 0.1 work
 #0.23a pacman_pakgage_install variable add
 #0.22g def system(cmd): edit os.system
 #0.22e without -t command without tty
@@ -876,7 +877,7 @@ def main():
         "-e", "LANG=" + os.environ["LANG"],
         #"-e", "PWD=/home/" + docker_user,
         "-h", platform.node(),
-        "-v", os.environ["XAUTHORITY"] + ":/home/" + docker_user + "/.Xauthority:ro",
+        "-v", os.environ["XAUTHORITY"] + ":/home/" + docker_user + "/.Xauthority:rw",
         "-v", "/dev/dri:/dev/dri",
         "-v", "/dev/shm:/dev/shm",
         "-v", "/dev/vga_arbiter:/dev/vga_arbiter",
@@ -886,25 +887,28 @@ def main():
         "-v", "/run/user/" + str(os.getuid()) + ":/run/user/" + str(os.getuid()) + ":rw",
         #"-v", "/dev/snd:/dev/snd",
         #"-v", "/tmp/.X11-unix:/tmp/.X11-unix:rw",
-        "-v", "/var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro",
+        ##"-v", "/var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro",
         #"-v", "/var/lib/dbus:/var/lib/dbus",
         "-v", dirname+"/pulse-client.conf:/etc/pulse/client.conf:ro",
-        "-v", "/dev/loop0:/dev/loop0:ro",
+        ##"-v", "/dev/loop0:/dev/loop0:ro",
         #"-v", dirname+"/hostname:/etc/hostname:ro",
         #"-v", dirname+"/mirrorlist:/etc/pacman.d/mirrorlist:ro",
         "-v", "/etc/locale.conf:/etc/locale.conf:ro",
         "-v", "/etc/locale.gen:/etc/locale.gen:ro",
-        "--device", "/dev/fb0:/dev/fb0:rw",
+        ##"--device", "/dev/fb0:/dev/fb0:rw",
+        "-v", "/dev/snd:/dev/snd",
         "--group-add", "video",
         "--group-add", "render",
         "--group-add", "optical",
         "--group-add", "input",
+        "--device", "/dev/snd",
         #"-v", "/dev/input/:/dev/input/:ro",
         "-v", dirname+"/chmod_check.py:/root/chmod_check.py:ro",
     ]
     if(basename != "build"):
-        base_args.append("--ipc=\"host\"");
-        base_args.append("--shm-size=\"4G\"");
+        #base_args.append("--ipc=\"host\"");
+        #base_args.append("--shm-size=\"4G\"");
+        pass
 
     if(ttyon == 1):
         print("ttyon aktive");
@@ -922,9 +926,9 @@ def main():
     if(dbus_rw == 1):
         print("dbus_rw on");
         base_args.append("-v");
-        base_args.append("/var/lib/dbus:/var/lib/dbus:rw",);
+        base_args.append("/var/lib/dbus:/var/lib/dbus",);
         base_args.append("-v");
-        base_args.append("/tmp/.X11-unix:/tmp/.X11-unix:rw");
+        base_args.append("/tmp/.X11-unix:/tmp/.X11-unix");
         base_args.append("-v");
         base_args.append("/dev/snd:/dev/snd");
     else:
@@ -1051,10 +1055,11 @@ def main():
 
 
     if(usb_sharing == 1):
-        base_args.append("-v");
-        base_args.append("/dev/bus/:/dev/bus/:rw");
-        base_args.append("-v");
-        base_args.append("/dev/usb:/dev/usb:rw");
+        ##base_args.append("-v");
+        ##base_args.append("/dev/bus/:/dev/bus/:rw");
+        ##base_args.append("-v");
+        ##base_args.append("/dev/usb:/dev/usb:rw");
+        pass;
 
     if(os.path.isdir(dirname+"/share") == True or os.path.islink(dirname+"/share") == True):
         print("sharing the share fodler on");
@@ -1118,8 +1123,8 @@ def main():
             #base_args.append(inputs[i] + ":" + inputs[i]);
             base_args.append(inputs[i]);
             i = i +1;
-        base_args.append("-v");
-        base_args.append("/run/dbus:/run/dbus");
+        ##base_args.append("-v");
+        ##base_args.append("/run/dbus:/run/dbus");
 
     if(maxmemory != -1):
         print("set maxmemory to", maxmemory);
@@ -1240,11 +1245,17 @@ def main():
             #cmd = subprocessvhba-module-dkms.check_output(base_args[0] + , shell=True).decode().split("\n");
             #os.s(base_args[0], args[basename])
             cmd = args_array_to_str(args[basename]);
-            if(basename == "login" or basename == "login_root" ):
+            if(basename == "build"):
+                os.chdir(os.path.join(dirname , "archlinux_std_docker"));
+                os.system("./build");
+                os.chdir(dirname);
+            elif(basename == "login" or basename == "login_root" ):
                 os.system(cmd);
+                print(cmd)
             else:
                 os.system(cmd);
-            print(cmd)
+                print(cmd)
+            #print(cmd)
         if(basename == "build" and pacman_cache != ""):
             fertigfile = os.path.join(pacman_cache, "fertig");
             if(os.path.isfile(fertigfile) == True):
@@ -1290,11 +1301,17 @@ def main():
             #cmd = subprocessvhba-module-dkms.check_output(base_args[0] + , shell=True).decode().split("\n");
             #os.s(base_args[0], args[basename])
             cmd = args_array_to_str(args[basename]);
-            if(basename == "login" or basename == "login_root" ):
+            if(basename == "build"):
+                os.chdir(os.path.join(dirname , "archlinux_std_docker"));
+                os.system("./build");
+                os.chdir(dirname);
+            elif(basename == "login" or basename == "login_root" ):
                 os.system(cmd);
+                print(cmd)
             else:
                 os.system(cmd);
-            print(cmd)
+                print(cmd)
+            #print(cmd)
         if(basename == "build" and pacman_cache != ""):
             fertigfile = os.path.join(pacman_cache, "fertig");
             if(os.path.isfile(fertigfile) == True):
