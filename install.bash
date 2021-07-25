@@ -1,6 +1,4 @@
 #!/bin/bash
-#v0.1b
-ln -sf _config .config
 #ln -sf ../build build
 ln -sf build login_root 
 ln -sf build login
@@ -9,4 +7,4 @@ ln -sf build openra-ra
 ln -sf build firefox
 ln -sf build command
 ln -sf build command_root
-mkdir tmp
+ln -sf ../Code Code
