@@ -5,11 +5,9 @@
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #Warnung der Programmierer hafte nicht auf Schäden oder auf unsachgemäßen Umgang der APP
 #19.12.2020 #start wirting app
-#10.02.2021 last edit
-from PyQt5 import QtWidgets
-from PyQt5 import QtGui
-import math
-version = "v0.6d"
+#13.09.2021 last edit
+#rollback to 0.6d
+version = "v0.6h"
 print(version)
 appname = "Sebs Sync App";
 
@@ -17,6 +15,41 @@ testmode = 0; # 1 aktivted test mode
 if(testmode == 1):
     print("Test mdoe on");
 
+
+try:
+    import math
+    from PyQt5 import QtWidgets
+    from PyQt5 import QtGui
+    import sys
+    import os
+    import os.path
+    import platform
+    import socket
+    import hashlib
+    import sys
+    import os
+    import os.path
+    import struct
+    import shlex, subprocess
+    #import subprocess
+    #import pty
+    import os
+    import sys
+    import os, time, datetime
+    import requests
+    import binascii
+    import os
+    from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+    from cryptography.hazmat.backends import default_backend
+    import time
+except ImportError:
+    import pip
+    failed = pip.main(["install", "pyQT5"]);
+    failed = pip.main(["install", "pywinpty"]);
+    failed = pip.main(["install", "requests"]);
+    failed = pip.main(["install", "cryptography"]);
+
+import math
 import sys
 import os
 import os.path
@@ -39,6 +72,8 @@ import os
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 import time
+from PyQt5 import QtWidgets
+from PyQt5 import QtGui
 
 app = QtWidgets.QApplication(sys.argv);
 
