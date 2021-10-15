@@ -5,8 +5,13 @@
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #this is a fork from https://github.com/kritzsie/steam-on-docker
 
-version = "0.25d_gui beta json split"
+version = "0.25l_gui beta json split"
 appname = "sebs docker contianer gaming app"
+# 0.25l_gui beta json split new command args system 0.1b
+#0.25j --ulimit nofile=5000:5000 fix
+#0.25g "--shm-size=\"8G\"" add --ipc="host" display carsh fix
+#0.25f pacman -Syu --needed #--needed new command
+#0.25e steam crash fix /etc/locale.gen
 #0.25c gui beta # fix docker user rechte
 #localgen fix 0.2a
 #25a_free sync patching
@@ -199,8 +204,23 @@ def array_add_aarray(array1, addarraay):
         array1.append(tmp);
     return array1;
 
+def read_args():
+    i = 1;
+    s1 = "";
+    while True:
+        if(i >= len(sys.argv)):
+            break;
+        s2 = sys.argv[i];
+        if(i != 1 and s2.find(" ") != -1):
+            s1 = s1 + " '" + s2 + "' ";
+        else:
+            s1 = s1 + " " + s2 + " ";
+        i = i +1;
+    print("read_args: ", s1);
+    return s1;
 
 def main():
+    sargs = read_args();
     nosudo = 1;
     docker_user = "empty"
     docker_build = "folder_name";
@@ -211,7 +231,7 @@ def main():
     sav_home_docker_folder = 0;
     share_folder_daten = 0;
     share_folder1_aktiv = 0;
-    share_folder1 = "/NAS";
+    share_folder1 = "";
     network_disable = 0;
     steam_controller_bool = 0;
     usb_sharing = 0;
@@ -318,11 +338,9 @@ def main():
     emptyfolder = dirname + "/xinput_tmp";
 
     if(basename == "command"):
-        if(len(sys.argv) == 2):
-            custom_command = sys.argv[1];
+        custom_command = sargs;
     if(basename == "command_root"):
-        if(len(sys.argv) == 2):
-            custom_command = sys.argv[1];
+        custom_command = sargs;
     if(basename == "build"):
         print("disable nosudo!")
         nosudo = 0;
@@ -357,7 +375,7 @@ def main():
         #archlinux locale gen fix
         ##"-v", "/etc/locale.conf:/etc/locale.conf:ro",
         ##"-v", "/etc/locale.gen:/etc/locale.gen:ro",
-
+        #"-v", "/tmp/.X11-unix:/tmp/.X11-unix:rw",
         "--device", "/dev/fb0:/dev/fb0:rw",
         "-v", "/dev/snd:/dev/snd",
         "--group-add", "video",
@@ -369,8 +387,8 @@ def main():
         "-v", dirname+"/chmod_check.py:/root/chmod_check.py:ro",
     ]
     if(basename != "build"):
-        #base_args.append("--ipc=\"host\"");
-        #base_args.append("--shm-size=\"4G\"");
+        base_args.append("--ipc=\"host\"");
+        base_args.append("--shm-size=\"8G\"");
         pass
 
     if(ttyon == 1):
@@ -672,6 +690,8 @@ def main():
         base_args.append("net.ipv4.conf.all.src_valid_mark=1");
         base_args.append("-v");
         base_args.append("/sys/fs/cgroup:/sys/fs/cgroup:ro");
+        #unboud fix 0.1a
+        base_args.append("--ulimit nofile=5000:5000");
         print("wireguard_fix aktive!");
 
     if(run_in_background == 1):
@@ -684,7 +704,10 @@ def main():
         base_args.append("-v");
         base_args.append("/etc/locale.conf:/etc/locale.conf:ro");
         base_args.append("-v");
-        base_args.append("/etc/locale.gen:/etc/locale.gen:ro");
+        if(os.path.isfile("locale.gen") == True):
+            base_args.append(dirname + "/locale.gen:/etc/locale.gen:ro");
+        else:
+            base_args.append("/etc/locale.gen:/etc/locale.gen:ro");
     else:
         print("ERRRO not found /etc/vconsole.conf!");
 
@@ -825,7 +848,7 @@ def main():
             start_thread_wait("bash install.bash");
             for i in range(pacman_downloads):
                 start_thread_wait("./command_root 'pacman -Sy archlinux-keyring --noconfirm -y --cachedir /var/cache/pacman/pkg && pacman -Syu " + pacman_pakgage_install + " --noconfirm -y --downloadonly --cachedir /mnt/pacman_cache_rw/ && exit'");
-            start_thread("./command_root 'pacman -Sy archlinux-keyring archiso --noconfirm -y --cachedir /var/cache/pacman/pkg && pacman -Syu " + pacman_pakgage_install + " --noconfirm -y --cachedir /var/cache/pacman/pkg  && echo 1 > /mnt/pacman_cache_rw/fertig && sleep 180 &&  exit '");#start_thread
+            start_thread("./command_root 'pacman -Sy archlinux-keyring archiso --noconfirm -y --cachedir /var/cache/pacman/pkg && pacman -Syu " + pacman_pakgage_install + " --noconfirm -y --cachedir /var/cache/pacman/pkg --needed  && echo 1 > /mnt/pacman_cache_rw/fertig && sleep 180 &&  exit '");#start_thread
             #start_thread("./command_root 'pacman -Sy archlinux-keyring archiso --noconfirm -y --cachedir /var/cache/pacman/pkg && mkdir /mnt/2 &&  mount -B / /mnt/2 && mount -B /var/cache/pacman/pkg/ /mnt/2/var/cache/pacman/pkg/ && pacman -Syu  " + pacman_pakgage_install + " --noconfirm -y --cachedir /var/cache/pacman/pkg --root /mnt/2  && echo 1 > /mnt/pacman_cache_rw/fertig && sleep 180 &&  exit '");#start_thread
             #start_thread
             time.sleep(30);
