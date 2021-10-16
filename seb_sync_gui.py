@@ -5,15 +5,13 @@
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #Warnung der Programmierer hafte nicht auf Schäden oder auf unsachgemäßen Umgang der APP
 #19.12.2020 #start wirting app
-#13.09.2021 last edit
+#08.10.2021 last edit
 #rollback to 0.6d
-version = "v0.6h"
+version = "v0.6m json"
+#v0.6l  speed hak 02
 print(version)
 appname = "Sebs Sync App";
 
-testmode = 0; # 1 aktivted test mode
-if(testmode == 1):
-    print("Test mdoe on");
 
 
 try:
@@ -42,6 +40,8 @@ try:
     from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
     from cryptography.hazmat.backends import default_backend
     import time
+    import json
+    import argparse
 except ImportError:
     import pip
     failed = pip.main(["install", "pyQT5"]);
@@ -74,6 +74,26 @@ from cryptography.hazmat.backends import default_backend
 import time
 from PyQt5 import QtWidgets
 from PyQt5 import QtGui
+import json
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-testmode', action='store_true', default=False, dest='boolean_version', help='aktived loacl test mode');
+parser.add_argument("-ip", type=str,  default="", dest="ip", help="set force a server ip")
+results = parser.parse_args();
+ip = "";
+testmode = 0;
+if(results.boolean_version == True):
+    testmode = 1;
+if(results.ip != ""):
+    testmode = 1;
+    ip = results.ip
+if(testmode == 1):
+    print("Test mdoe on");
+if(testmode == 1 and results.ip != ""):
+    print("Test mdoe on with ip:", ip);
+
+jason_data = {};
 
 app = QtWidgets.QApplication(sys.argv);
 
@@ -269,26 +289,34 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
         b1 = 0;
         if(self.textedit_Verzeichniss1.toPlainText() != ""):
             b1 = 1;
+            self.listpatharray = [];
             self.update_progress_info("start sync 1.. " + self.textedit_Verzeichniss_name1.toPlainText(), 0, 400);
             self.start_Client("5", "0", self.textedit_Verzeichniss1.toPlainText(), aes_key, iv_);
+            self.listpatharray = [];
             self.update_progress_info("start sync 2.. " + self.textedit_Verzeichniss_name1.toPlainText(),0, 400);
             self.start_Client("5", "0", self.textedit_Verzeichniss1.toPlainText(), aes_key, iv_);
         if(self.textedit_Verzeichniss2.toPlainText() != ""):
             b1 = 1;
+            self.listpatharray = [];
             self.update_progress_info("start sync 1.. " + self.textedit_Verzeichniss_name2.toPlainText(),0, 400);
             self.start_Client("5", "0", self.textedit_Verzeichniss2.toPlainText(), aes_key, iv_);
+            self.listpatharray = [];
             self.update_progress_info("start sync 2.. " + self.textedit_Verzeichniss_name2.toPlainText(),0, 400);
             self.start_Client("5", "0", self.textedit_Verzeichniss2.toPlainText(), aes_key, iv_);
         if(self.textedit_Verzeichniss3.toPlainText() != ""):
             b1 = 1;
+            self.listpatharray = [];
             self.update_progress_info("start sync 1.. " + self.textedit_Verzeichniss_name3.toPlainText(),0, 400);
             self.start_Client("5", "0", self.textedit_Verzeichniss3.toPlainText(), aes_key, iv_);
+            self.listpatharray = [];
             self.update_progress_info("start sync 2.. " + self.textedit_Verzeichniss_name3.toPlainText(),0, 400);
             self.start_Client("5", "0", self.textedit_Verzeichniss3.toPlainText(), aes_key, iv_);
         if(self.textedit_Verzeichniss4.toPlainText() != ""):
             b1 = 1;
+            self.listpatharray = [];
             self.update_progress_info("start sync 1.. " + self.textedit_Verzeichniss_name4.toPlainText(),0, 400);
             self.start_Client("5", "0", self.textedit_Verzeichniss4.toPlainText(), aes_key, iv_);
+            self.listpatharray = [];
             self.update_progress_info("start sync 2.. " + self.textedit_Verzeichniss_name4.toPlainText(),0, 400);
             self.start_Client("5", "0", self.textedit_Verzeichniss4.toPlainText(), aes_key, iv_);
         if(b1 == 0):
@@ -388,23 +416,38 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
                 msgBox2.exec();
                 print("ERROR Connection File not exist!");
                 return [];
-            fobj2 = open(stxt, "rb");
-            fobj2.seek(0, 2);
-            size = fobj2.tell();
-            fobj2.seek(0, 0);
-            s2 = fobj2.read(size);
-            fobj2.close();
-            byte2=binascii.unhexlify(s2);
-            byte_1bin = self.bytes_decryption(aeskey, iv, byte2);
-            s2 = byte_1bin.decode();
-            s3 = s2.split("^");
-            ip = s3[0];
-            port = int(s3[1]);
-            key_ = s3[2];
-            iv_ = s3[3];
-            hash = s3[4];
-            key_ =  self.hex_to_String(key_);
-            iv_ = self.hex_to_String(iv_);
+            if(len(self.json_array) != 0):
+                return self.json_array;
+            #fobj2 = open(stxt, "rb");
+            #fobj2.seek(0, 2);
+            #size = fobj2.tell();
+            #fobj2.seek(0, 0);
+            #s2 = fobj2.read(size);
+            #fobj2.close();
+            #byte2=binascii.unhexlify(s2);
+            #byte_1bin = self.bytes_decryption(aeskey, iv, byte2);
+            if(self.json_file_read(stxt) != 0):
+                return [];
+            #self.json_aes = jason_data['sav_data']['aes'];
+            #self.json_iv = jason_data['sav_data']['iv'];
+            #self.json_aes_hash = jason_data['sav_data']['aes_hash'];
+            #self.json_iv_hash = jason_data['sav_data']['iv_hash'];
+            #self.json_myip =  jason_data['sav_data']['myip'];
+            #self.json_port =  jason_data['sav_data']['port'];
+            ip = self.json_myip;
+            port = self.json_port;
+            hash = self.json_aes_hash;
+            key_ = self.bytes_decryption(aeskey, iv, self.json_aes);
+            iv_ = self.bytes_decryption(aeskey, iv, self.json_iv);
+            #s2 = byte_1bin.decode();
+            #s3 = s2.split("^");
+            #ip = s3[0];
+            #port = int(s3[1]);
+            #key_ = s3[2];
+            #iv_ = s3[3];
+            #hash = s3[4];
+            #key_ =  self.hex_to_String(key_);
+            #iv_ = self.hex_to_String(iv_);
 
             hash_aes_key = hashlib.sha256();
             hash_aes_key.update(str(ip).encode());
@@ -414,6 +457,9 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
             hash_aes_key = hash_aes_key.hexdigest();
             #os.remove(sbin);
             #os.remove(sbin_decrypt);
+
+            print("hash_aes_key: ", hash_aes_key)
+            print("hash: ", hash)
             if(hash_aes_key != hash):
                 msgBox2 = QtWidgets.QMessageBox();
                 msgBox2.setText("ERROR Connection File not corupt or passwor wrong!");
@@ -422,7 +468,8 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
                 #os.remove(sbin);
                 #os.remove(sbin_decrypt);
                 return [];
-            return [ip, port, key_, iv_, hash];
+            self.json_array = [ip, port, key_, iv_, hash];
+            return self.json_array;
         except UnicodeDecodeError:
             msgBox2 = QtWidgets.QMessageBox();
             msgBox2.setText("ERROR Connection File not corupt or passwor wrong!");
@@ -587,14 +634,16 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
             block = 1024*500;
             sdir = "";
             array = [0, sdir];
-            array = self.listpath(folder, "", array, [], [], []);
+            if(len(self.listpatharray) == 0):
+                self.listpatharray = self.listpath(folder, "", array, [], [], []);
+            array = self.listpatharray;
             sdir = array[1];
             patharray = array[3];
             ctime = array[4];
-            print(sdir);
+            #print(sdir);
             sfileid = "";
             id = int(id);
-            print(folder);
+            #print(folder);
             sfile = "";
             if(Betribsystem == False):
                 sfile = folder + patharray[id];
@@ -794,7 +843,9 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
                 elif(mtime  < clientst_mtime):
                     sdir  = "";
                     array = [0, sdir];
-                    array = self.listpath(folder, "", array, [], [], []);
+                    if(len(self.listpatharray) == 0):
+                        self.listpatharray = self.listpath(folder, "", array, [], [], []);
+                    array = self.listpatharray;
                     sdir = array[1];
                     patharray = array[3];
                     idarray = array[2];
@@ -821,7 +872,9 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
         up = [];
         sdir  = "";
         array = [0, sdir];
-        array = self.listpath(folder, "", array, [], [], []);
+        if(len(self.listpatharray) == 0):
+            self.listpatharray = self.listpath(folder, "", array, [], [], []);
+        array = self.listpatharray;
         sdir = array[1];
         ctime = array[4];
         patharray = array[3];
@@ -876,7 +929,9 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
     def server_sync(self, addr, komm, aeskey, iv, folder):
         sdir  = "";
         array = [0, sdir];
-        array = self.listpath(folder, "", array, [], [], []);
+        if(len(self.listpatharray) == 0):
+            self.listpatharray = self.listpath(folder, "", array, [], [], []);
+        array = self.listpatharray;
         sdir = array[1];
         ctime = array[4];
         patharray = array[3];
@@ -935,7 +990,9 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
         #ls server files
         sdir = "";
         array = [0, sdir];
-        array = self.listpath(folder, "", array, [], [], []);
+        if(len(self.listpatharray) == 0):
+            self.listpatharray = self.listpath(folder, "", array, [], [], []);
+        array = self.listpatharray;
         sdir = array[1];
         self.send_encrypt(addr, komm, aeskey, iv, sdir.encode());
         #self.wirte_connection_simple_mode(addr, komm, sdir);
@@ -969,8 +1026,8 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
         self.wirte_connection_simple_mode(0, s, "1");
         key = self.recive_stream_decrypt(0, s, key_, iv_);
         iv = self.recive_stream_decrypt(0, s, key_, iv_);
-        print(len(key));
-        print(len(iv));
+        #print(len(key));
+        #print(len(iv));
         if(mode == "1"):
             #up
             self.send_encrypt(0, s, key, iv, "1");
@@ -980,7 +1037,7 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
         elif(mode == "3"):
             self.send_encrypt(0, s, key, iv, "3");
             sdir = self.read_connection_simple_mode(0, s);
-            print(sdir);
+            #print(sdir);
         elif(mode == "4"):
             #dwid
             self.send_encrypt(0, s, key, iv, "4");
@@ -1030,6 +1087,7 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
 
 
     def start_Client(self, mode, id, folder, aes_key, iv_):
+        self.json_array = [];
         while True:
             b1 = 0;
             if(Betribsystem == True):
@@ -1048,7 +1106,7 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
                 port = connection_file[1];
                 key = connection_file[2];
                 iv =  connection_file[3];
-                print(connection_file);
+                #print(connection_file);
                 tmp = self.start_Clinet_prozess("10", "0", folder, myip, key, iv, port);
                 if(len(tmp) == 1):
                     if(tmp[0] == -1):
@@ -1085,7 +1143,7 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
             port = connection_file[1];
             key = connection_file[2];
             iv =  connection_file[3];
-            print(connection_file);
+            #print(connection_file);
             tmp = self.start_Clinet_prozess("9", "0", folder, myip, key, iv, port);
             if(len(tmp) == 1):
                 if(tmp[0] == -1):
@@ -1100,8 +1158,8 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
                 self.maxfilecount = len(up) + len(dwid);
                 self.start_Clinet_prozess("8", "0", folder, myip, key, iv, port);
                 #server size of file server
-                print("dwid: ", dwid);
-                print("up: ", up);
+                #print("dwid: ", dwid);
+                #print("up: ", up);
                 for tmp in dwid:
                     self.start_Clinet_prozess("4", str(tmp), folder, myip, key, iv, port);
                     self.filecount = self.filecount + 1;
@@ -1115,6 +1173,7 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
                 self.start_Clinet_prozess("8", "0", folder, myip, key, iv, port);
                 #server size of file server
                 print("sync_add: ", array);
+                self.listpatharray = [];
                 for tmp in array:
                     self.filecount = self.filecount + 1;
                     self.start_Clinet_prozess("1",  str(tmp), folder, myip, key, iv, port);
@@ -1130,6 +1189,8 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
 
 
     def start_Server(self):
+        self.json_array = [];
+        self.listpatharray = [];
         self.button_start_Server.setDisabled(True);
         self.button_start_Client.setDisabled(True);
         self.b1 = 1;
@@ -1148,12 +1209,20 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
 
         if(len(text) == 1):
             if(text[0] == 1):
+                self.json_array = [];
+                self.listpatharray = [];
                 self.start_Server_prozess(self.textedit_Verzeichniss1.toPlainText(), aes_key, iv_);
             elif(text[0] == 2):
+                self.json_array = [];
+                self.listpatharray = [];
                 self.start_Server_prozess(self.textedit_Verzeichniss2.toPlainText(), aes_key, iv_);
             elif(text[0] == 3):
+                self.json_array = [];
+                self.listpatharray = [];
                 self.start_Server_prozess(self.textedit_Verzeichniss3.toPlainText(), aes_key, iv_);
             elif(text[0] == 4):
+                self.json_array = [];
+                self.listpatharray = [];
                 self.start_Server_prozess(self.textedit_Verzeichniss4.toPlainText(), aes_key, iv_);
         elif(len(text) == 0):
             msgBox2 = QtWidgets.QMessageBox();
@@ -1166,12 +1235,20 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
                 for tmp in text:
                     if(tmp == i):
                         if(text[0] == 1):
+                            self.listpatharray = [];
+                            self.json_array = [];
                             self.start_Server_prozess(self.textedit_Verzeichniss1.toPlainText(), aes_key, iv_);
                         elif(text[0] == 2):
+                            self.listpatharray = [];
+                            self.json_array = [];
                             self.start_Server_prozess(self.textedit_Verzeichniss2.toPlainText(), aes_key, iv_);
                         elif(text[0] == 3):
+                            self.listpatharray = [];
+                            self.json_array = [];
                             self.start_Server_prozess(self.textedit_Verzeichniss3.toPlainText(), aes_key, iv_);
                         elif(text[0] == 4):
+                            self.listpatharray = [];
+                            self.json_array = [];
                             self.start_Server_prozess(self.textedit_Verzeichniss4.toPlainText(), aes_key, iv_);
         if(testmode != 1):
             self.sav();
@@ -1195,14 +1272,20 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
                 port = connection_file[1];
                 aes_key_new = connection_file[2];
                 newiv = connection_file[3];
-                print(connection_file);
+                #print(connection_file);
                 self.create_Connetion_file(aes_key, iv_, myip, port, folder, aes_key_new, newiv);
                 return(self.read_Connetion_file(folder, aes_key, iv_));
             else:
                 myip = requests.get('https://www.wikipedia.org').headers['X-Client-IP'];
-                if(testmode == 1 and self.b1 != 2):
+                if(testmode == 1 and ip != "" and self.b1 != 2):
+                    myip = ip;
+                    msgBox2 = QtWidgets.QMessageBox();
+                    msgBox2.setText("Test Mode aktivirt! force ip: "+ myip);
+                    msgBox2.exec();
+                    self.b1 = 2;
+                elif(testmode == 1 and self.b1 != 2):
                     myip = "127.0.0.1";
-                    myip = "192.168.111.30"
+                    #myip = "192.168.111.30"
                     msgBox2 = QtWidgets.QMessageBox();
                     msgBox2.setText("Test Mode aktivirt!");
                     msgBox2.exec();
@@ -1210,7 +1293,7 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
                 port = connection_file[1];
                 aes_key_new = connection_file[2];
                 newiv = connection_file[3];
-                #print(connection_file);
+                print(connection_file);
                 self.create_Connetion_file(aes_key, iv_, myip, port, folder, aes_key_new, newiv);
                 return(self.read_Connetion_file(folder, aes_key, iv_));
 
@@ -1254,7 +1337,7 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
         port = connection_file[1];
         key2 = connection_file[2];
         iv2 =  connection_file[3];
-        print(connection_file);
+        #print(connection_file);
         server = self.start_listen_Server(port);
         while True:
             self.update_progress_info("Server listen..", 0, 100);
@@ -1263,7 +1346,7 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
             #server_socket = server[0];
             #server_connection = server[1];
             #server_addr = server[2];
-            print(server);
+            #print(server);
             #print(server_connection);
             #mode = self.read_connection_simple_mode(0, komm);
             connectifileexist = self.read_connection_simple_mode(0, komm);
@@ -1545,22 +1628,32 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
     def hex_to_String(self, hex):
         return binascii.unhexlify(hex);
 
-
-
     def create_Connetion_file(self, aeskey, iv, myip, port, folder, newkey, newiv):
+        stxt = os.path.join(folder, "1.txt");
         hash_aes_key = hashlib.sha256();
         hash_aes_key.update(str(myip).encode());
         hash_aes_key.update(str(port).encode());
         hash_aes_key.update(newkey);
         hash_aes_key.update(newiv);
+        #self.json_aes = jason_data['sav_data']['aes'];
+        #self.json_iv = jason_data['sav_data']['iv'];
+        #self.json_aes_hash = jason_data['sav_data']['aes_hash'];
+        #self.json_iv_hash = jason_data['sav_data']['iv_hash'];
+        #self.json_myip =  jason_data['sav_data']['myip'];
+        #self.json_port =  jason_data['sav_data']['port'];
         hash_aes_key = hash_aes_key.hexdigest();
-        s1 = myip + "^" + str(port) + "^" + self.string_to_hex(newkey) + "^" + self.string_to_hex(newiv) + "^" + hash_aes_key;
-        bin1_aes = self.bytes_encryption(aeskey, iv, s1.encode());
-        hex=binascii.hexlify(bin1_aes)
-        txt1 = os.path.join(folder, "1.txt");
-        fobj = open(txt1, "wb")
-        fobj.write(hex);
-        fobj.close();
+
+        newkey = self.bytes_encryption(aeskey, iv, newkey);
+        newiv = self.bytes_encryption(aeskey, iv, newiv);
+        self.json_file_write(stxt, newkey, newiv, hash_aes_key, "", myip, port);
+
+        #s1 = myip + "^" + str(port) + "^" + self.string_to_hex(newkey) + "^" + self.string_to_hex(newiv) + "^" + hash_aes_key;
+        #bin1_aes = self.bytes_encryption(aeskey, iv, s1.encode());
+        #hex=binascii.hexlify(bin1_aes)
+        #txt1 = os.path.join(folder, "1.txt");
+        #fobj = open(txt1, "wb")
+        #fobj.write(hex);
+        #fobj.close();
         #os.remove(bin1_aes);
         #os.remove(bin1);
         return 0;
@@ -1867,6 +1960,32 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
         #bout = bout + bin;
         #print("ende encrypt");
         return bout;
+
+    def json_file_write(self, sfile, aes, iv, aes_hash, iv_hash, myip, port):
+        jason_data['sav_data'] = {'aes': binascii.hexlify(aes).decode(), 'iv' : binascii.hexlify(iv).decode(), 'aes_hash' : aes_hash, 'iv_hash' : iv_hash, "myip" : myip, "port" : port};
+        with open(sfile, "w") as write_file:
+            json.dump(jason_data, write_file);
+            write_file.close();
+        return 0;
+
+    def json_file_read(self, sfile):
+        if(os.path.isfile(sfile) == False):
+            return 0;
+        with open(sfile, "r") as read_file:
+            try:
+                jason_data  = json.load(read_file)
+                self.json_aes = binascii.unhexlify(jason_data['sav_data']['aes'].encode());
+                self.json_iv = binascii.unhexlify(jason_data['sav_data']['iv'].encode());
+                self.json_aes_hash = jason_data['sav_data']['aes_hash'];
+                self.json_iv_hash = jason_data['sav_data']['iv_hash'];
+                self.json_myip =  jason_data['sav_data']['myip'];
+                self.json_port =  jason_data['sav_data']['port'];
+                read_file.close();
+            except json.decoder.JSONDecodeError:
+                return -1;
+            except TypeError:
+                return -1;
+        return 0;
 
 
 
