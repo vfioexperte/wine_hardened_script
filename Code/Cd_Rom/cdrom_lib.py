@@ -5,7 +5,7 @@
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #this is a fork from https://github.com/kritzsie/steam-on-docker
 
-version = "0.1a"
+version = "0.1b"
 
 import platform
 import os
@@ -93,6 +93,11 @@ def create_a_cdrom_mount_file_per_dev(devarray, docker_user):
     while True:
         if(i >= len(dev)):
             break;
+        if(buchstabe_i >= 26):
+            print("ERROR to much cdrom dirve can not patch " + "/mnt/cdrom"+ str(i+1))
+            buchstabe_i = buchstabe_i +1;
+            i = i +1;
+            continue;
         tmp = dev[i];
         tmp2 = sg[i];
         if(i == 0):
@@ -117,6 +122,7 @@ def create_a_cdrom_mount_file_per_dev(devarray, docker_user):
 
 
 def patch_wine_fodler_cdrom(device, mountpoint, buchstabe, sg):
+    #patch wine folder in home user folder home/.wine use cdrom DRM in wine folder
     abspath = os.path.abspath(sys.argv[0]);
     basename = os.path.basename(abspath);
     dirname = os.path.dirname(abspath);
