@@ -5,9 +5,11 @@
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #Warnung der Programmierer hafte nicht auf Schäden oder auf unsachgemäßen Umgang der APP
 #19.12.2020 #start wirting app
-#08.10.2021 last edit
+#13.11.2021 last edit
 #rollback to 0.6d
-version = "v0.6m json"
+version = "v0.7c"
+#v0.7c fix crash wenn daten nach geschoben werden
+#v0.7a zeit anzeige
 #v0.6l  speed hak 02
 print(version)
 appname = "Sebs Sync App";
@@ -295,6 +297,7 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
             self.listpatharray = [];
             self.update_progress_info("start sync 2.. " + self.textedit_Verzeichniss_name1.toPlainText(),0, 400);
             self.start_Client("5", "0", self.textedit_Verzeichniss1.toPlainText(), aes_key, iv_);
+            self.listpatharray = [];
         if(self.textedit_Verzeichniss2.toPlainText() != ""):
             b1 = 1;
             self.listpatharray = [];
@@ -303,6 +306,7 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
             self.listpatharray = [];
             self.update_progress_info("start sync 2.. " + self.textedit_Verzeichniss_name2.toPlainText(),0, 400);
             self.start_Client("5", "0", self.textedit_Verzeichniss2.toPlainText(), aes_key, iv_);
+            self.listpatharray = [];
         if(self.textedit_Verzeichniss3.toPlainText() != ""):
             b1 = 1;
             self.listpatharray = [];
@@ -311,6 +315,7 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
             self.listpatharray = [];
             self.update_progress_info("start sync 2.. " + self.textedit_Verzeichniss_name3.toPlainText(),0, 400);
             self.start_Client("5", "0", self.textedit_Verzeichniss3.toPlainText(), aes_key, iv_);
+            self.listpatharray = [];
         if(self.textedit_Verzeichniss4.toPlainText() != ""):
             b1 = 1;
             self.listpatharray = [];
@@ -319,11 +324,13 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
             self.listpatharray = [];
             self.update_progress_info("start sync 2.. " + self.textedit_Verzeichniss_name4.toPlainText(),0, 400);
             self.start_Client("5", "0", self.textedit_Verzeichniss4.toPlainText(), aes_key, iv_);
+            self.listpatharray = [];
         if(b1 == 0):
             msgBox2 = QtWidgets.QMessageBox();
             msgBox2.setText("All Textboxen is empty. please click browse!",0, 400);
             msgBox2.exec();
             self.update_progress_info("sync ende",0, 400);
+            self.listpatharray = [];
             return -1;
         msgBox2 = QtWidgets.QMessageBox();
         msgBox2.setText("Sync Fertig!");
@@ -630,6 +637,9 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
 
     def Clinet_file_upload_clinet(self, addr, s, aeskey, iv, folder, id):
         #try:
+            self.status_starttime = time.time()
+            self.status_downloadedbytes = 0
+            self.status_totaltransfertime = 0
             self.update_progress_info("upload file..",0, 100);
             block = 1024*500;
             sdir = "";
@@ -673,10 +683,29 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
                 hash.update(s1);
                 self.send_stream_encrypt(addr, s, aeskey, iv, s1);
                 i = i + sizetemp;
+                timenow = time.time()
+                self.status_downloadedbytes = i
+                self.status_totaltransfertime = timenow - self.status_starttime;
                 if(i != 0 and i % 45 == 0):
+                    if(self.status_downloadedbytes != 0 and self.status_totaltransfertime != 0):
+                        #size = 100
+                        #self.status_downloadedbytes = X
+                        if(size != 0):
+                            self.zeit1 = self.status_downloadedbytes * 100 / size;
+                        else:
+                            self.zeit1 = 0;
+                        #self.zeit1 =
+                        #self.status_totaltransfertime =  self.zeit1
+                        #X = 100%
+                        if(self.zeit1 != 0 and self.status_totaltransfertime != 0 and self.status_starttime != 0):
+                            self.zeit2 = self.status_totaltransfertime * (100 -self.zeit1)   / self.zeit1;
+                        else:
+                            self.zeit2 = 0;
+                        #print("Zeit1: ", self.zeit1)
+                        #print("Zeit2: ", self.zeit2)
                     s2 = float(i) * float(100) / float(size);
                     s1 = str(i) + "/" + str(size) + ":" + str(s2) + "%";
-                    self.update_progress_info("file upload..", self.float_to_int(s2), 100);
+                    self.update_progress_info("file upload.." + " Zeit: ~" +  str(self.float_to_int(self.zeit2)) + "sec ", self.float_to_int(s2), 100);
                     #print("upload: ", s1);
             fobj.close();
             print("upload: ", 100.0);
@@ -709,6 +738,9 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
 
     def Server_file_upload_client(self, addr, komm, aeskey, iv, folder):
         #try:
+            self.status_starttime = time.time()
+            self.status_downloadedbytes = 0
+            self.status_totaltransfertime = 0
             block = 1024*500;
             print("file encryption andere PC..");
             self.update_progress_info("file encryption andere PC..",0, 100);
@@ -747,11 +779,25 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
                 hash.update(data);
                 fobj.write(data);
                 i = i +sizetemp;
+                timenow = time.time()
+                self.status_downloadedbytes = i
+                self.status_totaltransfertime = timenow - self.status_starttime;
                 if(i != 0 and i % 45 == 0):
-                    s2 = float(i) * float(100) / float(size);
-                    s1 = str(i) + "/" + str(size) + ":" + str(s2) + "%";
-                    #print("Downlaod: ", s1);
-                    self.update_progress_info("file download..", self.float_to_int(s2), 100);
+                    if(self.status_downloadedbytes != 0 and self.status_totaltransfertime != 0):
+                        if(size != 0):
+                            self.zeit1 = self.status_downloadedbytes * 100 / size;
+                        else:
+                            self.zeit1 = 0;
+                        if(self.zeit1 != 0 and self.status_totaltransfertime != 0 and self.status_starttime != 0):
+                            self.zeit2 = self.status_totaltransfertime * (100 -self.zeit1)   / self.zeit1;
+                        else:
+                            self.zeit2 = 0;
+                        #print("Zeit1: ", self.zeit1)
+                        #print("Zeit2: ", self.zeit2)
+                        s2 = float(i) * float(100) / float(size);
+                        s1 = str(i) + "/" + str(size) + ":" + str(s2) + "%";
+                        #print("Downlaod: ", s1);
+                        self.update_progress_info("file download.." + " Zeit: ~" +  str(self.float_to_int(self.zeit2)) + "sec ", self.float_to_int(s2), 100);
             hash_ = hash.hexdigest();
             fobj.close();
             self.wirte_connection_simple_mode(addr, komm, "OK");
@@ -1253,6 +1299,7 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
         if(testmode != 1):
             self.sav();
         self.update_progress_info("sync ende", 0, 100);
+        self.listpatharray = [];
         self.button_start_Server.setDisabled(False);
         self.button_start_Client.setDisabled(False);
         return 0;
@@ -1379,13 +1426,21 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
                     self.Clinet_file_upload_clinet(0, komm, key, iv, folder, id);
                     self.filecount = self.filecount + 1;
                 elif(mode == "5"):
+                    self.listpatharray = []
                     self.update_progress_info("start sync.. ",0, 100);
+                    self.listpatharray = []
                     self.server_sync(0, komm, key, iv, folder);
+                    self.listpatharray = []
                     self.update_progress_info("start sync.. ende",100, 100);
+                    self.listpatharray = []
                 elif(mode == "7"):
+                    self.listpatharray = []
                     self.update_progress_info("start sync add.. ",0, 100);
+                    self.listpatharray = []
                     self.server_sync_add(0, komm, key, iv, folder);
+                    self.listpatharray = []
                     self.update_progress_info("start sync add.. ende",0, 100);
+                    self.listpatharray = []
                 elif(mode == "8"):
                     #server size of file server
                     self.update_progress_info("start size of files.. ",0, 100);
