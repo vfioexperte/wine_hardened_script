@@ -5,8 +5,13 @@
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #this is a fork from https://github.com/kritzsie/steam-on-docker
 
-version = "0.25l_gui beta json split"
+version = "0.26b_gui"
 appname = "sebs docker contianer gaming app"
+#0.26b_gui edit cdrom lib.py
+#0.25o_gui share foder 1 flasch übertagen 0.1a fix
+#0.25n doppelt start fix 0.1a
+#0.25n --security-opt=seccomp:unconfined  #docker checkpoint ttyon auf 2
+#0.25m_gui beta json split json edit 02
 # 0.25l_gui beta json split new command args system 0.1b
 #0.25j --ulimit nofile=5000:5000 fix
 #0.25g "--shm-size=\"8G\"" add --ipc="host" display carsh fix
@@ -52,6 +57,7 @@ from Code.Patching.patching_lib import *
 from Code.Usb.usb_lib import *
 from Code.Cd_Rom.cdrom_lib import *
 from Code.Gui.json_edit_gui.json_edit_gui import *
+from Code.Xinput.xinput_lib import *
 
 jason_data = {};
 
@@ -205,16 +211,26 @@ def array_add_aarray(array1, addarraay):
     return array1;
 
 def read_args():
+    b1 = 0;
     i = 1;
     s1 = "";
     while True:
         if(i >= len(sys.argv)):
             break;
         s2 = sys.argv[i];
-        if(i != 1 and s2.find(" ") != -1):
+        if(s2.find("\\n") != -1):
+            a1 = s2.split("\\n");
+            for tmp in a1:
+                if(i != 1 and tmp.find(" ") != -1):
+                    s1 = s1 + " '" + tmp + "' \n";
+                else:
+                    s1 = s1 + " " + tmp + " \n";
+
+        elif(i != 1 and s2.find(" ") != -1):
             s1 = s1 + " '" + s2 + "' ";
         else:
             s1 = s1 + " " + s2 + " ";
+
         i = i +1;
     print("read_args: ", s1);
     return s1;
@@ -379,6 +395,7 @@ def main():
         "--device", "/dev/fb0:/dev/fb0:rw",
         "-v", "/dev/snd:/dev/snd",
         "--group-add", "video",
+        "--security-opt=seccomp:unconfined",
         #"--group-add", "render",
         #"--group-add", "optical",
         #"--group-add", "input",
@@ -753,7 +770,10 @@ def main():
     print(build_args)
     base_args.append(dirname_tmp);
     if(basename == "edit_config"):
-        start_json_edit_gui();
+        start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugriff_auf_media, sav_home_docker_folder, share_folder_daten,
+                            share_folder1_aktiv, share_folder1, network_disable, steam_controller_bool, usb_sharing, usb_name, usb_hidraw_name,
+                            docker_build, docker_input, maxmemory, maxcpus, network_host, portforwding, dbus_rw, pacman_cache, dns, ipv4,
+                            wireguard_fix, nosudo, run_in_background, ttyon, pacman_pakgage_install);
 
     if(ttyon == 0):
         #gui aktiv
@@ -810,7 +830,7 @@ def main():
                 print("ERROR docker id not found");
                 exit(-1);
             thread_wait_is_exit();
-    else:
+    elif(ttyon == 1):
         #ttyon 1 #gui off terminal on
         print("Terminal on!")
         args = {
@@ -823,6 +843,65 @@ def main():
             "firefox": [base_args[0], "run", "-it"] + (base_args[1:] + ["bash", "-c", "/etc/user_patched.bash"]),
             "command": [base_args[0], "run", "-it"] + (base_args[1:] + ["bash", "-c", "/etc/user_patched.bash"]),
             "command_root": [base_args[0], "run", "-it"] + (base_args[1:] + ["bash", "-c", "/etc/user_patched.bash"]),
+        }
+        if __name__ == "__main__":
+            print(args[basename]);
+            #cmd = subprocessvhba-module-dkms.check_output(base_args[0] + , shell=True).decode().split("\n");
+            #os.s(base_args[0], args[basename])
+            cmd = args_array_to_str(args[basename]);
+            if(basename == "build"):
+                os.chdir(os.path.join(dirname , "archlinux_std_docker"));
+                os.system("./build");
+                os.chdir(dirname);
+            elif(basename == "login" or basename == "login_root" ):
+                os.system(cmd);
+                print(cmd)
+            else:
+                os.system(cmd);
+                print(cmd)
+            #print(cmd)
+        if(basename == "build" and pacman_cache != ""):
+            fertigfile = os.path.join(pacman_cache, "fertig");
+            if(os.path.isfile(fertigfile) == True):
+                os.remove(fertigfile);
+            print("starting mod")
+            start_thread_wait("bash install.bash");
+            for i in range(pacman_downloads):
+                start_thread_wait("./command_root 'pacman -Sy archlinux-keyring --noconfirm -y --cachedir /var/cache/pacman/pkg && pacman -Syu " + pacman_pakgage_install + " --noconfirm -y --downloadonly --cachedir /mnt/pacman_cache_rw/ && exit'");
+            start_thread("./command_root 'pacman -Sy archlinux-keyring archiso --noconfirm -y --cachedir /var/cache/pacman/pkg && pacman -Syu " + pacman_pakgage_install + " --noconfirm -y --cachedir /var/cache/pacman/pkg --needed  && echo 1 > /mnt/pacman_cache_rw/fertig && sleep 180 &&  exit '");#start_thread
+            #start_thread("./command_root 'pacman -Sy archlinux-keyring archiso --noconfirm -y --cachedir /var/cache/pacman/pkg && mkdir /mnt/2 &&  mount -B / /mnt/2 && mount -B /var/cache/pacman/pkg/ /mnt/2/var/cache/pacman/pkg/ && pacman -Syu  " + pacman_pakgage_install + " --noconfirm -y --cachedir /var/cache/pacman/pkg --root /mnt/2  && echo 1 > /mnt/pacman_cache_rw/fertig && sleep 180 &&  exit '");#start_thread
+            #start_thread
+            time.sleep(30);
+            wait_build_fertig(fertigfile, dirname_tmp);
+            dockerid = read_docker_ps(dirname_tmp);
+            tmp = "";
+            if(dockerid != ""):
+                print("sav docker image")
+                print(dockerid);
+                print(tmp);
+                cmd = "docker commit " + dockerid + " " + dirname_tmp;
+                os.system(cmd);
+                print("docker save!");
+                exit();
+            else:
+                print("ERROR docker id not found");
+                exit(-1);
+            thread_wait_is_exit();
+    else:
+        #ttyon 2 #gui off terminal on docker checkpoit on
+        build_args.append("-d");
+        build_args.append("busybox");
+        print("Terminal on!")
+        args = {
+            #"build": [build_args[0], "build", "-f", dirname + "/src/Dockerfile", "-t" ,dirname_tmp ] +  (build_args[1:] + [dirname]),
+            "build": [build_args[0], "build", "-f", dirname + "/src/Dockerfile", "-t" ,dirname_tmp ] +  (build_args[1:] + [dirname]),
+            "run": [base_args[0], "run", "-i"] + (base_args[1:]),
+            "login": [base_args[0], "run", "-i"] + (base_args[1:] + ["bash", "-c", "/etc/user_patched.bash"]),
+            "login_root": [base_args[0], "run", "-i"] + (base_args[1:] + ["bash", "-c", "/etc/user_patched.bash"]),
+            "openra-ra": [base_args[0], "run", "-i"] + (base_args[1:] + ["bash", "-c", "/etc/user_patched.bash"]),
+            "firefox": [base_args[0], "run", "-i"] + (base_args[1:] + ["bash", "-c", "/etc/user_patched.bash"]),
+            "command": [base_args[0], "run", "-i"] + (base_args[1:] + ["bash", "-c", "/etc/user_patched.bash"]),
+            "command_root": [base_args[0], "run", "-i"] + (base_args[1:] + ["bash", "-c", "/etc/user_patched.bash"]),
         }
         if __name__ == "__main__":
             print(args[basename]);
