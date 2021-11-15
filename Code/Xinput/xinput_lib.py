@@ -18,6 +18,8 @@ import json
 jason_data = {};
 
 
+from Code.Path.path_lib import *
+
 def list_all_devices():
     devinput = "/dev/input/by-id/";
     array = list_path_einfache(devinput, 0);
