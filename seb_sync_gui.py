@@ -7,7 +7,9 @@
 #19.12.2020 #start wirting app
 #13.11.2021 last edit
 #rollback to 0.6d
-version = "v0.7c"
+version = "v0.7e"
+#v0.7e fix internet abruch 1
+#v0.7d eroor fix ConnectionResetError server sietig abgesichert
 #v0.7c fix crash wenn daten nach geschoben werden
 #v0.7a zeit anzeige
 #v0.6l  speed hak 02
@@ -563,20 +565,34 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
             except OSError:
                 print("Die Adresse wird bereits verwendet");
                 time.sleep(60);
+            except ConnectionResetError:
+                print("Sync ERROR");
+            except BrokenPipeError:
+                return ""
         return -1;
 
     def read_connection_simple_mode(self, addr, komm):
-        mode = "";
-        while True:
-            data = komm.recv(1).decode()
-            if data == ";":
-                break;
-            mode = mode + data;
-        return mode;
+        try:
+            mode = "";
+            while True:
+                data = komm.recv(1).decode()
+                if data == ";":
+                    break;
+                mode = mode + data;
+            return mode;
+        except ConnectionResetError:
+            return "";
+        except BrokenPipeError:
+            return ""
 
     def wirte_connection_simple_mode(self, addr, komm, text):
-        komm.send((text+";").encode());
-        return 0;
+        try:
+            komm.send((text+";").encode());
+            return 0;
+        except ConnectionResetError:
+            return "";
+        except BrokenPipeError:
+            return ""
 
     def remove_punkt_aes(self, s2):
         i = 0;
@@ -589,53 +605,78 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
         return s1;
 
     def send_encrypt(self, addr, s, aeskey, iv, messege):
-        bout = self.bytes_encryption(aeskey ,iv, messege.encode());
-        size = len(bout);
-        self.wirte_connection_simple_mode(addr, s, str(size));
-        s.send(bout);
-        return 0;
+        try:
+            bout = self.bytes_encryption(aeskey ,iv, messege.encode());
+            size = len(bout);
+            self.wirte_connection_simple_mode(addr, s, str(size));
+            s.send(bout);
+            return 0;
+        except ConnectionResetError:
+            return "";
+        except BrokenPipeError:
+            return ""
 
     def recive_decrypt(self, addr, s, aeskey, iv):
-        size = self.read_connection_simple_mode(addr, s);
-        size = int(size);
-        i = 0;
-        b1 = b'';
-        while True:
-            if(i >= size):
-                break;
-            b1 = b1 + s.recv(1);
-            i = i +1;
-        b1 = self.bytes_decryption(aeskey ,iv, b1);
-        return b1.decode();
+        try:
+            size = self.read_connection_simple_mode(addr, s);
+            if(size == ""):
+                return "";
+            size = int(size);
+            i = 0;
+            b1 = b'';
+            while True:
+                if(i >= size):
+                    break;
+                b1 = b1 + s.recv(1);
+                i = i +1;
+            b1 = self.bytes_decryption(aeskey ,iv, b1);
+            return b1.decode();
+        except ConnectionResetError:
+            return "";
+        except BrokenPipeError:
+            return ""
 
     def send_stream_encrypt(self, addr, s, aeskey, iv, messege):
-        bout = self.bytes_encryption(aeskey ,iv, messege);
-        size = len(bout);
-        self.wirte_connection_simple_mode(addr, s, str(size));
-        s.send(bout);
-        return 0;
+        try:
+            bout = self.bytes_encryption(aeskey ,iv, messege);
+            size = len(bout);
+            self.wirte_connection_simple_mode(addr, s, str(size));
+            s.send(bout);
+            return 0;
+        except ConnectionResetError:
+            return "";
+        except BrokenPipeError:
+            return ""
 
     def recive_stream_decrypt(self, addr, s, aeskey, iv):
-        size = self.read_connection_simple_mode(addr, s);
-        size = int(size);
-        i = 0;
-        b1 = b'';
-        block = 32;
-        while True:
-            if(i >= size):
-                break;
-            if(i + block >= size):
-                sizetemp = size -i;
-            else:
-                sizetemp = block;
-            b2 = s.recv(sizetemp);
-            sizetemp = len(b2);
-            b1 = b1 + b2;
-            i = i +sizetemp;
-        b1 = self.bytes_decryption(aeskey ,iv, b1);
-        return b1;
+        try:
+            size = self.read_connection_simple_mode(addr, s);
+            if(size == ""):
+                return "";
+            size = int(size);
+            i = 0;
+            b1 = b'';
+            block = 32;
+            while True:
+                if(i >= size):
+                    break;
+                if(i + block >= size):
+                    sizetemp = size -i;
+                else:
+                    sizetemp = block;
+                b2 = s.recv(sizetemp);
+                sizetemp = len(b2);
+                b1 = b1 + b2;
+                i = i +sizetemp;
+            b1 = self.bytes_decryption(aeskey ,iv, b1);
+            return b1;
+        except ConnectionResetError:
+            return "";
+        except BrokenPipeError:
+            return ""
 
     def Clinet_file_upload_clinet(self, addr, s, aeskey, iv, folder, id):
+        #upload
         #try:
             self.status_starttime = time.time()
             self.status_downloadedbytes = 0
@@ -661,14 +702,20 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
                 sfile = folder + self.flips_schlasch(patharray[id]);
             self.send_encrypt(addr, s,  aeskey, iv, patharray[id]);
             fobj = open(sfile, "rb");
+            filename = sfile;
             hash = hashlib.sha256();
             fobj.seek(0, 2);
             size = fobj.tell();
             fobj.seek(0, 0);
-            self.wirte_connection_simple_mode(addr, s, str(size));
+            if(self.wirte_connection_simple_mode(addr, s, str(size)) == ""):
+                print("ERROR Übertragung fehler");
+                return -1;
+
             stinfo = os.stat(sfile);
             time_1 = str(stinfo.st_atime) + "," + str(stinfo.st_mtime);
-            self.wirte_connection_simple_mode(addr, s, time_1);
+            if(self.wirte_connection_simple_mode(addr, s, time_1) == ""):
+                print("ERROR Übertragung fehler");
+                return -1;
             i = 0;
             sizetemp = 0;
             self.update_progress_info("file upload..",0, 100);
@@ -681,7 +728,10 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
                     sizetemp = block;
                 s1 = fobj.read(sizetemp);
                 hash.update(s1);
-                self.send_stream_encrypt(addr, s, aeskey, iv, s1);
+                if(self.send_stream_encrypt(addr, s, aeskey, iv, s1) == ""):
+                    print("ERROR Übertragung fehler");
+                    #os.remove(filename);
+                    return -1;
                 i = i + sizetemp;
                 timenow = time.time()
                 self.status_downloadedbytes = i
@@ -716,11 +766,15 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
             if(sok == "OK"):
                 self.send_encrypt(addr, s, aeskey, iv, hash_);
                 b1 = self.read_connection_simple_mode(addr, s);
-                if(b1 == "0"):
+                if(b1 == ""):
+                    print("ERROR Übertragung fehler");
+                    #os.remove(filename);
+                    return -1;
+                elif(b1 == "0"):
                     print(shash);
                     print("Ubertragung FAIL");
                     s.close();
-                    os.remove(filename);
+                    #os.remove(filename);
                     return -1;
                 else:
                     print("Ubertragung OK");
@@ -737,6 +791,7 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
         return math.floor(zahl)
 
     def Server_file_upload_client(self, addr, komm, aeskey, iv, folder):
+        #download
         #try:
             self.status_starttime = time.time()
             self.status_downloadedbytes = 0
@@ -749,8 +804,12 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
             print("file encryption andere PC..ende");
             self.update_progress_info("file encryption andere PC..ende",100, 100);
             size = self.read_connection_simple_mode(addr, komm);
+            if(size == ""):
+                print("ERROR Übertragung fehler");
             size = int(size);
             ctime = self.read_connection_simple_mode(addr, komm);
+            if(ctime == ""):
+                print("ERROR Übertragung fehler");
             if(Betribsystem == False):
                 filename = folder + filename;
             else:
@@ -761,7 +820,8 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
             else:
                 os.system("mkdir " + "\"" + dir + "\"");
             print("filename: ", filename);
-            fobj = open(filename, "wb");
+            filename_aes = filename + ".aes";
+            fobj = open(filename_aes, "wb");
             hash = hashlib.sha256();
             data = "";
             i = 0;
@@ -775,6 +835,10 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
                 else:
                     sizetemp = block;
                 data = self.recive_stream_decrypt(addr, komm, aeskey, iv);
+                if(data == ""):
+                    print("ERROR Übertragung fehler");
+                    os.remove(filename_aes);
+                    self.aufraumen(folder);
                 sizetemp = len(data);
                 hash.update(data);
                 fobj.write(data);
@@ -800,19 +864,38 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
                         self.update_progress_info("file download.." + " Zeit: ~" +  str(self.float_to_int(self.zeit2)) + "sec ", self.float_to_int(s2), 100);
             hash_ = hash.hexdigest();
             fobj.close();
-            self.wirte_connection_simple_mode(addr, komm, "OK");
+            if(self.wirte_connection_simple_mode(addr, komm, "OK") == ""):
+                print("ERROR Übertragung fehler");
+                os.remove(filename_aes);
+                self.aufraumen(folder);
+                return -1;
+
 
             shash = self.recive_decrypt(addr, komm, aeskey, iv);
+            if(shash == ""):
+                print("ERROR Übertragung fehler");
+                os.remove(filename_aes);
+                self.aufraumen(folder);
+                return -1;
             if(shash == hash_):
                 print("Ubertragung OK");
-                self.wirte_connection_simple_mode(addr, komm, "1");
+                os.rename(filename_aes, filename);
+                if(self.wirte_connection_simple_mode(addr, komm, "1") == ""):
+                    print("ERROR Übertragung fehler");
+                    os.remove(filename_aes);
+                    self.aufraumen(folder);
+                    return -1;
             else:
                 print(shash);
                 print(hash_);
                 print("Ubertragung FAIL");
-                self.wirte_connection_simple_mode(addr, komm, "0");
+                if(self.wirte_connection_simple_mode(addr, komm, "0") == ""):
+                    print("ERROR Übertragung fehler");
+                    os.remove(filename_aes);
+                    self.aufraumen(folder);
+                    return -1;
                 print(filename);
-                os.remove(filename);
+                os.remove(filename_aes);
                 komm.close();
                 self.aufraumen(folder);
                 return -1;
@@ -927,7 +1010,8 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
         idarray = array[2];
         sfileid = "";
         size2 = len(idarray);
-        self.wirte_connection_simple_mode(addr, komm, str(size2));
+        if(self.wirte_connection_simple_mode(addr, komm, str(size2)) == ""):
+            return -1;
         i = 0;
         while True:
             if(i >= size2 ):
@@ -950,7 +1034,9 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
 
 
     def server_sync_add(self, addr, komm, aeskey, iv, folder):
-        size = self.read_connection_simple_mode(0, komm);
+        size = self.read_connection_simple_mode(0, komm)
+        if(size == ""):
+            return -1;
         size = int(size);
         i = 0;
         while True:
@@ -983,7 +1069,8 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
         patharray = array[3];
         idarray = array[2];
         size2 = len(idarray);
-        self.wirte_connection_simple_mode(addr, komm, str(size2));
+        if(self.wirte_connection_simple_mode(addr, komm, str(size2)) == ""):
+            return -1;
         i  = 0;
         while True:
             if(i >= size2):
@@ -1045,8 +1132,26 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
         komm.close();
         return 0;
 
-
     def start_Clinet_prozess(self, mode, id, folder, myip, key_, iv_, port):
+        i = 0;
+        while True:
+            tmp = self.start_Clinet_prozess_2(mode, id, folder, myip, key_, iv_, port);
+            if(len(tmp) == 1):
+                if(tmp[0] == -1):
+                    time.sleep(1);
+                    i = i +1;
+                    if(i >= 600):
+                        return [-1];
+                else:
+                    return tmp;
+            else:
+                return tmp;
+            time.sleep(1);
+            i = i +1;
+            if(i >= 600):
+                return [-1];
+
+    def start_Clinet_prozess_2(self, mode, id, folder, myip, key_, iv_, port):
         self.aufraumen(folder);
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM);
@@ -1163,6 +1268,7 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
                         tmp = self.start_Clinet_prozess("10", "0", folder, myip, key, iv, port);
                         if(len(tmp) == 1):
                             if(tmp[0] == -1):
+                                self.mesage_eroor();
                                 return -1;
             else:
                 myip = self.question_ip();
@@ -1172,6 +1278,7 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
                 tmp = self.start_Clinet_prozess("10", "0", folder, myip, key, iv, port);
                 if(len(tmp) == 1):
                     if(tmp[0] == -1):
+                        self.mesage_eroor();
                         return -1;
 
             tmp = self.start_Clinet_prozess("10", "0", folder, myip, key, iv, port);
@@ -1191,9 +1298,9 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
             iv =  connection_file[3];
             #print(connection_file);
             tmp = self.start_Clinet_prozess("9", "0", folder, myip, key, iv, port);
-            if(len(tmp) == 1):
-                if(tmp[0] == -1):
-                    return -1;
+            if(tmp == -1):
+                self.mesage_eroor();
+                return -1;
             array = self.start_Clinet_prozess(mode, id, folder, myip, key, iv, port);
             if(len(array) != 0):
                 dwid = array[0];
@@ -1202,30 +1309,45 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
                     b1 = 1;
                 self.filecount = 0;
                 self.maxfilecount = len(up) + len(dwid);
-                self.start_Clinet_prozess("8", "0", folder, myip, key, iv, port);
+                if(self.start_Clinet_prozess("8", "0", folder, myip, key, iv, port) == -1):
+                    self.mesage_eroor();
+                    return -1;
                 #server size of file server
                 #print("dwid: ", dwid);
                 #print("up: ", up);
                 for tmp in dwid:
-                    self.start_Clinet_prozess("4", str(tmp), folder, myip, key, iv, port);
+                    if(self.start_Clinet_prozess("4", str(tmp), folder, myip, key, iv, port) == -1):
+                        self.mesage_eroor();
+                        return -1;
                     self.filecount = self.filecount + 1;
                 for tmp in up:
-                    self.start_Clinet_prozess("1",  str(tmp), folder, myip, key, iv, port);
+                    if(self.start_Clinet_prozess("1",  str(tmp), folder, myip, key, iv, port) == -1):
+                        self.mesage_eroor();
+                        return -1;
                     self.filecount = self.filecount + 1;
                 #sync add
                 self.filecount = 0;
                 array = self.start_Clinet_prozess("7",  "0", folder, myip, key, iv, port);
+                if(array == -1):
+                    self.mesage_eroor();
+                    return -1;
                 self.maxfilecount = len(array);
-                self.start_Clinet_prozess("8", "0", folder, myip, key, iv, port);
+                if(self.start_Clinet_prozess("8", "0", folder, myip, key, iv, port) == -1):
+                    self.mesage_eroor();
+                    return -1;
                 #server size of file server
                 print("sync_add: ", array);
                 self.listpatharray = [];
                 for tmp in array:
                     self.filecount = self.filecount + 1;
-                    self.start_Clinet_prozess("1",  str(tmp), folder, myip, key, iv, port);
+                    if(self.start_Clinet_prozess("1",  str(tmp), folder, myip, key, iv, port) == -1):
+                        self.mesage_eroor();
+                        return -1;
                 self.maxfilecount = 0;
                 self.filecount = 0;
-                self.start_Clinet_prozess("8", "0", folder, myip, key, iv, port);
+                if(self.start_Clinet_prozess("8", "0", folder, myip, key, iv, port) == -1):
+                    self.mesage_eroor();
+                    return -1;
                 print("sync ende")
             if(b1 == 1):
                 self.aufraumen(folder);
@@ -1756,7 +1878,6 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
 
 
     def aufraumen(self, os_path_dir):
-        return 0;
         print("aufraumen..");
         sdir  = "";
         array = [0, sdir];
@@ -2041,8 +2162,21 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
             except TypeError:
                 return -1;
         return 0;
-
-
+    def mesage_eroor(self):
+        msgBox2 = QtWidgets.QMessageBox();
+        msgBox2.setText("ERROR in der übertragung!");
+        #yesbuttom = QtWidgets.QPushButton("Yes");
+        #nobuttom = QtWidgets.QPushButton("No");
+        #msgBox2.addButton(yesbuttom, QtWidgets.QMessageBox.AcceptRole);
+        #msgBox2.addButton(nobuttom, QtWidgets.QMessageBox.NoRole);
+        msgBox2.exec();
+        #if(msgBox2.clickedButton() == yesbuttom):
+        #    return 1;
+        #elif(msgBox2.clickedButton() == nobuttom):
+        #    return 0;
+        #else:
+        #    exit(-1);
+        return 0;
 
 
 mainwindow = seb_sync_clinet_gui();
