@@ -7,7 +7,7 @@
 #19.12.2020 #start wirting app
 #20.11.2021 last edit
 #rollback to 0.6d
-version = "v0.7f"
+version = "v0.7g"
 #v0.7f sav before start fodler paths 1
 #v0.7f fix internet abruch 2 add debug command -testmode_errror
 #v0.7d eroor fix ConnectionResetError server sietig abgesichert
@@ -689,6 +689,7 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
     def Clinet_file_upload_clinet(self, addr, s, aeskey, iv, folder, id):
         #upload
         #try:
+            self.aufraumen(folder);
             self.status_starttime = time.time()
             self.status_downloadedbytes = 0
             self.status_totaltransfertime = 0
@@ -815,6 +816,7 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
     def Server_file_upload_client(self, addr, komm, aeskey, iv, folder):
         #download
         #try:
+            self.aufraumen(folder);
             self.status_starttime = time.time()
             self.status_downloadedbytes = 0
             self.status_totaltransfertime = 0
@@ -901,6 +903,8 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
                 return -1;
             if(shash == hash_):
                 print("Ubertragung OK");
+                if(os.path.isfile(filename) == True):
+                    os.remove(filename);
                 os.rename(filename_aes, filename);
                 if(self.wirte_connection_simple_mode(addr, komm, "1") == ""):
                     print("ERROR Übertragung fehler");
