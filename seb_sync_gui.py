@@ -5,10 +5,11 @@
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #Warnung der Programmierer hafte nicht auf Schäden oder auf unsachgemäßen Umgang der APP
 #19.12.2020 #start wirting app
-#13.11.2021 last edit
+#20.11.2021 last edit
 #rollback to 0.6d
-version = "v0.7e"
-#v0.7e fix internet abruch 1
+version = "v0.7f"
+#v0.7f sav before start fodler paths 1
+#v0.7f fix internet abruch 2 add debug command -testmode_errror
 #v0.7d eroor fix ConnectionResetError server sietig abgesichert
 #v0.7c fix crash wenn daten nach geschoben werden
 #v0.7a zeit anzeige
@@ -84,8 +85,10 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('-testmode', action='store_true', default=False, dest='boolean_version', help='aktived loacl test mode');
 parser.add_argument("-ip", type=str,  default="", dest="ip", help="set force a server ip")
+parser.add_argument('-testmode_errror', action='store_true', default=False, dest='testerror', help='aktived loacl test mode simulate error');
 results = parser.parse_args();
 ip = "";
+test_fehelrmode = 0
 testmode = 0;
 if(results.boolean_version == True):
     testmode = 1;
@@ -96,6 +99,9 @@ if(testmode == 1):
     print("Test mdoe on");
 if(testmode == 1 and results.ip != ""):
     print("Test mdoe on with ip:", ip);
+if(results.testerror == True):
+    print("test fehler mdoe on!");
+    test_fehelrmode = 1;
 
 jason_data = {};
 
@@ -214,8 +220,11 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
         self.button_start_Server.clicked.connect(self.start_Server);
         self.button_start_Client = QtWidgets.QPushButton("Start Client");
         self.button_start_Client.clicked.connect(self.start_sync);
+        self.button_start_sav_folder_path = QtWidgets.QPushButton("Sav Folder Paths");
+        self.button_start_sav_folder_path.clicked.connect(self.sav);
         self.layoutv1.addWidget(self.button_start_Server)
         self.layoutv1.addWidget(self.button_start_Client)
+        self.layoutv1.addWidget(self.button_start_sav_folder_path)
         self.setLayout(self.layoutv1)
 
         self.progressbar = QtWidgets.QProgressBar(self);
@@ -286,6 +295,8 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
         return 0;
 
     def start_sync(self):
+        if(testmode != 1):
+            self.sav();
         self.button_start_Server.setDisabled(True);
         self.button_start_Client.setDisabled(True);
         aes_key = self.question_aes_key();
@@ -728,6 +739,14 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
                     sizetemp = block;
                 s1 = fobj.read(sizetemp);
                 hash.update(s1);
+                if(test_fehelrmode == 1):
+                    print("Test fehler erzeugt hash defck")
+                    eroor_simulator_list = list(s1);
+                    eroor_simulator = eroor_simulator_list[0] + 1;
+                    if(eroor_simulator >= 255):
+                        eroor_simulator = 0;
+                    eroor_simulator_list[0] = eroor_simulator;
+                    s1 = bytes(eroor_simulator_list);
                 if(self.send_stream_encrypt(addr, s, aeskey, iv, s1) == ""):
                     print("ERROR Übertragung fehler");
                     #os.remove(filename);
@@ -769,10 +788,13 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
                 if(b1 == ""):
                     print("ERROR Übertragung fehler");
                     #os.remove(filename);
+                    self.aufraumen(folder);
+                    s.close();
                     return -1;
                 elif(b1 == "0"):
                     print(shash);
                     print("Ubertragung FAIL");
+                    self.aufraumen(folder);
                     s.close();
                     #os.remove(filename);
                     return -1;
@@ -866,7 +888,7 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
             fobj.close();
             if(self.wirte_connection_simple_mode(addr, komm, "OK") == ""):
                 print("ERROR Übertragung fehler");
-                os.remove(filename_aes);
+                #os.remove(filename_aes);
                 self.aufraumen(folder);
                 return -1;
 
@@ -874,7 +896,7 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
             shash = self.recive_decrypt(addr, komm, aeskey, iv);
             if(shash == ""):
                 print("ERROR Übertragung fehler");
-                os.remove(filename_aes);
+                #os.remove(filename_aes);
                 self.aufraumen(folder);
                 return -1;
             if(shash == hash_):
@@ -882,7 +904,7 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
                 os.rename(filename_aes, filename);
                 if(self.wirte_connection_simple_mode(addr, komm, "1") == ""):
                     print("ERROR Übertragung fehler");
-                    os.remove(filename_aes);
+                    #os.remove(filename_aes);
                     self.aufraumen(folder);
                     return -1;
             else:
@@ -891,11 +913,11 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
                 print("Ubertragung FAIL");
                 if(self.wirte_connection_simple_mode(addr, komm, "0") == ""):
                     print("ERROR Übertragung fehler");
-                    os.remove(filename_aes);
+                    #os.remove(filename_aes);
                     self.aufraumen(folder);
                     return -1;
                 print(filename);
-                os.remove(filename_aes);
+                #os.remove(filename_aes);
                 komm.close();
                 self.aufraumen(folder);
                 return -1;
@@ -1142,6 +1164,8 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
                     i = i +1;
                     if(i >= 600):
                         return [-1];
+                elif(tmp[0] == -2):
+                    i = 0;
                 else:
                     return tmp;
             else:
@@ -1185,6 +1209,9 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
             while True:
                 if(self.Clinet_file_upload_clinet(0, s, key, iv, folder, id) == 0):
                     break;
+                else:
+                    return [-2];
+
         elif(mode == "3"):
             self.send_encrypt(0, s, key, iv, "3");
             sdir = self.read_connection_simple_mode(0, s);
@@ -1196,6 +1223,8 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
             while True:
                 if(self.Server_file_upload_client(0, s, key, iv, folder) == 0):
                     break;
+                else:
+                    return [-2];
         elif(mode == "5"):
             #sync
             self.send_encrypt(0, s, key, iv, "5");
@@ -1357,6 +1386,8 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
 
 
     def start_Server(self):
+        if(testmode != 1):
+            self.sav();
         self.json_array = [];
         self.listpatharray = [];
         self.button_start_Server.setDisabled(True);
