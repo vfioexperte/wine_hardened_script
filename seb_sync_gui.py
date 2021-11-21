@@ -7,7 +7,8 @@
 #19.12.2020 #start wirting app
 #20.11.2021 last edit
 #rollback to 0.6d
-version = "v0.7g"
+version = "v0.7h"
+#v0.7h aufraumen speed fix 1
 #v0.7f sav before start fodler paths 1
 #v0.7f fix internet abruch 2 add debug command -testmode_errror
 #v0.7d eroor fix ConnectionResetError server sietig abgesichert
@@ -689,7 +690,7 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
     def Clinet_file_upload_clinet(self, addr, s, aeskey, iv, folder, id):
         #upload
         #try:
-            self.aufraumen(folder);
+            #self.aufraumen(folder);
             self.status_starttime = time.time()
             self.status_downloadedbytes = 0
             self.status_totaltransfertime = 0
@@ -724,6 +725,7 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
                 return -1;
 
             stinfo = os.stat(sfile);
+            print("filename: ", sfile);
             time_1 = str(stinfo.st_atime) + "," + str(stinfo.st_mtime);
             if(self.wirte_connection_simple_mode(addr, s, time_1) == ""):
                 print("ERROR Übertragung fehler");
@@ -816,7 +818,7 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
     def Server_file_upload_client(self, addr, komm, aeskey, iv, folder):
         #download
         #try:
-            self.aufraumen(folder);
+            #self.aufraumen(folder);
             self.status_starttime = time.time()
             self.status_downloadedbytes = 0
             self.status_totaltransfertime = 0
@@ -1920,7 +1922,7 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
         sdir = array[1];
         patharray = array[3];
         ctime = array[4];
-        print(sdir);
+        #print(sdir);
         sfileid = "";
         #id = int(id);
         i = 0;
