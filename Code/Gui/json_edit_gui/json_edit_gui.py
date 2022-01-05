@@ -1,11 +1,11 @@
 #!/usr/bin/env python
-#Copyright (C) 2021  vfio_experte
+#Copyright (C) 2022  vfio_experte
 #This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
 #This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #this is a fork from https://github.com/kritzsie/steam-on-docker
 
-version = "0.2b"
+version = "0.2g"
 
 import platform
 import os
@@ -19,10 +19,100 @@ jason_data = {};
 from Code.Json.json_file import *
 appname = "Seb Docker build json edit config"
 
+
+def cmd_start(cmd):
+    try:
+        out = subprocess.check_output(cmd, shell=True).decode().split("\n")
+        return out
+    except subprocess.CalledProcessError:
+        return []
+
+def split_to_usbnames(array):
+    sout1 = "";
+    i = 0;
+    for tmp in array:
+        if(i >= len(array)-1):
+            sout1 = sout1 + tmp;
+        else:
+            sout1 = sout1 + tmp + " ";
+        i = i +1;
+    return sout1;
+
+
+def read_lsusb():
+    out = cmd_start("lsusb");
+    usb_names = []
+    for tmp in out:
+        s1 = tmp.split(" ");
+        if(len(s1) >= 5):
+            usb_names.append((split_to_usbnames(s1[6::])));
+    return usb_names;
+
+def check_device_isopen_hidraw(filepath):
+    try:
+        tmp = os.open(filepath, os.O_RDONLY);
+        os.close(tmp);
+        return 1;
+    except PermissionError:
+        return 1;
+    except TypeError:
+        return 1;
+    except FileNotFoundError:
+        return 0;
+    return 1;
+
+
+def read_hidraw():
+    usb_hidraw_names = [];
+    i = 0;
+    dev = [];
+    while True:
+        if(i >= 100):
+            break;
+        if(check_device_isopen_hidraw("/dev/hidraw" + str(i)) == 0):
+            i = i +1;
+            continue;
+        try:
+            output = subprocess.check_output("/usr/bin/cat < /sys/class/hidraw/hidraw" + str(i) +  "/device/uevent | /usr/bin/grep \"HID_NAME=\"", shell=True).decode();
+            s1 = output.split("\n");
+            s2 = s1[0].split("HID_NAME=");
+            usb_hidraw_names.append(s2[1]);
+        except subprocess.CalledProcessError:
+            pass;
+        i = i +1;
+    print(usb_hidraw_names)
+    return usb_hidraw_names;
+
+
+def read_glxinfo(dri_prime):
+    if(list_all_gpus() <= dri_prime):
+        return "";
+    cmd = cmd_start("DRI_PRIME=" + str(dri_prime) + " glxinfo | grep \"OpenGL renderer\"");
+    if(len(cmd) == 0):
+        return "ERROR mesa-utils not installed!";
+    s1 = cmd[0].split("OpenGL renderer string: ");
+    return s1[1]
+
+def list_all_gpus():
+    i1 = -1;
+    cmd = cmd_start("lspci -v | grep \"Kernel driver in use: amdgpu\"");
+    i1 = i1 + len(cmd);
+    cmd = cmd_start("lspci -v | grep \"Kernel driver in use: radeon\"");
+    i1 = i1 + len(cmd);
+    return i1;
+
+def read_all_dri_prime_device():
+    out = [];
+    for i in range(40):
+        s1 = read_glxinfo(i);
+        if(s1 != ""):
+            out.append(s1);
+    return out;
+
 def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugriff_auf_media, sav_home_docker_folder, share_folder_daten,
                     share_folder1_aktiv, share_folder1, network_disable, steam_controller_bool, usb_sharing, usb_name, usb_hidraw_name,
                     docker_build, docker_input, maxmemory, maxcpus, network_host, portforwding, dbus_rw, pacman_cache, dns, ipv4,
-                    wireguard_fix, nosudo, run_in_background, ttyon, pacman_pakgage_install):
+                    wireguard_fix, nosudo, run_in_background, ttyon, pacman_pakgage_install, bluethoot_passthrough, hidraw_acs_overrides_patch):
     from PyQt5 import QtWidgets
     from PyQt5 import QtGui
     app = QtWidgets.QApplication(sys.argv);
@@ -46,12 +136,17 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
             self.layoutv1.addLayout(self.layouth1);
 
             self.layouth2 = QtWidgets.QHBoxLayout()
-            self.gpu_render_label =  QtWidgets.QLabel("gpu_render: (nur für muti gpu user um bei opengl eine gpu zu wählen! bei 1ner gpubiit 0 lassen )");
+            self.gpu_render_label =  QtWidgets.QLabel("gpu_render: (nur für muti gpu user um bei opengl eine gpu zu wählen! bei 1ner gpu Bitte 0 lassen )");
             self.gpu_render = QtWidgets.QSpinBox();
             self.gpu_render.setMinimum(0);
             self.gpu_render.setValue(int(gpu_render));
+            self.gpu_render_combobox = QtWidgets.QComboBox();
+            self.gpu_render_combobox_set = QtWidgets.QPushButton("set")
+            self.gpu_render_combobox_set .clicked.connect(self.set_combox_gpu_render)
             self.layouth2.addWidget(self.gpu_render_label);
             self.layouth2.addWidget(self.gpu_render);
+            self.layouth2.addWidget(self.gpu_render_combobox);
+            self.layouth2.addWidget(self.gpu_render_combobox_set);
             self.layoutv1.addLayout(self.layouth2);
 
             self.layouth3 = QtWidgets.QHBoxLayout();
@@ -104,8 +199,11 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
             self.layouth8 = QtWidgets.QHBoxLayout();
             self.share_folder1_label = QtWidgets.QLabel("eingner share fodler /run/media:/run/media:ro mounted /run/media als readonly mehre ordner mit ^ trenen:")
             self.share_folder1 = QtWidgets.QLineEdit(share_folder1);
+            self.share_folder1_browse = QtWidgets.QPushButton("browse..")
+            self.share_folder1_browse .clicked.connect(self.set_share_folder1)
             self.layouth8.addWidget(self.share_folder1_label);
             self.layouth8.addWidget(self.share_folder1);
+            self.layouth8.addWidget(self.share_folder1_browse);
             self.layoutv1.addLayout(self.layouth8);
 
             self.layouth9 = QtWidgets.QHBoxLayout();
@@ -141,15 +239,33 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
             self.layouth12 = QtWidgets.QHBoxLayout();
             self.usb_name_label = QtWidgets.QLabel("usb gerät per usb name in docker hinzufügen (mehere device getrennt mit ^): ");
             self.usb_name = QtWidgets.QLineEdit(usb_name);
+            self.usb_name_combobox = QtWidgets.QComboBox();
+            self.usb_name_combobox_add = QtWidgets.QPushButton("add")
+            self.usb_name_combobox_add .clicked.connect(self.add_combox_usb_share)
+            self.usb_name_combobox_update = QtWidgets.QPushButton("update")
+            self.usb_name_combobox_update .clicked.connect(self.update_usb_share_combox)
             self.layouth12.addWidget(self.usb_name_label);
             self.layouth12.addWidget(self.usb_name);
+            self.layouth12.addWidget(self.usb_name_combobox);
+            self.layouth12.addWidget(self.usb_name_combobox_add);
+            self.layouth12.addWidget(self.usb_name_combobox_update);
             self.layoutv1.addLayout(self.layouth12);
+
+
 
             self.layouth13 = QtWidgets.QHBoxLayout();
             self.usb_hidraw_name_label = QtWidgets.QLabel("usb gerät per usb hdiraw name in docker hinzufügen (mehere device getrennt mit ^): ");
             self.usb_hidraw_name = QtWidgets.QLineEdit(usb_hidraw_name);
+            self.usb_hidraw_combobox = QtWidgets.QComboBox();
+            self.usb_hidraw_combobox_add = QtWidgets.QPushButton("add")
+            self.usb_hidraw_combobox_add .clicked.connect(self.add_combox_hidraw_share)
+            self.usb_hidraw_combobox_update = QtWidgets.QPushButton("update")
+            self.usb_hidraw_combobox_update .clicked.connect(self.update_hidware_share_combox)
             self.layouth13.addWidget(self.usb_hidraw_name_label);
             self.layouth13.addWidget(self.usb_hidraw_name);
+            self.layouth13.addWidget(self.usb_hidraw_combobox);
+            self.layouth13.addWidget(self.usb_hidraw_combobox_add);
+            self.layouth13.addWidget(self.usb_hidraw_combobox_update);
             self.layoutv1.addLayout(self.layouth13);
 
             self.layouth14 = QtWidgets.QHBoxLayout();
@@ -206,8 +322,11 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
             self.layouth20 = QtWidgets.QHBoxLayout();
             self.pacman_cache_label = QtWidgets.QLabel("pacman_cache setze hier ein path zu einem Ordner an wo der packet cache von pacman gesichert wird: ");
             self.pacman_cache = QtWidgets.QLineEdit(pacman_cache);
+            self.pacman_cache_browse = QtWidgets.QPushButton("browse..")
+            self.pacman_cache_browse .clicked.connect(self.set_pacman_cache_folder)
             self.layouth20.addWidget(self.pacman_cache_label);
             self.layouth20.addWidget(self.pacman_cache);
+            self.layouth20.addWidget(self.pacman_cache_browse);
             self.layoutv1.addLayout(self.layouth20);
 
             self.layouth21 = QtWidgets.QHBoxLayout();
@@ -278,11 +397,35 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
             self.layouth28.addWidget(self.docker_input);
             self.layoutv1.addLayout(self.layouth28);
 
+            self.layouth27 = QtWidgets.QHBoxLayout();
+            self.bluethoot_passthrough_label = QtWidgets.QLabel("Bluethoot_passthrough  0 = disabel , 1= enable ");
+            self.bluethoot_passthrough = QtWidgets.QSpinBox();
+            self.bluethoot_passthrough.setValue(bluethoot_passthrough);
+            self.bluethoot_passthrough.setMinimum(0);
+            self.bluethoot_passthrough.setMaximum(1);
+            self.layouth27.addWidget(self.bluethoot_passthrough_label);
+            self.layouth27.addWidget(self.bluethoot_passthrough);
+            self.layoutv1.addLayout(self.layouth27);
+
+            self.layouth28 = QtWidgets.QHBoxLayout();
+            self.hidraw_acs_overrides_patch_label = QtWidgets.QLabel("USB Hidraw acs overrides patch (alow docker user readwrite Hidraw devices) 0 = disabel , 1= enable ");
+            self.hidraw_acs_overrides_patch = QtWidgets.QSpinBox();
+            self.hidraw_acs_overrides_patch.setValue(hidraw_acs_overrides_patch);
+            self.hidraw_acs_overrides_patch.setMinimum(0);
+            self.hidraw_acs_overrides_patch.setMaximum(1);
+            self.layouth28.addWidget(self.hidraw_acs_overrides_patch_label);
+            self.layouth28.addWidget(self.hidraw_acs_overrides_patch);
+            self.layoutv1.addLayout(self.layouth28);
+
             self.layouth99999999999 = QtWidgets.QHBoxLayout();
             self.button_save = QtWidgets.QPushButton("Save json")
             self.button_save .clicked.connect(self.save)
             self.layouth99999999999.addWidget(self.button_save);
             self.layoutv1.addLayout(self.layouth99999999999);
+
+            self.update_usb_share_combox();
+            self.update_hidware_share_combox();
+            self.update_gpu_render_combox();
 
         def save(self):
             docker_user = self.docker_user.text();
@@ -313,11 +456,114 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
             ttyon = self.ttyon.value();
             pacman_pakgage_install = self.pacman_pakgage_install.text();
             docker_input = self.docker_input.text();
+            bluethoot_passthrough = self.bluethoot_passthrough.value();
+            hidraw_acs_overrides_patch = self.hidraw_acs_overrides_patch.value();
             #file_write_json(dirname + "/config_file_json", docker_user, gpu_render, disk_device_name, zugriff_auf_media, sav_home_docker_folder, share_folder_daten,
             #                share_folder1_aktiv, share_folder1, network_disable, steam_controller_bool, usb_sharing, usb_name, usb_hidraw_name,
             #                docker_build, maxmemory, maxcpus, network_host, portforwding, dbus_rw, pacman_cache, dns, ipv4, wireguard_fix,
             #                 nosudo, run_in_background, ttyon, pacman_pakgage_install, docker_input);
-            file_write_json(dirname + "/config_file_json", docker_user, gpu_render, disk_device_name, zugriff_auf_media, sav_home_docker_folder, share_folder_daten, share_folder1_aktiv, share_folder1, network_disable, steam_controller_bool, usb_sharing, usb_name, usb_hidraw_name, docker_build, maxmemory, maxcpus, network_host, portforwding, dbus_rw, pacman_cache, dns, ipv4, wireguard_fix, nosudo, run_in_background, ttyon, pacman_pakgage_install, docker_input);
+            file_write_json(dirname + "/config_file_json", docker_user, gpu_render, disk_device_name, zugriff_auf_media, sav_home_docker_folder, share_folder_daten, share_folder1_aktiv, share_folder1, network_disable, steam_controller_bool, usb_sharing, usb_name, usb_hidraw_name, docker_build, maxmemory, maxcpus, network_host, portforwding, dbus_rw, pacman_cache, dns, ipv4, wireguard_fix, nosudo, run_in_background, ttyon, pacman_pakgage_install, docker_input, bluethoot_passthrough, hidraw_acs_overrides_patch);
+            return 0;
+
+        def add_combox_usb_share(self):
+            index = self.usb_name_combobox.currentIndex()
+            s1 = self.usb_sahring_array[index];
+            if(self.usb_name.text().find("^") == -1):
+                if(self.usb_name.text() != s1):
+                    if(self.usb_name.text() == ""):
+                        self.usb_name.setText(s1);
+                    else:
+                        self.usb_name.setText(self.usb_name.text() + "^" + s1);
+            else:
+                s2 = self.usb_name.text().split("^");
+                b1 = 0;
+                for tmp in s2:
+                    if(tmp == s1):
+                        b1 = 1;
+                        break;
+                if(b1 == 0):
+                    self.usb_name.setText(self.usb_name.text() + "^" + s1);
+            return 0;
+
+        def update_usb_share_combox(self):
+            self.usb_sahring_array = read_lsusb();
+            self.usb_name_combobox.clear()
+            self.usb_name_combobox.addItems(self.usb_sahring_array)
+            self.usb_name_combobox.update()
+            self.usb_name_combobox.setEnabled(True)
+            return 0;
+
+        def update_hidware_share_combox(self):
+            self.hidraw_sahring_array = read_hidraw();
+            self.usb_hidraw_combobox.clear()
+            self.usb_hidraw_combobox.addItems(self.hidraw_sahring_array)
+            self.usb_hidraw_combobox.update()
+            self.usb_hidraw_combobox.setEnabled(True)
+            return 0;
+
+        def add_combox_hidraw_share(self):
+            index = self.usb_hidraw_combobox.currentIndex()
+            s1 = self.hidraw_sahring_array[index];
+            if(self.usb_hidraw_name.text().find("^") == -1):
+                if(self.usb_hidraw_name.text() != s1):
+                    if(self.usb_hidraw_name.text() == ""):
+                        self.usb_hidraw_name.setText(s1);
+                    else:
+                        self.usb_hidraw_name.setText(self.usb_hidraw_name.text() + "^" + s1);
+            else:
+                s2 = self.usb_hidraw_name.text().split("^");
+                b1 = 0;
+                for tmp in s2:
+                    if(tmp == s1):
+                        b1 = 1;
+                        break;
+                if(b1 == 0):
+                    self.usb_hidraw_name.setText(self.usb_hidraw_name.text() + "^" + s1);
+            return 0;
+
+
+        def update_gpu_render_combox(self):
+            self.gpu_render_array = read_all_dri_prime_device();
+            self.gpu_render_combobox.clear()
+            self.gpu_render_combobox.addItems(self.gpu_render_array)
+            self.gpu_render_combobox.update()
+            self.gpu_render_combobox.setEnabled(True)
+            return 0;
+
+        def set_combox_gpu_render(self):
+            index = self.gpu_render_combobox.currentIndex()
+            self.gpu_render.setValue(index);
+            return 0;
+
+        def set_share_folder1(self):
+            s1 = QtWidgets.QFileDialog.getExistingDirectory();
+            if(self.share_folder1.text().find("^") == -1):
+                if(self.share_folder1.text() != s1):
+                    if(self.share_folder1.text() == ""):
+                        self.share_folder1.setText(s1 + ":" + s1 + ":rw");
+                    else:
+                        self.share_folder1.setText(self.share_folder1.text() + "^" + s1 + ":" + s1 + ":rw");
+            else:
+                s2 = self.share_folder1.text().split("^");
+                b1 = 0;
+                for tmp in s2:
+                    if(tmp == s1):
+                        b1 = 1;
+                        break;
+                if(b1 == 0):
+                    self.share_folder1.setText(self.share_folder1.text() + "^" + s1 + ":" + s1 + ":rw");
+            return 0;
+
+        def set_pacman_cache_folder(self):
+            s1 = QtWidgets.QFileDialog.getExistingDirectory();
+            self.pacman_cache.setText(s1);
+            return 0;
+
+
+
+
+
+
 
     mainwindow = seb_sync_clinet_gui()
     mainwindow.show()
