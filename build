@@ -1,12 +1,26 @@
 #!/usr/bin/env python
-#Copyright (C) 2021  vfio_experte
+#Copyright (C) 2022  vfio_experte
 #This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
 #This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #this is a fork from https://github.com/kritzsie/steam-on-docker
+#start project 04.02.2021
 
-version = "0.26b_gui"
+
+#last edit 05.01.2022
+
+version = "0.27h"
 appname = "sebs docker contianer gaming app"
+#0.27h patching_lib.py hot fix paths bad  device_folder_passthrough
+#0.27f combox set gpu redner in config gui add 0.1
+#0.27e combox update add in config gui add 0.1
+#0.27d hidraw_acs_overrides_patch fix 1
+#0.27c new pacman cahcne downlaod 1.0a
+#0.27a wine folder auto patching 0.1a
+#0.26e -v durch --device erstzen
+#0.26d usb_hidraw rechte fix 1
+#0.26d usb_sharing fix 1
+#0.26c /etc/vconsole.conf
 #0.26b_gui edit cdrom lib.py
 #0.25o_gui share foder 1 flasch übertagen 0.1a fix
 #0.25n doppelt start fix 0.1a
@@ -34,7 +48,6 @@ appname = "sebs docker contianer gaming app"
 #22a LANG variable passthrough
 #0.21i add create_a_cdrom_mount_file_per_dev #group cdemu
 #0.21f unbound pacman install
-#last edit 16.05.2021
 
 print(version);
 
@@ -58,6 +71,7 @@ from Code.Usb.usb_lib import *
 from Code.Cd_Rom.cdrom_lib import *
 from Code.Gui.json_edit_gui.json_edit_gui import *
 from Code.Xinput.xinput_lib import *
+from Code.Bluethooth.bluethooth_lib import *
 
 jason_data = {};
 
@@ -78,14 +92,6 @@ lsusb_temp_file = "/tmp/873264832654893775963457967hsdifhreufgdurbgfkuseb"
 
 def brechen_config(name, value):
     return [name, value]
-
-def system(cmd):
-    try:
-        #out = subprocess.check_output(cmd, shell=True).decode().split("\n")
-        os.system(cmd)
-        #return out
-    except subprocess.CalledProcessError:
-        return []
 
 def system(cmd):
     try:
@@ -193,7 +199,9 @@ class cmd_thread(threading.Thread):
 thread = cmd_thread();
 
 def start_thread_wait(cmd):
-    os.system(cmd);
+    out = system(cmd);
+    if(out == ""):
+        return 1;
     return 0;
 
 def start_thread(cmd):
@@ -257,9 +265,8 @@ def main():
     abspath = os.path.abspath(sys.argv[0])
     basename = os.path.basename(abspath)
     dirname = os.path.dirname(abspath)
-    config = file_read_json(dirname + "/config_file_json");
-    if(len(config) == 0 ):
-        config = read_config();
+    config = loading_json_file(dirname + "/config_file_json");
+
     docker_input = "";
     maxmemory = -1;
     maxcpus = -1;
@@ -273,6 +280,8 @@ def main():
     run_in_background = 0;
     ttyon = 0;
     pacman_pakgage_install = pacman_pkgage_install;
+    bluethoot_passthrough = 0;
+    hidraw_acs_overrides_patch = 0;
 
 
     i = 0;
@@ -337,19 +346,29 @@ def main():
         elif(tmp[0] == "pacman_pakgage_install"):
             pacman_pakgage_install = tmp[1];
             print("pacman_pakgage_install aktiv!");
+        elif(tmp[0] == "bluethoot_passthrough"):
+            bluethoot_passthrough = int(tmp[1]);
+            print("bluethoot_passthrough aktiv!");
+        elif(tmp[0] == "hidraw_acs_overrides_patch"):
+            hidraw_acs_overrides_patch = int(tmp[1]);
+            print("hidraw_acs_overrides_patch aktiv!");
         else:
             print("ERROR config file corrupt");
             print(tmp);
             exit(1);
         i = i +1;
 
-    file_write_json(dirname + "/config_file_json", docker_user, gpu_render, disk_device_name, zugriff_auf_media, sav_home_docker_folder, share_folder_daten, share_folder1_aktiv, share_folder1, network_disable, steam_controller_bool, usb_sharing, usb_name, usb_hidraw_name, docker_build, maxmemory, maxcpus, network_host, portforwding, dbus_rw, pacman_cache, dns, ipv4, wireguard_fix, nosudo, run_in_background, ttyon, pacman_pakgage_install, docker_input);
+    file_write_json(dirname + "/config_file_json", docker_user, gpu_render, disk_device_name, zugriff_auf_media, sav_home_docker_folder, share_folder_daten, share_folder1_aktiv, share_folder1, network_disable, steam_controller_bool, usb_sharing, usb_name, usb_hidraw_name, docker_build, maxmemory, maxcpus, network_host, portforwding, dbus_rw, pacman_cache, dns, ipv4, wireguard_fix, nosudo, run_in_background, ttyon, pacman_pakgage_install, docker_input, bluethoot_passthrough, hidraw_acs_overrides_patch);
 
     custom_command = "";
     optical_disk = read_scsi(disk_device_name);
-    create_a_cdrom_mount_file_per_dev(optical_disk, docker_user);
+    create_a_cdrom_mount_file_per_dev(optical_disk, docker_user, dirname);
 
+    if(bluethoot_passthrough == 1):
+        hidraw_acs_overrides_patch = 1;
 
+    if(hidraw_acs_overrides_patch == 1):
+        print("hidraw_acs_overrides_patch aktiv!");
 
     emptyfolder = dirname + "/xinput_tmp";
 
@@ -360,6 +379,14 @@ def main():
     if(basename == "build"):
         print("disable nosudo!")
         nosudo = 0;
+
+    if(os.path.isfile(dirname+"/hidraw_acs_overrides_patch.py") == False):
+        print("hidraw_acs_overrides_patch.py file not found!");
+        exit(-1);
+    if(os.path.isfile(dirname+"/chmod_check.py") == False):
+        print("chmod_check.py file not found!");
+        exit(-1);
+
 
     base_args = [
         "docker", "--privileged",
@@ -372,9 +399,9 @@ def main():
         "-h", platform.node(),
         "-v", os.environ["XAUTHORITY"] + ":/home/" + docker_user + "/.Xauthority:rw",
         "-v", os.environ["XAUTHORITY"] + ":/root/" + "/.Xauthority:rw",
-        "-v", "/dev/dri:/dev/dri",
-        "-v", "/dev/shm:/dev/shm",
-        "-v", "/dev/vga_arbiter:/dev/vga_arbiter",
+        #"-v", "/dev/dri:/dev/dri",
+        #"-v", "/dev/shm:/dev/shm",
+        "--device", "/dev/vga_arbiter:/dev/vga_arbiter",
         "-v", "/etc/localtime:/etc/localtime:ro",
         #"-v", "/etc/machine-id:/etc/machine-id:ro",
         "-v", "/run/user/" + str(os.getuid()) + "/pulse:/run/user/" + str(os.getuid()) + "/pulse:ro",
@@ -393,16 +420,24 @@ def main():
         ##"-v", "/etc/locale.gen:/etc/locale.gen:ro",
         #"-v", "/tmp/.X11-unix:/tmp/.X11-unix:rw",
         "--device", "/dev/fb0:/dev/fb0:rw",
-        "-v", "/dev/snd:/dev/snd",
+        #"-v", "/dev/snd:/dev/snd",
         "--group-add", "video",
         "--security-opt=seccomp:unconfined",
         #"--group-add", "render",
         #"--group-add", "optical",
         #"--group-add", "input",
-        "--device", "/dev/snd",
+        #"--device", "/dev/snd",
+        "-v", "/etc/vconsole.conf:/etc/vconsole.conf:ro",
+        #"-e", "KEYMAP=de-latin1-nodeadkeys",
         #"-v", "/dev/input/:/dev/input/:ro",
         "-v", dirname+"/chmod_check.py:/root/chmod_check.py:ro",
+        "-v", dirname+"/hidraw_acs_overrides_patch.py:/root/hidraw_acs_overrides_patch.py:ro",
     ]
+
+    base_args = device_folder_passthrough("/dev/snd", base_args);
+    base_args = device_folder_passthrough("/dev/shm", base_args);
+    base_args = device_folder_passthrough("/dev/dri", base_args);
+
     if(basename != "build"):
         base_args.append("--ipc=\"host\"");
         base_args.append("--shm-size=\"8G\"");
@@ -427,8 +462,9 @@ def main():
         base_args.append("/var/lib/dbus:/var/lib/dbus",);
         base_args.append("-v");
         base_args.append("/tmp/.X11-unix:/tmp/.X11-unix:rw");
-        base_args.append("-v");
-        base_args.append("/dev/snd:/dev/snd");
+        #base_args.append("-v");
+        #base_args.append("/dev/snd:/dev/snd");
+        base_args = device_folder_passthrough("/dev/snd", base_args);
     else:
         base_args.append("-v");
         base_args.append("/tmp/.X11-unix:/tmp/.X11-unix:ro");
@@ -572,18 +608,18 @@ def main():
             print(usb_hidraw_name);
             usb = usb_pasthrough(usb_name);
             usbdir = usb[0];
-            usbdev = usb[1]
+            usbdev = usb[1];
         else:
             usbdir = [];
             usbdev = [];
             s1 = usb_name.split("^");
             for tmp in s1:
                 print("usb_sharing enabled");
-                print(usb_name);
-                print(usb_hidraw_name);
-                usb = usb_pasthrough(usb_name);
+                print(tmp);
+                #print(usb_hidraw_name);
+                usb = usb_pasthrough(tmp);
                 usbdir = array_add_aarray(usbdir, usb[0]);
-                usbdev = array_add_aarray(usbdir, usb[1]);
+                usbdev = array_add_aarray(usbdev, usb[1]);
 
         print(usb);
         if(len(usbdir) != 0):
@@ -728,6 +764,7 @@ def main():
     else:
         print("ERRRO not found /etc/vconsole.conf!");
 
+
     #if(basename != "build" and os.path.isdir("/usr/share/locale") == True):
     #    base_args.append("-v");
     #    base_args.append("/usr/share/locale:/usr/share/locale:ro");
@@ -740,21 +777,21 @@ def main():
         base_args.append("-v");
         base_args.append(dirname + "/user_patched.bash:/etc/user_patched.bash:ro");
         if(basename == "command"):
-            patching_user(docker_user, "su " + docker_user + " - -c " + custom_command, str(os.getuid()));
+            patching_user(docker_user, "su " + docker_user + " - -c " + custom_command, str(os.getuid()), hidraw_acs_overrides_patch);
         elif(basename == "command_root"):
-            patching_user(docker_user, custom_command, str(os.getuid()));
+            patching_user(docker_user, custom_command, str(os.getuid()), hidraw_acs_overrides_patch);
         elif(basename == "login"):
-            patching_user(docker_user, "su "+docker_user , str(os.getuid()));
+            patching_user(docker_user, "su "+docker_user , str(os.getuid()), hidraw_acs_overrides_patch);
         elif(basename == "login_root"):
-            patching_user(docker_user, "su", str(os.getuid()));
+            patching_user(docker_user, "su", str(os.getuid()), hidraw_acs_overrides_patch);
         elif(basename == "openra-ra"):
-            patching_user(docker_user, "su " + docker_user + " - -c openra-ra", str(os.getuid()));
+            patching_user(docker_user, "su " + docker_user + " - -c openra-ra", str(os.getuid()), hidraw_acs_overrides_patch);
         elif(basename == "firefox"):
-            patching_user(docker_user, "su " + docker_user + " - -c firefox", str(os.getuid()));
+            patching_user(docker_user, "su " + docker_user + " - -c firefox", str(os.getuid()), hidraw_acs_overrides_patch);
         elif(basename == "firefox"):
-            patching_user(docker_user, "su " + docker_user + " - -c firefox", str(os.getuid()));
+            patching_user(docker_user, "su " + docker_user + " - -c firefox", str(os.getuid()), hidraw_acs_overrides_patch);
         elif(basename == "firefox"):
-            patching_user(docker_user, "su " + docker_user + " - -c firefox", str(os.getuid()));
+            patching_user(docker_user, "su " + docker_user + " - -c firefox", str(os.getuid()), hidraw_acs_overrides_patch);
         elif(basename == "build"):
             pass;
         elif(basename == "run"):
@@ -773,7 +810,8 @@ def main():
         start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugriff_auf_media, sav_home_docker_folder, share_folder_daten,
                             share_folder1_aktiv, share_folder1, network_disable, steam_controller_bool, usb_sharing, usb_name, usb_hidraw_name,
                             docker_build, docker_input, maxmemory, maxcpus, network_host, portforwding, dbus_rw, pacman_cache, dns, ipv4,
-                            wireguard_fix, nosudo, run_in_background, ttyon, pacman_pakgage_install);
+                            wireguard_fix, nosudo, run_in_background, ttyon, pacman_pakgage_install, bluethoot_passthrough,
+                            hidraw_acs_overrides_patch);
 
     if(ttyon == 0):
         #gui aktiv
@@ -866,8 +904,10 @@ def main():
                 os.remove(fertigfile);
             print("starting mod")
             start_thread_wait("bash install.bash");
-            for i in range(pacman_downloads):
-                start_thread_wait("./command_root 'pacman -Sy archlinux-keyring --noconfirm -y --cachedir /var/cache/pacman/pkg && pacman -Syu " + pacman_pakgage_install + " --noconfirm -y --downloadonly --cachedir /mnt/pacman_cache_rw/ && exit'");
+            print("downloading pacman data..")
+            while True:
+                if(start_thread_wait("./command_root 'pacman -Sy archlinux-keyring --noconfirm -y --cachedir /var/cache/pacman/pkg && pacman -Syu " + pacman_pakgage_install + " --noconfirm -y --downloadonly --cachedir /mnt/pacman_cache_rw/ && exit'") == 0):
+                    break;
             start_thread("./command_root 'pacman -Sy archlinux-keyring archiso --noconfirm -y --cachedir /var/cache/pacman/pkg && pacman -Syu " + pacman_pakgage_install + " --noconfirm -y --cachedir /var/cache/pacman/pkg --needed  && echo 1 > /mnt/pacman_cache_rw/fertig && sleep 180 &&  exit '");#start_thread
             #start_thread("./command_root 'pacman -Sy archlinux-keyring archiso --noconfirm -y --cachedir /var/cache/pacman/pkg && mkdir /mnt/2 &&  mount -B / /mnt/2 && mount -B /var/cache/pacman/pkg/ /mnt/2/var/cache/pacman/pkg/ && pacman -Syu  " + pacman_pakgage_install + " --noconfirm -y --cachedir /var/cache/pacman/pkg --root /mnt/2  && echo 1 > /mnt/pacman_cache_rw/fertig && sleep 180 &&  exit '");#start_thread
             #start_thread
@@ -925,8 +965,10 @@ def main():
                 os.remove(fertigfile);
             print("starting mod")
             start_thread_wait("bash install.bash");
-            for i in range(pacman_downloads):
-                start_thread_wait("./command_root 'pacman -Sy archlinux-keyring --noconfirm -y --cachedir /var/cache/pacman/pkg && pacman -Syu " + pacman_pakgage_install + " --noconfirm -y --downloadonly --cachedir /mnt/pacman_cache_rw/ && exit'");
+            print("downloading pacman data..")
+            while True:
+                if(start_thread_wait("./command_root 'pacman -Sy archlinux-keyring --noconfirm -y --cachedir /var/cache/pacman/pkg && pacman -Syu " + pacman_pakgage_install + " --noconfirm -y --downloadonly --cachedir /mnt/pacman_cache_rw/ && exit'") == 0):
+                    break;
             start_thread("./command_root 'pacman -Sy archlinux-keyring archiso --noconfirm -y --cachedir /var/cache/pacman/pkg && pacman -Syu " + pacman_pakgage_install + " --noconfirm -y --cachedir /var/cache/pacman/pkg --needed  && echo 1 > /mnt/pacman_cache_rw/fertig && sleep 180 &&  exit '");#start_thread
             #start_thread("./command_root 'pacman -Sy archlinux-keyring archiso --noconfirm -y --cachedir /var/cache/pacman/pkg && mkdir /mnt/2 &&  mount -B / /mnt/2 && mount -B /var/cache/pacman/pkg/ /mnt/2/var/cache/pacman/pkg/ && pacman -Syu  " + pacman_pakgage_install + " --noconfirm -y --cachedir /var/cache/pacman/pkg --root /mnt/2  && echo 1 > /mnt/pacman_cache_rw/fertig && sleep 180 &&  exit '");#start_thread
             #start_thread
