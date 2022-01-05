@@ -3,7 +3,7 @@ the application work onaly on archlinux.
 
 	insatllation
 
-		pacman -Sy cdemu-client cdemu-daemon vhba-module-dkms k3b lsscsi docker
+		pacman -Syu cdemu-client cdemu-daemon vhba-module-dkms k3b lsscsi docker criu busybox mesa-demos mesa-utils
 		usermod -aG docker username
 		usermod -aG optical username
 		usermod -aG input username
