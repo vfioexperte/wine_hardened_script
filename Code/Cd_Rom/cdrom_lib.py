@@ -5,7 +5,7 @@
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #this is a fork from https://github.com/kritzsie/steam-on-docker
 
-version = "0.1b"
+version = "0.2c"
 
 import platform
 import os
@@ -78,7 +78,14 @@ def read_scsi(device_name):
         return [dev, sg]
 
 
-def create_a_cdrom_mount_file_per_dev(devarray, docker_user):
+def create_a_cdrom_mount_file_per_dev(devarray, docker_user, folder):
+    if(os.path.isdir(os.path.join(folder, "home")) == False):
+        return 0;
+    print(os.path.join(folder, "home"));
+    array = find_wine_prefix(os.path.join(folder, "home"));
+    print("find_wine_prefix return: ", array)
+    wine_dir = array[0];
+    proton_dir = array[1];
     dev = devarray[0];
     sg = devarray[1];
     if(os.path.isdir("daten/") == False):
@@ -105,6 +112,10 @@ def create_a_cdrom_mount_file_per_dev(devarray, docker_user):
         file1.write("mkdir "+ " /mnt/cdrom"+ str(i+1) + "\n");
         file1.write("mount "+ tmp +" /mnt/cdrom"+ str(i+1) + "\n");
         patch_wine_fodler_cdrom(tmp ,"/mnt/cdrom"+ str(i+1), buchstabe[buchstabe_i], tmp2);
+        for tmp in wine_dir:
+            patch_wine_fodler_cdrom(tmp ,"/mnt/cdrom"+ str(i+1), buchstabe[buchstabe_i], tmp2, tmp);
+        for tmp in proton_dir:
+            patch_wine_fodler_cdrom(tmp ,"/mnt/cdrom"+ str(i+1), buchstabe[buchstabe_i], tmp2, os.path.join(tmp, "pfx"));
         buchstabe_i = buchstabe_i +1;
         i = i +1;
     file1.write("su " + docker_user + "\n");
@@ -121,12 +132,14 @@ def create_a_cdrom_mount_file_per_dev(devarray, docker_user):
     return 0;
 
 
-def patch_wine_fodler_cdrom(device, mountpoint, buchstabe, sg):
+def patch_wine_fodler_cdrom(device, mountpoint, buchstabe, sg, folder = ""):
+    if(folder == ""):
+        folder = "home/.wine";
     #patch wine folder in home user folder home/.wine use cdrom DRM in wine folder
     abspath = os.path.abspath(sys.argv[0]);
     basename = os.path.basename(abspath);
     dirname = os.path.dirname(abspath);
-    if(os.path.isdir("home/.wine/dosdevices/") == False):
+    if(os.path.isdir(folder + "/dosdevices/") == False):
         return 0;
 
     print("sg", sg);
@@ -135,11 +148,102 @@ def patch_wine_fodler_cdrom(device, mountpoint, buchstabe, sg):
     #print(device);
     #print(mountpoint);
     #print("ln -sf "+ device + " home/.wine/dosdevices/" + buchstabe + "::");
-    system("rm home/.wine/dosdevices/" + buchstabe + "::")
-    system("rm home/.wine/dosdevices/" + buchstabe + ":")
-    print("ln -sf "+ sg + " home/.wine/dosdevices/" + buchstabe + "::")
-    system("ln -sf "+ sg + " home/.wine/dosdevices/" + buchstabe + "::");
-    print("ln -sf "+ mountpoint + " home/.wine/dosdevices/" + buchstabe +":");
-    system("ln -sf "+ mountpoint + " home/.wine/dosdevices/" + buchstabe +":");
+    system("rm " + folder + "/dosdevices/" + buchstabe + "::")
+    system("rm " + folder + "/dosdevices/" + buchstabe + ":")
+    print("ln -sf "+ sg + " " + folder + "/dosdevices/" + buchstabe + "::")
+    system("ln -sf "+ sg + " " + folder + "/dosdevices/" + buchstabe + "::");
+    print("ln -sf "+ mountpoint + " " + folder +"/dosdevices/" + buchstabe +":");
+    system("ln -sf "+ mountpoint + " " + folder +"/dosdevices/" + buchstabe +":");
     print("wine fodler gepatch");
     return 0;
+
+
+def listpath_only_dirs(path, rpath, array, idarray, patharray, ctime):
+        #File list
+        j = array[0];
+        sdir = array[1];
+        list = os.listdir(path)
+        size = len(list);
+        sout = "";
+        i = 0;
+        if(size == 0):
+            return [j, sdir, idarray, patharray, ctime];
+        while True:
+            spath = path + "/" + list[i];
+            if(os.path.islink(spath) == True):
+                i = i+ 1;
+                j = j +1;
+                if( i== size):
+                    break;
+            elif(os.path.isdir(spath) == True):
+                if(rpath != ""):
+                    rpath2 = rpath + "/" + list[i];
+                else:
+                    rpath2 = rpath + list[i];
+                tmp = spath;
+                s3 = os.path.join(tmp, "pfx")
+                if(os.path.isdir(s3) == True):
+                    s1 = os.path.join(s3, "dosdevices")
+                    s2 = os.path.join(s3, "drive_c")
+                    if(os.path.isdir(s1) == True):
+                        if(os.path.isdir(s2) == True):
+                            sdir = sdir + "ID: " + str(j) + " | " + rpath + "/" + list[i] + "\n";
+                            idarray.append(j);
+                            s1 = rpath + "/" + list[i];
+                            patharray.append(spath);
+                            ctime.append("");
+                            i =  i+1;
+                            if( i== size):
+                                break;
+                            continue;
+
+
+                else:
+                    s1 = os.path.join(s3, "dosdevices")
+                    s2 = os.path.join(s3, "drive_c")
+                    if(os.path.isdir(s1) == True):
+                        if(os.path.isdir(s2) == True):
+                            sdir = sdir + "ID: " + str(j) + " | " + rpath + "/" + list[i] + "\n";
+                            idarray.append(j);
+                            s1 = rpath + "/" + list[i];
+                            patharray.append(spath);
+                            ctime.append("");
+                            i =  i+1;
+                            if( i== size):
+                                break;
+                            continue;
+                i =  i+1;
+                array = [j, sdir];
+                array = listpath_only_dirs(spath, rpath2, array, idarray, patharray, ctime);
+                idarray = array[2];
+                patharray = array[3];
+                ctime = array[4];
+                j = array[0];
+                sdir = array[1];
+                if( i== size):
+                    break;
+            else:
+                #sdir = sdir + "ID: " + str(j) + " | " + rpath + "/" + list[i] + "\n";
+                #idarray.append(j);
+                #s1 = rpath + "/" + list[i];
+                #patharray.append(s1);
+                #ctime.append("");
+                i = i+ 1;
+                j = j +1;
+                if( i== size):
+                    break;
+        return [j, sdir, idarray, patharray, ctime]
+
+def find_wine_prefix(folder):
+    array = [0, ""];
+    array = listpath_only_dirs(folder, "", array, [], [], [])
+    patharray = array[3];
+    wine_dir = [];
+    proton_dir = [];
+    for tmp in patharray:
+        s3 = os.path.join(tmp, "pfx")
+        if(os.path.isdir(s3) == True):
+            proton_dir.append(tmp);
+        else:
+            wine_dir.append(tmp);
+    return [wine_dir, proton_dir];
