@@ -7,47 +7,16 @@
 #start project 04.02.2021
 
 
-#last edit 05.01.2022
+#last edit 20.01.2022
 
-version = "0.27h"
+version = "0.28k"
 appname = "sebs docker contianer gaming app"
-#0.27h patching_lib.py hot fix paths bad  device_folder_passthrough
-#0.27f combox set gpu redner in config gui add 0.1
-#0.27e combox update add in config gui add 0.1
-#0.27d hidraw_acs_overrides_patch fix 1
-#0.27c new pacman cahcne downlaod 1.0a
-#0.27a wine folder auto patching 0.1a
-#0.26e -v durch --device erstzen
-#0.26d usb_hidraw rechte fix 1
-#0.26d usb_sharing fix 1
-#0.26c /etc/vconsole.conf
-#0.26b_gui edit cdrom lib.py
-#0.25o_gui share foder 1 flasch übertagen 0.1a fix
-#0.25n doppelt start fix 0.1a
-#0.25n --security-opt=seccomp:unconfined  #docker checkpoint ttyon auf 2
-#0.25m_gui beta json split json edit 02
-# 0.25l_gui beta json split new command args system 0.1b
-#0.25j --ulimit nofile=5000:5000 fix
-#0.25g "--shm-size=\"8G\"" add --ipc="host" display carsh fix
-#0.25f pacman -Syu --needed #--needed new command
-#0.25e steam crash fix /etc/locale.gen
-#0.25c gui beta # fix docker user rechte
-#localgen fix 0.2a
-#25a_free sync patching
-#freesync patch vsync on
-#s1 = s1 + "export vblank_mode=3" + "\n";
-#0.24c add input group docker user fix steam 0.1b
-# 0.24b hidwar muti name fix
-#0.24a /dev/input/*  delete from user_patched.bash
-#0.23f steam docker coantienr build fix 0.1 work
-#0.23a pacman_pakgage_install variable add
-#0.22g def system(cmd): edit os.system
-#0.22e without -t command without tty
-#0.22d #--ipc="host"
-#0.22b add /tmp/.X11-unix:/tmp/.X11-unix:rw
-#22a LANG variable passthrough
-#0.21i add create_a_cdrom_mount_file_per_dev #group cdemu
-#0.21f unbound pacman install
+#0.28k #0.3f_3 json_edit_gui add a scrollbar
+#0.28i patching_lib .3d add new file /etc/user_patched2.bash and fix faketime 0.1a
+#json_file.py loading bug fix 1 + json gui rechtscheibung fix 1
+#0.28g docker_build standard fix 0.1a
+#0.28f bearbeitung schutz 0.1a mit Fernet
+#0.28e 32bit speed hak "sysctl -w abi.vsyscall32=0"
 
 print(version);
 
@@ -72,6 +41,7 @@ from Code.Cd_Rom.cdrom_lib import *
 from Code.Gui.json_edit_gui.json_edit_gui import *
 from Code.Xinput.xinput_lib import *
 from Code.Bluethooth.bluethooth_lib import *
+from Code.Crypt.rsa_lib import *
 
 jason_data = {};
 
@@ -247,7 +217,7 @@ def main():
     sargs = read_args();
     nosudo = 1;
     docker_user = "empty"
-    docker_build = "folder_name";
+    docker_build = "archlinux_std_docker";
     gpu_render = "1";
 
     disk_device_name = "cd/dvd";
@@ -282,6 +252,12 @@ def main():
     pacman_pakgage_install = pacman_pkgage_install;
     bluethoot_passthrough = 0;
     hidraw_acs_overrides_patch = 0;
+    ipv6_privacy = 0;
+    faketime = "";
+    wine_32bit_speed_hak = 0;
+    read_only = "";
+    read_only_password = "";
+    json_config_Verison = "";
 
 
     i = 0;
@@ -352,13 +328,34 @@ def main():
         elif(tmp[0] == "hidraw_acs_overrides_patch"):
             hidraw_acs_overrides_patch = int(tmp[1]);
             print("hidraw_acs_overrides_patch aktiv!");
+        elif(tmp[0] == "ipv6_privacy"):
+            ipv6_privacy = int(tmp[1]);
+            print("ipv6_privacy aktiv!");
+        elif(tmp[0] == "faketime"):
+            faketime = tmp[1];
+            if(faketime != ""):
+                print("faketime aktiv!");
+                print("faketime: " + faketime)
+        elif(tmp[0] == "wine_32bit_speed_hak"):
+            wine_32bit_speed_hak = int(tmp[1]);
+            print("wine_32bit_speed_hak aktiv!");
+        elif(tmp[0] == "read_only"):
+            read_only = tmp[1];
+            print("bearbeitung_Schutz aktiv!")
+        elif(tmp[0] == "read_only_password"):
+            read_only_password = tmp[1];
+            print("bearbeitung_Schutz mit Pasword aktiv!")
+        elif(tmp[0] == "sav_Version"):
+            json_config_Verison = tmp[1];
         else:
             print("ERROR config file corrupt");
             print(tmp);
             exit(1);
         i = i +1;
 
-    file_write_json(dirname + "/config_file_json", docker_user, gpu_render, disk_device_name, zugriff_auf_media, sav_home_docker_folder, share_folder_daten, share_folder1_aktiv, share_folder1, network_disable, steam_controller_bool, usb_sharing, usb_name, usb_hidraw_name, docker_build, maxmemory, maxcpus, network_host, portforwding, dbus_rw, pacman_cache, dns, ipv4, wireguard_fix, nosudo, run_in_background, ttyon, pacman_pakgage_install, docker_input, bluethoot_passthrough, hidraw_acs_overrides_patch);
+    if(json_config_Verison.find("crypt") == -1):
+        file_write_json(dirname + "/config_file_json", docker_user, gpu_render, disk_device_name, zugriff_auf_media, sav_home_docker_folder, share_folder_daten, share_folder1_aktiv, share_folder1, network_disable, steam_controller_bool, usb_sharing, usb_name, usb_hidraw_name, docker_build, maxmemory, maxcpus, network_host, portforwding, dbus_rw, pacman_cache, dns, ipv4, wireguard_fix, nosudo, run_in_background, ttyon, pacman_pakgage_install, docker_input, bluethoot_passthrough,
+            hidraw_acs_overrides_patch, ipv6_privacy, faketime, wine_32bit_speed_hak, read_only, read_only_password);
 
     custom_command = "";
     optical_disk = read_scsi(disk_device_name);
@@ -728,6 +725,8 @@ def main():
     #    base_args.append("-v");
     #    base_args.append("/etc/resolv.conf:/etc/resolv.conf:ro");
     #    print("add /etc/resolv.conf to docker container!");
+    if(ipv6_privacy == 1):
+        print("Ipv6 privacy on!")
 
     if(wireguard_fix == 1):
         #wire guard patch
@@ -776,22 +775,24 @@ def main():
     if(True):
         base_args.append("-v");
         base_args.append(dirname + "/user_patched.bash:/etc/user_patched.bash:ro");
+        base_args.append("-v");
+        base_args.append(dirname + "/user_patched2.bash:/etc/user_patched2.bash:ro");
         if(basename == "command"):
-            patching_user(docker_user, "su " + docker_user + " - -c " + custom_command, str(os.getuid()), hidraw_acs_overrides_patch);
+            patching_user(docker_user, "su " + docker_user + " - -c ",  custom_command, str(os.getuid()), hidraw_acs_overrides_patch, ipv6_privacy, faketime, wine_32bit_speed_hak);
         elif(basename == "command_root"):
-            patching_user(docker_user, custom_command, str(os.getuid()), hidraw_acs_overrides_patch);
+            patching_user(docker_user, "",  custom_command, str(os.getuid()), hidraw_acs_overrides_patch, ipv6_privacy, faketime, wine_32bit_speed_hak);
         elif(basename == "login"):
-            patching_user(docker_user, "su "+docker_user , str(os.getuid()), hidraw_acs_overrides_patch);
+            patching_user(docker_user, "su "+docker_user , "bash", str(os.getuid()), hidraw_acs_overrides_patch, ipv6_privacy, faketime, wine_32bit_speed_hak);
         elif(basename == "login_root"):
-            patching_user(docker_user, "su", str(os.getuid()), hidraw_acs_overrides_patch);
+            patching_user(docker_user, "su", "su", str(os.getuid()), hidraw_acs_overrides_patch, ipv6_privacy, faketime, wine_32bit_speed_hak);
         elif(basename == "openra-ra"):
-            patching_user(docker_user, "su " + docker_user + " - -c openra-ra", str(os.getuid()), hidraw_acs_overrides_patch);
+            patching_user(docker_user, "su " + docker_user + " - -c ", "openra-ra", str(os.getuid()), hidraw_acs_overrides_patch, ipv6_privacy, faketime, wine_32bit_speed_hak);
         elif(basename == "firefox"):
-            patching_user(docker_user, "su " + docker_user + " - -c firefox", str(os.getuid()), hidraw_acs_overrides_patch);
+            patching_user(docker_user, "su " + docker_user + " - -c ", "firefox", str(os.getuid()), hidraw_acs_overrides_patch, ipv6_privacy, faketime, wine_32bit_speed_hak);
         elif(basename == "firefox"):
-            patching_user(docker_user, "su " + docker_user + " - -c firefox", str(os.getuid()), hidraw_acs_overrides_patch);
+            patching_user(docker_user, "su " + docker_user + " - -c ", "firefox", str(os.getuid()), hidraw_acs_overrides_patch, ipv6_privacy, faketime, wine_32bit_speed_hak);
         elif(basename == "firefox"):
-            patching_user(docker_user, "su " + docker_user + " - -c firefox", str(os.getuid()), hidraw_acs_overrides_patch);
+            patching_user(docker_user, "su " + docker_user + " - -c ", "firefox", str(os.getuid()), hidraw_acs_overrides_patch, ipv6_privacy, faketime, wine_32bit_speed_hak);
         elif(basename == "build"):
             pass;
         elif(basename == "run"):
@@ -811,7 +812,7 @@ def main():
                             share_folder1_aktiv, share_folder1, network_disable, steam_controller_bool, usb_sharing, usb_name, usb_hidraw_name,
                             docker_build, docker_input, maxmemory, maxcpus, network_host, portforwding, dbus_rw, pacman_cache, dns, ipv4,
                             wireguard_fix, nosudo, run_in_background, ttyon, pacman_pakgage_install, bluethoot_passthrough,
-                            hidraw_acs_overrides_patch);
+                            hidraw_acs_overrides_patch, ipv6_privacy, faketime, wine_32bit_speed_hak, read_only, read_only_password);
 
     if(ttyon == 0):
         #gui aktiv
