@@ -5,7 +5,8 @@
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #this is a fork from https://github.com/kritzsie/steam-on-docker
 
-version = "0.2g"
+version = "0.3f_3"
+#0.3f_3 json_edit_gui add a scrollbar
 
 import platform
 import os
@@ -112,9 +113,13 @@ def read_all_dri_prime_device():
 def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugriff_auf_media, sav_home_docker_folder, share_folder_daten,
                     share_folder1_aktiv, share_folder1, network_disable, steam_controller_bool, usb_sharing, usb_name, usb_hidraw_name,
                     docker_build, docker_input, maxmemory, maxcpus, network_host, portforwding, dbus_rw, pacman_cache, dns, ipv4,
-                    wireguard_fix, nosudo, run_in_background, ttyon, pacman_pakgage_install, bluethoot_passthrough, hidraw_acs_overrides_patch):
+                    wireguard_fix, nosudo, run_in_background, ttyon, pacman_pakgage_install, bluethoot_passthrough, hidraw_acs_overrides_patch,
+                    ipv6_privacy, faketime, wine_32bit_speed_hak, read_only, read_only_password):
     from PyQt5 import QtWidgets
     from PyQt5 import QtGui
+    from PyQt5 import QtCore
+    import time
+    import datetime
     app = QtWidgets.QApplication(sys.argv);
     class seb_sync_clinet_gui(QtWidgets.QWidget):
         def __init__(self):
@@ -124,9 +129,30 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
             self.statusbar.showMessage("test")
             self.title = appname + " - " + version
             self.setWindowTitle(self.title)
-            self.resize(1920, 1080)
+            self.h = 1080;
+            self.w = 1920;
+            #self.resize(self.w, self.h)
+            self.layoutv0 = QtWidgets.QVBoxLayout(self)
+            self.scrollArea = QtWidgets.QScrollArea()
+            self.scrollArea.setWidgetResizable(True)
+            self.scrollAreaWidgetContents = QtWidgets.QWidget(self.scrollArea)
+            #self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, self.w, self.h))
+            self.scrollArea.setWidget(self.scrollAreaWidgetContents)
+            self.layoutv0.addWidget(self.scrollArea)
 
-            self.layoutv1 = QtWidgets.QVBoxLayout(self)
+            if(read_only_password != ""):
+                text, ok =  QtWidgets.QInputDialog.getText(self, 'config file passwort Farge!', 'Zum bearbeiten Bitte das Password:', QtWidgets.QLineEdit.NoEcho);
+                if ok and read_only_password == text:
+                    pass;
+                else:
+                    msgBox = QtWidgets.QMessageBox();
+                    msgBox.setIcon(QtWidgets.QMessageBox.Information);
+                    msgBox.setText("Password Falsch");
+                    msgBox.exec();
+                    exit();
+
+            self.layoutv1 = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents)
+            self.layoutv1.addLayout(self.layoutv1)
 
             self.layouth1 = QtWidgets.QHBoxLayout()
             self.docker_user_label = QtWidgets.QLabel("docker_user:");
@@ -157,7 +183,7 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
             self.layoutv1.addLayout(self.layouth3);
 
             self.layouth4 = QtWidgets.QHBoxLayout();
-            self.zugriff_auf_media_label = QtWidgets.QLabel("docker verzeich frei gabe von /run/media 1=on, 0=off")
+            self.zugriff_auf_media_label = QtWidgets.QLabel("docker Verzeichnis frei gabe von /run/media 1=on, 0=off")
             self.zugriff_auf_media = QtWidgets.QSpinBox();
             self.zugriff_auf_media.setMinimum(0);
             self.zugriff_auf_media.setMaximum(1);
@@ -167,7 +193,7 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
             self.layoutv1.addLayout(self.layouth4);
 
             self.layouth5 = QtWidgets.QHBoxLayout();
-            self.sav_home_docker_folder_label = QtWidgets.QLabel("docker verzeich frei gabe von home Ordner 1=on, 0=off")
+            self.sav_home_docker_folder_label = QtWidgets.QLabel("docker Verzeichnis frei gabe von home Ordner 1=on, 0=off")
             self.sav_home_docker_folder = QtWidgets.QSpinBox();
             self.sav_home_docker_folder.setMinimum(0);
             self.sav_home_docker_folder.setMaximum(1);
@@ -177,7 +203,7 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
             self.layoutv1.addLayout(self.layouth5);
 
             self.layouth6 = QtWidgets.QHBoxLayout();
-            self.share_folder_daten_label = QtWidgets.QLabel("docker verzeich frei gabe von sahre fodler daten im home folder Ordner 1=on, 0=off")
+            self.share_folder_daten_label = QtWidgets.QLabel("docker Verzeichnis frei gabe von sahre fodler daten im home folder Ordner 1=on, 0=off")
             self.share_folder_daten = QtWidgets.QSpinBox();
             self.share_folder_daten.setMinimum(0);
             self.share_folder_daten.setMaximum(1);
@@ -187,7 +213,7 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
             self.layoutv1.addLayout(self.layouth6);
 
             self.layouth7 = QtWidgets.QHBoxLayout();
-            self.share_folder1_aktiv_label = QtWidgets.QLabel("docker verzeich frei gabe von eigner share fodler akriviren 1=on, 0=off")
+            self.share_folder1_aktiv_label = QtWidgets.QLabel("docker Verzeichnis frei gabe von eigner share fodler akriviren 1=on, 0=off")
             self.share_folder1_aktiv = QtWidgets.QSpinBox();
             self.share_folder1_aktiv.setMinimum(0);
             self.share_folder1_aktiv.setMaximum(1);
@@ -199,6 +225,7 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
             self.layouth8 = QtWidgets.QHBoxLayout();
             self.share_folder1_label = QtWidgets.QLabel("eingner share fodler /run/media:/run/media:ro mounted /run/media als readonly mehre ordner mit ^ trenen:")
             self.share_folder1 = QtWidgets.QLineEdit(share_folder1);
+            self.share_folder1 .textChanged.connect(self.share_folder1_textChanged)
             self.share_folder1_browse = QtWidgets.QPushButton("browse..")
             self.share_folder1_browse .clicked.connect(self.set_share_folder1)
             self.layouth8.addWidget(self.share_folder1_label);
@@ -207,7 +234,7 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
             self.layoutv1.addLayout(self.layouth8);
 
             self.layouth9 = QtWidgets.QHBoxLayout();
-            self.network_disable_label = QtWidgets.QLabel("Netzwerk interface deaktiren #0=netwtzwwerk aktive #1=netwerk desaktivirt");
+            self.network_disable_label = QtWidgets.QLabel("Netzwerk interface deaktiviren #0=Netzwerk aktive #1=Netzwerk deaktivirt");
             self.network_disable = QtWidgets.QSpinBox();
             self.network_disable.setValue(network_disable);
             self.network_disable.setMinimum(0);
@@ -217,7 +244,7 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
             self.layoutv1.addLayout(self.layouth9);
 
             self.layouth10 = QtWidgets.QHBoxLayout();
-            self.steam_controller_bool_label = QtWidgets.QLabel("Steam controller in docker conitern nutzen #1= akriv");
+            self.steam_controller_bool_label = QtWidgets.QLabel("Steam controller in docker container nutzen #1= akriv");
             self.steam_controller_bool = QtWidgets.QSpinBox();
             self.steam_controller_bool.setValue(steam_controller_bool);
             self.steam_controller_bool.setMinimum(0);
@@ -276,7 +303,7 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
             self.layoutv1.addLayout(self.layouth14);
 
             self.layouth15 = QtWidgets.QHBoxLayout();
-            self.maxmemory_label = QtWidgets.QLabel("Mazialer zugelassener RAN verbauch (-1 == keine beschrnäkung): ");
+            self.maxmemory_label = QtWidgets.QLabel("Mazialer zugelassener RAN verbauch (-1 == keine Beschrnäkung): ");
             self.maxmemory = QtWidgets.QSpinBox();
             self.maxmemory.setMinimum(-1);
             self.maxmemory.setMaximum(2147483647);
@@ -286,7 +313,7 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
             self.layoutv1.addLayout(self.layouth15);
 
             self.layouth16 = QtWidgets.QHBoxLayout();
-            self.maxcpus_label = QtWidgets.QLabel("Wie ville CPUS darf der docker container nutzen (-1 == keine beschrnäkung): ");
+            self.maxcpus_label = QtWidgets.QLabel("Wie viele CPUS darf der docker container nutzen (-1 == keine Beschrnäkung): ");
             self.maxcpus = QtWidgets.QSpinBox();
             self.maxcpus.setMinimum(-1);
             self.maxcpus.setMaximum(2147483647);
@@ -384,14 +411,14 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
             self.layoutv1.addLayout(self.layouth26);
 
             self.layouth27 = QtWidgets.QHBoxLayout();
-            self.pacman_pakgage_install_label = QtWidgets.QLabel("pacman install pakage : ");
+            self.pacman_pakgage_install_label = QtWidgets.QLabel("pacman install pakage: ");
             self.pacman_pakgage_install = QtWidgets.QLineEdit(pacman_pakgage_install);
             self.layouth27.addWidget(self.pacman_pakgage_install_label);
             self.layouth27.addWidget(self.pacman_pakgage_install);
             self.layoutv1.addLayout(self.layouth27);
 
             self.layouth28 = QtWidgets.QHBoxLayout();
-            self.docker_input_label = QtWidgets.QLabel("docker input : ");
+            self.docker_input_label = QtWidgets.QLabel("docker input: ");
             self.docker_input = QtWidgets.QLineEdit(docker_input);
             self.layouth28.addWidget(self.docker_input_label);
             self.layouth28.addWidget(self.docker_input);
@@ -417,6 +444,64 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
             self.layouth28.addWidget(self.hidraw_acs_overrides_patch);
             self.layoutv1.addLayout(self.layouth28);
 
+
+            self.layouth29 = QtWidgets.QHBoxLayout();
+            self.ipv6_privacy_label = QtWidgets.QLabel("ipv6_privacy mode (ramdon mac addr in ipv6 adress) 0 = disabel , 1= enable 2=all devies patch on Server: ");
+            self.ipv6_privacy1 = QtWidgets.QSpinBox();
+            self.ipv6_privacy1.setValue(ipv6_privacy);
+            self.ipv6_privacy1.setMinimum(0);
+            self.ipv6_privacy1.setMaximum(2);
+            self.layouth29.addWidget(self.ipv6_privacy_label);
+            self.layouth29.addWidget(self.ipv6_privacy1);
+            self.layoutv1.addLayout(self.layouth29);
+
+            self.layouth30 = QtWidgets.QHBoxLayout();
+            self.faketime_label = QtWidgets.QLabel("faketime: (2008-12-24 08:15:42) (-1day)");
+            self.faketime = QtWidgets.QLineEdit(faketime);
+            self.faketime_clear_ = QtWidgets.QPushButton("clear and disable")
+            self.faketime_clear_ .clicked.connect(self.faketime_clear)
+            self.faketime_set_to_real_time = QtWidgets.QPushButton("set to real time")
+            self.faketime_set_to_real_time .clicked.connect(self.faketime_set_to_realtime)
+            self.layouth30.addWidget(self.faketime_label);
+            self.layouth30.addWidget(self.faketime);
+            self.layouth30.addWidget(self.faketime_clear_);
+            self.layouth30.addWidget(self.faketime_set_to_real_time);
+            self.layoutv1.addLayout(self.layouth30);
+
+            self.layouth31 = QtWidgets.QHBoxLayout();
+            self.wine_32bit_speed_hak_label = QtWidgets.QLabel("wine_32bit_speed_hak, lol speed hak (sysctl -w abi.vsyscall32=0) 0 = disabel , 1= enable: ");
+            self.wine_32bit_speed_hak = QtWidgets.QSpinBox();
+            self.wine_32bit_speed_hak.setValue(wine_32bit_speed_hak);
+            self.wine_32bit_speed_hak.setMinimum(0);
+            self.wine_32bit_speed_hak.setMaximum(1);
+            self.layouth31.addWidget(self.wine_32bit_speed_hak_label);
+            self.layouth31.addWidget(self.wine_32bit_speed_hak);
+            self.layoutv1.addLayout(self.layouth31);
+
+            self.layouth32 = QtWidgets.QHBoxLayout();
+            self.read_only_label = QtWidgets.QLabel("Beabeitungschutz 0 = disabel , 1= enable: ");
+            self.read_only = QtWidgets.QSpinBox();
+            if(read_only != ""):
+                self.read_only.setValue(1);
+            else:
+                self.read_only.setValue(0);
+            self.read_only.setMinimum(0);
+            self.read_only.setMaximum(1);
+            self.layouth32.addWidget(self.read_only_label);
+            self.layouth32.addWidget(self.read_only);
+            self.layoutv1.addLayout(self.layouth32);
+
+            self.layouth33 = QtWidgets.QHBoxLayout();
+            self.read_only_password_label = QtWidgets.QLabel("Beabeitungschutz muss auf 1 stehe und hiere das Beabeitungschutz password");
+            self.read_only_password = QtWidgets.QLineEdit(read_only_password);
+            self.read_only_password_clear_ = QtWidgets.QPushButton("clear and disable")
+            self.read_only_password_clear_ .clicked.connect(self.read_only_password_clear)
+            self.layouth33.addWidget(self.read_only_password_label);
+            self.layouth33.addWidget(self.read_only_password);
+            self.layouth33.addWidget(self.read_only_password_clear_);
+            self.layoutv1.addLayout(self.layouth33);
+
+
             self.layouth99999999999 = QtWidgets.QHBoxLayout();
             self.button_save = QtWidgets.QPushButton("Save json")
             self.button_save .clicked.connect(self.save)
@@ -426,43 +511,50 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
             self.update_usb_share_combox();
             self.update_hidware_share_combox();
             self.update_gpu_render_combox();
-
+            #self.showFullScreen();
+            self.showMaximized();
+            self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, self.w, self.h))
         def save(self):
             docker_user = self.docker_user.text();
             gpu_render = str(self.gpu_render.value());
             disk_device_name = self.disk_device_name.text();
-            zugriff_auf_media = self.zugriff_auf_media.value();
-            sav_home_docker_folder = self.sav_home_docker_folder.value();
-            share_folder_daten = self.share_folder_daten.value();
-            share_folder1_aktiv = self.share_folder1_aktiv.value();
+            zugriff_auf_media = str(self.zugriff_auf_media.value());
+            sav_home_docker_folder = str(self.sav_home_docker_folder.value());
+            share_folder_daten = str(self.share_folder_daten.value());
+            share_folder1_aktiv = str(self.share_folder1_aktiv.value());
             share_folder1 = self.share_folder1.text();
-            network_disable = self.network_disable.value();
-            steam_controller_bool = self.steam_controller_bool.value();
-            usb_sharing = self.usb_sharing.value();
+            network_disable = str(self.network_disable.value());
+            steam_controller_bool = str(self.steam_controller_bool.value());
+            usb_sharing = str(self.usb_sharing.value());
             usb_name = self.usb_name.text();
             usb_hidraw_name = self.usb_hidraw_name.text();
             docker_build = self.docker_build.text();
-            maxmemory = self.maxmemory.value()
-            maxcpus = self.maxcpus.value()
+            maxmemory = str(self.maxmemory.value())
+            maxcpus = str(self.maxcpus.value())
             network_host = self.network_host.text();
             portforwding =  self.portforwding.text();
-            dbus_rw =  self.dbus_rw.value();
+            dbus_rw =  str(self.dbus_rw.value());
             pacman_cache = self.pacman_cache.text();
             dns = self.dns.text();
             ipv4 = self.ipv4.text();
-            wireguard_fix = self.wireguard_fix.value();
-            nosudo = self.nosudo.value();
-            run_in_background = self.run_in_background.value();
-            ttyon = self.ttyon.value();
+            wireguard_fix = str(self.wireguard_fix.value());
+            nosudo = str(self.nosudo.value());
+            run_in_background = str(self.run_in_background.value());
+            ttyon = str(self.ttyon.value());
             pacman_pakgage_install = self.pacman_pakgage_install.text();
             docker_input = self.docker_input.text();
-            bluethoot_passthrough = self.bluethoot_passthrough.value();
-            hidraw_acs_overrides_patch = self.hidraw_acs_overrides_patch.value();
+            bluethoot_passthrough = str(self.bluethoot_passthrough.value());
+            hidraw_acs_overrides_patch = str(self.hidraw_acs_overrides_patch.value());
+            ipv6_privacy = str(self.ipv6_privacy1.value());
+            faketime = self.faketime.text();
+            wine_32bit_speed_hak = str(self.wine_32bit_speed_hak.value());
+            read_only = str(self.read_only.value());
+            read_only_password = self.read_only_password.text();
             #file_write_json(dirname + "/config_file_json", docker_user, gpu_render, disk_device_name, zugriff_auf_media, sav_home_docker_folder, share_folder_daten,
             #                share_folder1_aktiv, share_folder1, network_disable, steam_controller_bool, usb_sharing, usb_name, usb_hidraw_name,
             #                docker_build, maxmemory, maxcpus, network_host, portforwding, dbus_rw, pacman_cache, dns, ipv4, wireguard_fix,
             #                 nosudo, run_in_background, ttyon, pacman_pakgage_install, docker_input);
-            file_write_json(dirname + "/config_file_json", docker_user, gpu_render, disk_device_name, zugriff_auf_media, sav_home_docker_folder, share_folder_daten, share_folder1_aktiv, share_folder1, network_disable, steam_controller_bool, usb_sharing, usb_name, usb_hidraw_name, docker_build, maxmemory, maxcpus, network_host, portforwding, dbus_rw, pacman_cache, dns, ipv4, wireguard_fix, nosudo, run_in_background, ttyon, pacman_pakgage_install, docker_input, bluethoot_passthrough, hidraw_acs_overrides_patch);
+            file_write_json(dirname + "/config_file_json", docker_user, gpu_render, disk_device_name, zugriff_auf_media, sav_home_docker_folder, share_folder_daten, share_folder1_aktiv, share_folder1, network_disable, steam_controller_bool, usb_sharing, usb_name, usb_hidraw_name, docker_build, maxmemory, maxcpus, network_host, portforwding, dbus_rw, pacman_cache, dns, ipv4, wireguard_fix, nosudo, run_in_background, ttyon, pacman_pakgage_install, docker_input, bluethoot_passthrough, hidraw_acs_overrides_patch, ipv6_privacy, faketime, wine_32bit_speed_hak, read_only, read_only_password);
             return 0;
 
         def add_combox_usb_share(self):
@@ -557,6 +649,35 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
         def set_pacman_cache_folder(self):
             s1 = QtWidgets.QFileDialog.getExistingDirectory();
             self.pacman_cache.setText(s1);
+            return 0;
+
+        def faketime_clear(self):
+            self.faketime_clear.setText("");
+            return 0;
+
+        def faketime_clear(self):
+            self.faketime.setText("");
+            return 0;
+
+        def faketime_set_to_realtime(self):
+            update = time.localtime(time.time());
+            self.faketime.setText(str(update.tm_year) + "-" + str(update.tm_mon) + "-" + str(update.tm_mday) + " " + str(self.int_to_time(update.tm_hour)) + ":" + str(self.int_to_time(update.tm_min)) + ":" + str(self.int_to_time(update.tm_sec)));
+            return 0;
+
+        def int_to_time(self, i1):
+            if(i1 < 10):
+                return "0" + str(i1);
+            return str(i1);
+
+        def read_only_password_clear(self):
+            self.read_only_password.setText("");
+            return 0;
+
+        def share_folder1_textChanged(self):
+            if(self.share_folder1.text() == ""):
+                self.share_folder1_aktiv.setValue(0);
+            else:
+                self.share_folder1_aktiv.setValue(1);
             return 0;
 
 
