@@ -29,5 +29,8 @@ the application work onaly on archlinux.
 			./command_root "ls" #run user ls
 		muti comamnd
 			args must be one not more
-			./command "cd  '/'&& ls" #run user ls
-			./command_root "cd  / && ls" #run user ls
+			./command "openra-ra \n bash"
+			./command_root "openra-ra \n bash"
+
+	run config gui
+		./edit_config
