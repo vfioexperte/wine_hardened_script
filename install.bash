@@ -7,4 +7,5 @@ ln -sf build openra-ra
 ln -sf build firefox
 ln -sf build command
 ln -sf build command_root
-ln -sf ../Code Code
+ln -sf build edit_config
+#ln -sf ../Code Code
