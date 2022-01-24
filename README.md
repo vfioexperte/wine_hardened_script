@@ -17,6 +17,7 @@ the application work onaly on archlinux.
 		pacman_pakgage_install = pacman istall package
 
 		bash install.bash
+		#build must be run as root user
 		./build
 
 		after build
@@ -25,8 +26,10 @@ the application work onaly on archlinux.
 		run app
 	auto run
 		singel comamnd
-			./command "ls" #run user ls
-			./command_root "ls" #run user ls
+			#run user ls
+			./command "ls"
+			#run root user ls
+			./command_root "ls"
 		muti comamnd
 			args must be one not more
 			./command "openra-ra \n bash"
