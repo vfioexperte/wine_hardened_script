@@ -1,9 +1,12 @@
 this is a fork from https://github.com/kritzsie/steam-on-docker projeckt
-the application work onaly on archlinux.
+	0.28q beta Wayland support and linux mint and linux ubuntu
 
 	insatllation
 
-		pacman -Syu cdemu-client cdemu-daemon vhba-module-dkms k3b lsscsi docker criu busybox mesa-demos mesa-utils
+		archlinux pacman install command
+			pacman -Syu cdemu-client cdemu-daemon vhba-module-dkms k3b lsscsi docker criu busybox mesa-demos mesa-utils
+		linux mint and ubuntu apt get install command
+			apt-get install python3-pip lsscsi docker docker.io python3-pyqt5
 		usermod -aG docker username
 		usermod -aG optical username
 		usermod -aG input username
@@ -18,10 +21,12 @@ the application work onaly on archlinux.
 
 		bash install.bash
 		#build must be run as root user
+		su
 		./build
 
 		after build
-
+		user from desktop start a terminal
+		cd dockerfolder
 		./login
 		run app
 	auto run
