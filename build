@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #Copyright (C) 2022  vfio_experte
 #This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
 #This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
@@ -7,10 +7,15 @@
 #start project 04.02.2021
 
 
-#last edit 20.01.2022
+#last edit 03.03.2022
 
-version = "0.28k"
+version = "0.28q"
 appname = "sebs docker contianer gaming app"
+#0.28q gpu redner not loading by encrypt file 1.0 #json file 0.3f_3
+#0.28o pacman cahche empty
+#0.28o wayland support 0.1a
+#0.28n build failed fix 0.1a
+#0.28m add DRI_PRIME reading fix 0.2a #create_links 0.1a
 #0.28k #0.3f_3 json_edit_gui add a scrollbar
 #0.28i patching_lib .3d add new file /etc/user_patched2.bash and fix faketime 0.1a
 #json_file.py loading bug fix 1 + json gui rechtscheibung fix 1
@@ -170,6 +175,10 @@ thread = cmd_thread();
 
 def start_thread_wait(cmd):
     out = system(cmd);
+    for tmp in out:
+        tmp2 = tmp.split("EXITCODE--EXITCODE ");
+        if(len(tmp2) >= 2):
+            return int(tmp2[1][0]);
     if(out == ""):
         return 1;
     return 0;
@@ -213,12 +222,40 @@ def read_args():
     print("read_args: ", s1);
     return s1;
 
+def gpu_Render_check_is_int(gpu_render):
+    try:
+        i = int(gpu_render);
+        return 1;
+    except ValueError:
+        return 0;
+
+
+def create_links():
+    os.system("ln -sf build login_root")
+    os.system("ln -sf build login")
+    os.system("ln -sf build run")
+    os.system("ln -sf build openra-ra")
+    os.system("ln -sf build firefox")
+    os.system("ln -sf build command")
+    os.system("ln -sf build command_root")
+    os.system("ln -sf build edit_config")
+    return 0;
+
+def check_env(s1):
+    try:
+        s2 = os.environ[s1];
+        return s2;
+    except KeyError:
+        return -1;
+
 def main():
+    create_links();
     sargs = read_args();
     nosudo = 1;
     docker_user = "empty"
     docker_build = "archlinux_std_docker";
-    gpu_render = "1";
+    gpu_render = "0";
+    gpu_render_2 = "0";
 
     disk_device_name = "cd/dvd";
     zugriff_auf_media = 0; #1 = True
@@ -357,6 +394,20 @@ def main():
         file_write_json(dirname + "/config_file_json", docker_user, gpu_render, disk_device_name, zugriff_auf_media, sav_home_docker_folder, share_folder_daten, share_folder1_aktiv, share_folder1, network_disable, steam_controller_bool, usb_sharing, usb_name, usb_hidraw_name, docker_build, maxmemory, maxcpus, network_host, portforwding, dbus_rw, pacman_cache, dns, ipv4, wireguard_fix, nosudo, run_in_background, ttyon, pacman_pakgage_install, docker_input, bluethoot_passthrough,
             hidraw_acs_overrides_patch, ipv6_privacy, faketime, wine_32bit_speed_hak, read_only, read_only_password);
 
+    if(gpu_Render_check_is_int(gpu_render) == 0):
+        gpu_render_2 = gpu_render;
+        atmp = read_all_dri_prime_device();
+        for i in range(len(atmp)):
+            tmp = atmp[i].split(" (")[0];
+            if(tmp == gpu_render):
+                gpu_render_2 = str(i);
+                break;
+        if(gpu_Render_check_is_int(gpu_render_2) == 0):
+            print("gpu not found! setze auf 0 gpu render!")
+            gpu_render_2 = "0";
+    else:
+        gpu_render_2 = gpu_render;
+
     custom_command = "";
     optical_disk = read_scsi(disk_device_name);
     create_a_cdrom_mount_file_per_dev(optical_disk, docker_user, dirname);
@@ -385,17 +436,15 @@ def main():
         exit(-1);
 
 
+
     base_args = [
         "docker", "--privileged",
-        "-e", "DISPLAY=" + os.environ["DISPLAY"],
-        "-e", "DRI_PRIME=" + gpu_render,
+        "-e", "DRI_PRIME=" + gpu_render_2,
         "-e", "XDG_RUNTIME_DIR=" + os.environ["XDG_RUNTIME_DIR"],
         "-e", "DBUS_SESSION_BUS_ADDRESS=" + os.environ["DBUS_SESSION_BUS_ADDRESS"],
         "-e", "LANG=" + os.environ["LANG"],
         #"-e", "PWD=/home/" + docker_user,
         "-h", platform.node(),
-        "-v", os.environ["XAUTHORITY"] + ":/home/" + docker_user + "/.Xauthority:rw",
-        "-v", os.environ["XAUTHORITY"] + ":/root/" + "/.Xauthority:rw",
         #"-v", "/dev/dri:/dev/dri",
         #"-v", "/dev/shm:/dev/shm",
         "--device", "/dev/vga_arbiter:/dev/vga_arbiter",
@@ -424,7 +473,7 @@ def main():
         #"--group-add", "optical",
         #"--group-add", "input",
         #"--device", "/dev/snd",
-        "-v", "/etc/vconsole.conf:/etc/vconsole.conf:ro",
+        #"-v", "/etc/vconsole.conf:/etc/vconsole.conf:ro",
         #"-e", "KEYMAP=de-latin1-nodeadkeys",
         #"-v", "/dev/input/:/dev/input/:ro",
         "-v", dirname+"/chmod_check.py:/root/chmod_check.py:ro",
@@ -763,6 +812,30 @@ def main():
     else:
         print("ERRRO not found /etc/vconsole.conf!");
 
+    if(os.path.isfile(dirname + "/" + "pipe.tmp") == False):
+        f1 = open(dirname + "/" + "pipe.tmp", "w");
+        f1.close();
+
+    base_args.append("-v");
+    base_args.append(dirname + "/" + "pipe.tmp:/tmp/pipe.tmp:rw");
+
+    if(True):
+        tmp1 = check_env("WAYLAND_DISPLAY");
+        if(tmp1 != -1):
+            base_args.append("-e");
+            base_args.append("WAYLAND_DISPLAY:" + tmp1);
+            base_args.append("-e");
+            base_args.append("DISPLAY=" + os.environ["DISPLAY"]);
+            print("WAYLAND aktiv!")
+        else:
+            print("XORG aktiv!")
+            base_args.append("-e");
+            base_args.append("DISPLAY=" + os.environ["DISPLAY"]);
+            base_args.append("-v");
+            base_args.append( os.environ["XAUTHORITY"] + ":/home/" + docker_user + "/.Xauthority:rw");
+            base_args.append("-v");
+            base_args.append(os.environ["XAUTHORITY"] + ":/root/" + "/.Xauthority:rw");
+            #https://unix.stackexchange.com/questions/330366/how-can-i-run-a-graphical-application-in-a-container-under-wayland
 
     #if(basename != "build" and os.path.isdir("/usr/share/locale") == True):
     #    base_args.append("-v");
@@ -849,8 +922,9 @@ def main():
                 os.remove(fertigfile);
             print("starting mod")
             start_thread_wait("bash install.bash");
-            for i in range(pacman_downloads):
-                start_thread_wait("./command_root 'pacman -Sy archlinux-keyring --noconfirm -y --cachedir /var/cache/pacman/pkg && pacman -Syu " + pacman_pakgage_install + " --noconfirm -y --downloadonly --cachedir /mnt/pacman_cache_rw/ && exit'");
+            while True:
+                if(start_thread_wait("./command_root 'pacman -Sy archlinux-keyring --noconfirm -y --cachedir /var/cache/pacman/pkg && pacman -Syu " + pacman_pakgage_install + " --noconfirm -y --downloadonly --cachedir /mnt/pacman_cache_rw/ && exit'") == 0):
+                    break;
             start_thread("./command_root 'pacman -Sy archlinux-keyring archiso --noconfirm -y --cachedir /var/cache/pacman/pkg && pacman -Syu " + pacman_pakgage_install + " --noconfirm -y --cachedir /var/cache/pacman/pkg  && echo 1 > /mnt/pacman_cache_rw/fertig && sleep 180 &&  exit '");#start_thread
             #start_thread("./command_root 'pacman -Sy archlinux-keyring archiso --noconfirm -y --cachedir /var/cache/pacman/pkg && mkdir /mnt/2 &&  mount -B / /mnt/2 && mount -B /var/cache/pacman/pkg/ /mnt/2/var/cache/pacman/pkg/ && pacman -Syu  " + pacman_pakgage_install + " --noconfirm -y --cachedir /var/cache/pacman/pkg --root /mnt/2  && echo 1 > /mnt/pacman_cache_rw/fertig && sleep 180 &&  exit '");#start_thread
             time.sleep(30);
@@ -869,6 +943,8 @@ def main():
                 print("ERROR docker id not found");
                 exit(-1);
             thread_wait_is_exit();
+        else:
+            print("ERROR pacman cache is empty in config file!");
     elif(ttyon == 1):
         #ttyon 1 #gui off terminal on
         print("Terminal on!")
@@ -989,6 +1065,8 @@ def main():
                 print("ERROR docker id not found");
                 exit(-1);
             thread_wait_is_exit();
+        else:
+            print("ERROR pacman cache is empty in config file!");
 
 
     return 0;
