@@ -5,7 +5,7 @@
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #this is a fork from https://github.com/kritzsie/steam-on-docker
 
-version = "0.3d"
+version = "0.3e"
 #0.3d add new file /etc/user_patched2.bash and fix faketime 0.1a
 
 import platform
@@ -103,6 +103,7 @@ def patching_user(docker_user, command2, command, id, hidraw_acs_overrides_patch
         s4 = s4 + command + "\n";
     else:
         s4 = s4 + command + "\n";
+    s4 = s4 + "echo \"EXITCODE--EXITCODE $?\"";
     file1 = open("user_patched.bash", "w");
     file1.write(s0);
     file1.write(s1);
