@@ -5,7 +5,7 @@
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #this is a fork from https://github.com/kritzsie/steam-on-docker
 
-version = "0.3f_2"
+version = "0.3f_3"
 
 import platform
 import os
@@ -104,6 +104,7 @@ def file_read_json(sfile):
                         out.append(brechen_config('ipv6_privacy', rsa_decrypt_byte(jason_data['sav_data']['ipv6_privacy'], key).decode("utf-8")))
                         out.append(brechen_config('hidraw_acs_overrides_patch', rsa_decrypt_byte(jason_data['sav_data']['hidraw_acs_overrides_patch'], key).decode("utf-8")))
                         out.append(brechen_config('docker_user', rsa_decrypt_byte(jason_data['sav_data']['docker_user'], key).decode("utf-8")))
+                        out.append(brechen_config('gpu_render', rsa_decrypt_byte(jason_data['sav_data']['gpu_render'], key).decode("utf-8")));
                         out.append(brechen_config('disk_device_name', rsa_decrypt_byte(jason_data['sav_data']['disk_device_name'], key).decode("utf-8")))
                         out.append(brechen_config('zugriff_auf_media', rsa_decrypt_byte(jason_data['sav_data']['zugriff_auf_media'], key).decode("utf-8")))
                         out.append(brechen_config('sav_home_docker_folder', rsa_decrypt_byte(jason_data['sav_data']['sav_home_docker_folder'], key).decode("utf-8")))
