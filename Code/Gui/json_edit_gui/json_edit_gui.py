@@ -5,7 +5,8 @@
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #this is a fork from https://github.com/kritzsie/steam-on-docker
 
-version = "0.3f_3"
+version = "0.3f_5"
+#0.3f_5 DRI PRIME in docker coantiner fix 0.2a
 #0.3f_3 json_edit_gui add a scrollbar
 
 import platform
@@ -88,7 +89,14 @@ def read_hidraw():
 def read_glxinfo(dri_prime):
     if(list_all_gpus() <= dri_prime):
         return "";
+    #cmd_start("./command 'DRI_PRIME=" + str(dri_prime) + " glxinfo | grep \"OpenGL renderer\" > /tmp/pipe.tmp'");
     cmd = cmd_start("DRI_PRIME=" + str(dri_prime) + " glxinfo | grep \"OpenGL renderer\"");
+    #f1 = open("pipe.tmp", "r");
+    #f1.seek(0, 2);
+    #size = f1.tell();
+    #f1.seek(0, 0);
+    #cmd = f1.read(size).split("\n");
+    #f1.close();
     if(len(cmd) == 0):
         return "ERROR mesa-utils not installed!";
     s1 = cmd[0].split("OpenGL renderer string: ");
@@ -163,16 +171,19 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
 
             self.layouth2 = QtWidgets.QHBoxLayout()
             self.gpu_render_label =  QtWidgets.QLabel("gpu_render: (nur für muti gpu user um bei opengl eine gpu zu wählen! bei 1ner gpu Bitte 0 lassen )");
-            self.gpu_render = QtWidgets.QSpinBox();
-            self.gpu_render.setMinimum(0);
-            self.gpu_render.setValue(int(gpu_render));
+            self.gpu_render = QtWidgets.QLineEdit();
+            #self.gpu_render.setMinimum(0);
+            self.gpu_render.setText(str(gpu_render));
             self.gpu_render_combobox = QtWidgets.QComboBox();
-            self.gpu_render_combobox_set = QtWidgets.QPushButton("set")
+            self.gpu_render_combobox_set = QtWidgets.QPushButton("set as int")
             self.gpu_render_combobox_set .clicked.connect(self.set_combox_gpu_render)
+            self.gpu_render_combobox_set_name = QtWidgets.QPushButton("set as gpu name")
+            self.gpu_render_combobox_set_name .clicked.connect(self.set_combox_gpu_render_name)
             self.layouth2.addWidget(self.gpu_render_label);
             self.layouth2.addWidget(self.gpu_render);
             self.layouth2.addWidget(self.gpu_render_combobox);
             self.layouth2.addWidget(self.gpu_render_combobox_set);
+            self.layouth2.addWidget(self.gpu_render_combobox_set_name);
             self.layoutv1.addLayout(self.layouth2);
 
             self.layouth3 = QtWidgets.QHBoxLayout();
@@ -516,7 +527,7 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
             self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, self.w, self.h))
         def save(self):
             docker_user = self.docker_user.text();
-            gpu_render = str(self.gpu_render.value());
+            gpu_render = str(self.gpu_render.text());
             disk_device_name = self.disk_device_name.text();
             zugriff_auf_media = str(self.zugriff_auf_media.value());
             sav_home_docker_folder = str(self.sav_home_docker_folder.value());
@@ -624,7 +635,12 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
 
         def set_combox_gpu_render(self):
             index = self.gpu_render_combobox.currentIndex()
-            self.gpu_render.setValue(index);
+            self.gpu_render.setText(str(index));
+            return 0;
+
+        def set_combox_gpu_render_name(self):
+            index = self.gpu_render_combobox.currentIndex()
+            self.gpu_render.setText(self.gpu_render_array[index].split(" (")[0]);
             return 0;
 
         def set_share_folder1(self):
