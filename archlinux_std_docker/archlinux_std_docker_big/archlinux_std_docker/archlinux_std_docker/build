@@ -1,0 +1,45 @@
+#!/usr/bin/env python3
+import platform
+import os
+import sys
+
+abspath = os.path.abspath(sys.argv[0])
+basename = os.path.basename(abspath)
+dirname = os.path.dirname(abspath)
+
+base_args = [
+    "docker", "--privileged",
+    "-e", "DISPLAY=" + os.environ["DISPLAY"],
+    "-h", platform.node(),
+    "-v", os.environ["XAUTHORITY"] + ":/home/steam/.Xauthority:rw",
+    "-v", os.environ["XAUTHORITY"] + ":/root/.Xauthority:rw",
+    "-v", "/dev/dri:/dev/dri",
+    "-v", "/dev/shm:/dev/shm",
+    "-v", "/dev/vga_arbiter:/dev/vga_arbiter",
+    "-v", "/etc/localtime:/etc/localtime:ro",
+    "-v", "/etc/machine-id:/etc/machine-id:ro",
+    "-v", "/home/steamos" + "/.pulse-cookie:/root/.pulse-cookie",
+    "-v", "/home/steamos" + "/.config/pulse:/root/.config/pulse",
+    "-v", "/run/user/" + str(os.getuid()) + "/pulse:/run/user/1001/pulse",
+    "-v", "/dev/snd:/dev/snd",
+    "-v", "/tmp/.X11-unix:/tmp/.X11-unix",
+    "-v", "/var/lib/dbus:/var/lib/dbus",
+    "-v", "/etc/pacman.conf:/root/pacman.conf:ro",
+    "-v", "/run/user/1000/pulse:/run/user/1000/pulse",
+    #"-v", "/run/media/seb/sav4/@daten/Linux/docker/steamos1/pulse-client.conf:/etc/pulse/client.conf",
+    "--group-add", "video",
+    "--group-add", "render",
+    "--device", "/dev/snd",
+    "-v", "/VM/docker/steamos/steamos1/archlinux_std_docker_test1/home:/home/steam:rw",
+    os.path.split(dirname)[-1]
+]
+
+args = {
+    "build": [base_args[0], "build", "-f", dirname + "/src/Dockerfile", "-t"] + [base_args[-1], dirname],
+    "run": [base_args[0], "run"] + (base_args[-1:] + sys.argv[1:] if len(sys.argv) > 1 else base_args[1:]),
+    "login": [base_args[0], "run", "-it"] + (base_args[-1:] + sys.argv[1:] if len(sys.argv) > 1 else base_args[1:] + ["bash", "--login", "-i"])
+}
+
+if __name__ == "__main__":
+    print(args[basename]);
+    os.execvp(base_args[0], args[basename])
