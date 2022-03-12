@@ -1,4 +1,5 @@
 #!/bin/bash
+#3.0a
 #ln -sf ../build build
 ln -sf build login_root 
 ln -sf build login
@@ -12,5 +13,7 @@ ln -sf build edit_config
 cd archlinux_std_docker/archlinux_std_docker_big/archlinux_std_docker/
 ln -sf ../../../build build
 ln -sf ../../../Code Code
+cp ../../../hidraw_acs_overrides_patch.py hidraw_acs_overrides_patch.py
+ln -sf ../../../chmod_check.py chmod_check.py
 cd archlinux_std_docker/
 ln -sf build login
