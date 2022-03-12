@@ -1,6 +1,7 @@
 #!/bin/bash
-#3.0a
+#3.0b
 #ln -sf ../build build
+chmod +x build
 ln -sf build login_root 
 ln -sf build login
 ln -sf build run 
@@ -17,3 +18,4 @@ cp ../../../hidraw_acs_overrides_patch.py hidraw_acs_overrides_patch.py
 ln -sf ../../../chmod_check.py chmod_check.py
 cd archlinux_std_docker/
 ln -sf build login
+chmod +x build
