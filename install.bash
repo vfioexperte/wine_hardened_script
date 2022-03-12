@@ -9,3 +9,8 @@ ln -sf build command
 ln -sf build command_root
 ln -sf build edit_config
 #ln -sf ../Code Code
+cd archlinux_std_docker/archlinux_std_docker_big/archlinux_std_docker/
+ln -sf ../../../build build
+ln -sf ../../../Code Code
+cd archlinux_std_docker/
+ln -sf build login
