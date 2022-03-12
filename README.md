@@ -1,7 +1,7 @@
 this is a fork from https://github.com/kritzsie/steam-on-docker projeckt
 	0.28q beta Wayland support and linux mint and linux ubuntu
 
-	insatllation
+	installation
 
 		archlinux pacman install command
 			pacman -Syu cdemu-client cdemu-daemon vhba-module-dkms k3b lsscsi docker criu busybox mesa-demos mesa-utils
@@ -17,12 +17,15 @@ this is a fork from https://github.com/kritzsie/steam-on-docker projeckt
 		chown -R username:users /pacman_cache_foldeer..
 
 		edit _config file
-		pacman_pakgage_install = pacman istall package
 
 		bash install.bash
 		#build must be run as root user
+		bash install.bash
 		su
-		./build
+		cd archlinux_std_docker/archlinux_std_docker_big/archlinux_std_docker
+		edit _config file
+		pacman_pakgage_install = pacman istall package
+		./build		
 
 		after build
 		user from desktop start a terminal
