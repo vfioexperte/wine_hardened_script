@@ -7,10 +7,11 @@
 #start project 04.02.2021
 
 
-#last edit 03.03.2022
+#last edit 13.03.2022
 
-version = "0.28q"
+version = "0.28r"
 appname = "sebs docker contianer gaming app"
+#0.28r json gui 0.3f_6  virgl hot fix 0.1a
 #0.28q gpu redner not loading by encrypt file 1.0 #json file 0.3f_3
 #0.28o pacman cahche empty
 #0.28o wayland support 0.1a
