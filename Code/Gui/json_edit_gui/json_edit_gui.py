@@ -5,7 +5,8 @@
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #this is a fork from https://github.com/kritzsie/steam-on-docker
 
-version = "0.3f_5"
+version = "0.3f_6"
+#0.3f_6 virgl hot fix 0.1a
 #0.3f_5 DRI PRIME in docker coantiner fix 0.2a
 #0.3f_3 json_edit_gui add a scrollbar
 
@@ -107,6 +108,8 @@ def list_all_gpus():
     cmd = cmd_start("lspci -v | grep \"Kernel driver in use: amdgpu\"");
     i1 = i1 + len(cmd);
     cmd = cmd_start("lspci -v | grep \"Kernel driver in use: radeon\"");
+    i1 = i1 + len(cmd);
+    cmd = cmd_start("lspci -v | grep \"VGA compatible controller: Red Hat, Inc. Virtio GPU\"");
     i1 = i1 + len(cmd);
     return i1;
 
