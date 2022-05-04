@@ -1,15 +1,18 @@
 this is a fork from https://github.com/kritzsie/steam-on-docker projeckt
 	0.28q beta Wayland support and linux mint and linux ubuntu
+	v0.31e_hotfix_10 alpha lxc support bridge network br0 musst maunel crate it.
+	lxc is archlinux only
 
 	installation
 
 		archlinux pacman install command
-			pacman -Syu cdemu-client cdemu-daemon vhba-module-dkms k3b lsscsi docker criu busybox mesa-demos mesa-utils
+			pacman -Syu  python-pip python cdemu-client cdemu-daemon vhba-module-dkms k3b lsscsi docker criu busybox mesa-demos mesa-utils 	archiso lxc  lxc apparmor dnsmasq lxd
 		linux mint and ubuntu apt get install command
 			apt-get install python3-pip lsscsi docker docker.io python3-pyqt5
 		usermod -aG docker username
 		usermod -aG optical username
 		usermod -aG input username
+		usermod -aG lxd username
 
 		edit _config file
 		pacman_cache = /pacman_cache_foldeer...
