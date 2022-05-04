@@ -5,7 +5,11 @@
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #this is a fork from https://github.com/kritzsie/steam-on-docker
 
-version = "0.3f_3"
+version = "0.4d lxc"
+#0.4c lxc support 0.1a
+#0.3l_hotfix_2 optional_array empty array[0] fix 0.1a
+#0.3l optional_array and freesync, vsync
+#0.3j optional_array and smart_acces_meomory add
 
 import platform
 import os
@@ -27,18 +31,18 @@ def brechen_config(name, value):
     return [name, value]
 
 def file_write_json(sfile, docker_user, gpu_render, disk_device_name, zugriff_auf_media, sav_home_docker_folder, share_folder_daten, share_folder1_aktiv, share_folder1, network_disable, steam_controller_bool, usb_sharing, usb_name, usb_hidraw_name, docker_build, maxmemory, maxcpus, network_host, portforwding, dbus_rw, pacman_cache, dns, ipv4, wireguard_fix, nosudo, run_in_background, ttyon, pacman_pakgage_install, docker_input, bluethoot_passthrough, hidraw_acs_overrides_patch, ipv6_privacy,
-                    faketime, wine_32bit_speed_hak, read_only, read_only_password):
-    print("read_only: ", read_only)
-    print("read_only_password: ", read_only_password)
+                    faketime, wine_32bit_speed_hak, read_only, read_only_password,  amd_gpu_raytrasing_allgpus, amd_gpu_raytrasing_rdan2_only, wine_fsr, manager_vm_fodler, optional_array):
+    #print("read_only: ", read_only)
+    #print("read_only_password: ", read_only_password)
     if(read_only == "1" and read_only_password != ""):
         key = rsa_gerate_keys();
-        jason_data['sav_data'] = {'docker_user': rsa_encrypt_str(docker_user, key), 'gpu_render' : rsa_encrypt_str(gpu_render, key), 'disk_device_name' : rsa_encrypt_str(disk_device_name, key), "zugriff_auf_media": rsa_encrypt_str(zugriff_auf_media, key), "sav_home_docker_folder" : rsa_encrypt_str(sav_home_docker_folder, key), "share_folder_daten" : rsa_encrypt_str(share_folder_daten, key), "share_folder1_aktiv" : rsa_encrypt_str(share_folder1_aktiv, key), "network_disable" : rsa_encrypt_str(network_disable, key), "steam_controller_bool" : rsa_encrypt_str(steam_controller_bool, key), "usb_sharing": rsa_encrypt_str(usb_sharing, key), "usb_name" : rsa_encrypt_str(usb_name, key), "usb_hidraw_name" : rsa_encrypt_str(usb_hidraw_name, key), "docker_build" : rsa_encrypt_str(docker_build, key), "docker_input" : rsa_encrypt_str(docker_input, key), "maxmemory" : rsa_encrypt_str(maxmemory, key), "maxcpus" : rsa_encrypt_str(maxcpus, key), "network_host" : rsa_encrypt_str(network_host, key), "portforwding" : rsa_encrypt_str(portforwding, key), "dbus_rw" : rsa_encrypt_str(dbus_rw, key), "pacman_cache" : rsa_encrypt_str(pacman_cache, key), "dns" : rsa_encrypt_str(dns, key), "ipv4" : rsa_encrypt_str(ipv4, key), "wireguard_fix" : rsa_encrypt_str(wireguard_fix, key), "nosudo" : rsa_encrypt_str(nosudo, key), "run_in_background" : rsa_encrypt_str(run_in_background, key), "ttyon": rsa_encrypt_str(ttyon, key), "pacman_pakgage_install" : rsa_encrypt_str(pacman_pakgage_install, key), "share_folder1": rsa_encrypt_str(share_folder1, key), "bluethoot_passthrough" : rsa_encrypt_str(bluethoot_passthrough, key), "hidraw_acs_overrides_patch" : rsa_encrypt_str(hidraw_acs_overrides_patch, key), "ipv6_privacy" : rsa_encrypt_str(ipv6_privacy, key), "faketime": rsa_encrypt_str(faketime, key), "wine_32bit_speed_hak" : rsa_encrypt_str(wine_32bit_speed_hak, key), "read_only" : byte_to_hex(key), "read_only_password" : rsa_encrypt_str(read_only_password, key),  "sav_Version" :  "0.3f_crypt"};
+        jason_data['sav_data'] = {'docker_user': rsa_encrypt_str(docker_user, key), 'gpu_render' : rsa_encrypt_str(gpu_render, key), 'disk_device_name' : rsa_encrypt_str(disk_device_name, key), "zugriff_auf_media": rsa_encrypt_str(zugriff_auf_media, key), "sav_home_docker_folder" : rsa_encrypt_str(sav_home_docker_folder, key), "share_folder_daten" : rsa_encrypt_str(share_folder_daten, key), "share_folder1_aktiv" : rsa_encrypt_str(share_folder1_aktiv, key), "network_disable" : rsa_encrypt_str(network_disable, key), "steam_controller_bool" : rsa_encrypt_str(steam_controller_bool, key), "usb_sharing": rsa_encrypt_str(usb_sharing, key), "usb_name" : rsa_encrypt_str(usb_name, key), "usb_hidraw_name" : rsa_encrypt_str(usb_hidraw_name, key), "docker_build" : rsa_encrypt_str(docker_build, key), "docker_input" : rsa_encrypt_str(docker_input, key), "maxmemory" : rsa_encrypt_str(maxmemory, key), "maxcpus" : rsa_encrypt_str(maxcpus, key), "network_host" : rsa_encrypt_str(network_host, key), "portforwding" : rsa_encrypt_str(portforwding, key), "dbus_rw" : rsa_encrypt_str(dbus_rw, key), "pacman_cache" : rsa_encrypt_str(pacman_cache, key), "dns" : rsa_encrypt_str(dns, key), "ipv4" : rsa_encrypt_str(ipv4, key), "wireguard_fix" : rsa_encrypt_str(wireguard_fix, key), "nosudo" : rsa_encrypt_str(nosudo, key), "run_in_background" : rsa_encrypt_str(run_in_background, key), "ttyon": rsa_encrypt_str(ttyon, key), "pacman_pakgage_install" : rsa_encrypt_str(pacman_pakgage_install, key), "share_folder1": rsa_encrypt_str(share_folder1, key), "bluethoot_passthrough" : rsa_encrypt_str(bluethoot_passthrough, key), "hidraw_acs_overrides_patch" : rsa_encrypt_str(hidraw_acs_overrides_patch, key), "ipv6_privacy" : rsa_encrypt_str(ipv6_privacy, key), "faketime": rsa_encrypt_str(faketime, key), "wine_32bit_speed_hak" : rsa_encrypt_str(wine_32bit_speed_hak, key), "read_only" : byte_to_hex(key), "read_only_password" : rsa_encrypt_str(read_only_password, key), "amd_gpu_raytrasing_allgpus" : rsa_encrypt_str(amd_gpu_raytrasing_allgpus, key) ,"amd_gpu_raytrasing_rdan2_only" : rsa_encrypt_str(amd_gpu_raytrasing_rdan2_only, key), "wine_fsr" : rsa_encrypt_str(wine_fsr, key), "manager_vm_fodler" : rsa_encrypt_str(manager_vm_fodler, key), "optional_array" : rsa_encrypt_str(optional_array, key), "sav_Version" :  "0.3j_crypt"};
         with open(sfile, "w") as write_file:
             json.dump(jason_data, write_file);
             write_file.close();
         return 0;
     else:
-        jason_data['sav_data'] = {'docker_user': docker_user, 'gpu_render' : gpu_render, 'disk_device_name' : disk_device_name, "zugriff_auf_media": zugriff_auf_media, "sav_home_docker_folder" : sav_home_docker_folder, "share_folder_daten" : share_folder_daten, "share_folder1_aktiv" : share_folder1_aktiv, "network_disable" : network_disable, "steam_controller_bool" : steam_controller_bool, "usb_sharing": usb_sharing, "usb_name" : usb_name, "usb_hidraw_name" : usb_hidraw_name, "docker_build" : docker_build , "docker_input" : docker_input, "maxmemory" : maxmemory, "maxcpus" : maxcpus, "network_host" : network_host, "portforwding" : portforwding, "dbus_rw" : dbus_rw, "pacman_cache" : pacman_cache, "dns" : dns, "ipv4" : ipv4, "wireguard_fix" : wireguard_fix, "nosudo" : nosudo, "run_in_background" : run_in_background, "ttyon": ttyon, "pacman_pakgage_install" : pacman_pakgage_install, "share_folder1": share_folder1, "bluethoot_passthrough" : bluethoot_passthrough, "hidraw_acs_overrides_patch" : hidraw_acs_overrides_patch, "ipv6_privacy" : ipv6_privacy, "faketime": faketime, "wine_32bit_speed_hak" : wine_32bit_speed_hak, "read_only" : 0, "read_only_password" : "",  "sav_Version" :  "0.3f"};
+        jason_data['sav_data'] = {'docker_user': docker_user, 'gpu_render' : gpu_render, 'disk_device_name' : disk_device_name, "zugriff_auf_media": zugriff_auf_media, "sav_home_docker_folder" : sav_home_docker_folder, "share_folder_daten" : share_folder_daten, "share_folder1_aktiv" : share_folder1_aktiv, "network_disable" : network_disable, "steam_controller_bool" : steam_controller_bool, "usb_sharing": usb_sharing, "usb_name" : usb_name, "usb_hidraw_name" : usb_hidraw_name, "docker_build" : docker_build , "docker_input" : docker_input, "maxmemory" : maxmemory, "maxcpus" : maxcpus, "network_host" : network_host, "portforwding" : portforwding, "dbus_rw" : dbus_rw, "pacman_cache" : pacman_cache, "dns" : dns, "ipv4" : ipv4, "wireguard_fix" : wireguard_fix, "nosudo" : nosudo, "run_in_background" : run_in_background, "ttyon": ttyon, "pacman_pakgage_install" : pacman_pakgage_install, "share_folder1": share_folder1, "bluethoot_passthrough" : bluethoot_passthrough, "hidraw_acs_overrides_patch" : hidraw_acs_overrides_patch, "ipv6_privacy" : ipv6_privacy, "faketime": faketime, "wine_32bit_speed_hak" : wine_32bit_speed_hak, "read_only" : 0, "read_only_password" : "", "amd_gpu_raytrasing_allgpus" : amd_gpu_raytrasing_allgpus, "amd_gpu_raytrasing_rdan2_only": amd_gpu_raytrasing_rdan2_only, "wine_fsr": wine_fsr, "manager_vm_fodler": manager_vm_fodler, "optional_array": optional_array, "sav_Version" :  "0.3j"};
         with open(sfile, "w") as write_file:
             json.dump(jason_data, write_file);
             write_file.close();
@@ -77,7 +81,23 @@ def loading_json_file(sfile):
         return file_read_json(sfile);
     elif(check == "0.3f"):
         return file_read_json(sfile);
+    elif(check == "0.3g"):
+        return file_read_json(sfile);
+    elif(check == "0.3h"):
+        return file_read_json(sfile);
+    elif(check == "0.3i"):
+        return file_read_json(sfile);
+    elif(check == "0.3j"):
+        return file_read_json(sfile);
     elif(check == "0.3f_crypt"):
+        return file_read_json(sfile);
+    elif(check == "0.3g_crypt"):
+        return file_read_json(sfile);
+    elif(check == "0.3h_crypt"):
+        return file_read_json(sfile);
+    elif(check == "0.3i_crypt"):
+        return file_read_json(sfile);
+    elif(check == "0.3j_crypt"):
         return file_read_json(sfile);
     elif(check == -1):
         return read_config();
@@ -94,7 +114,7 @@ def file_read_json(sfile):
             jason_data  = json.load(read_file)
             #out.append(brechen_config('sav_Version', jason_data['sav_data']['sav_Version']))
             sav_Verion = jason_data['sav_data']['sav_Version'];
-            if(sav_Verion == "0.3f_crypt"):
+            if(sav_Verion == "0.3f_crypt" or sav_Verion == "0.3g_crypt" or sav_Verion ==  "0.3h_crypt" or sav_Verion ==  "0.3i_crypt" or sav_Verion == "0.3j_crypt"):
                         key = hex_to_byte(jason_data['sav_data']['read_only']);
                         out = [];
                         out.append(brechen_config('read_only', 1));
@@ -133,19 +153,42 @@ def file_read_json(sfile):
                         out.append(brechen_config('docker_input', rsa_decrypt_byte(jason_data['sav_data']['docker_input'], key).decode("utf-8")))
                         out.append(brechen_config('bluethoot_passthrough', rsa_decrypt_byte(jason_data['sav_data']['bluethoot_passthrough'], key).decode("utf-8")))
                         out.append(brechen_config('sav_Version', jason_data['sav_data']['sav_Version']))
+                        if(sav_Verion == "0.3g_crypt" or sav_Verion ==  "0.3h_crypt" or sav_Verion ==  "0.3i_crypt" or sav_Verion == "0.3j_crypt"):
+                            out.append(brechen_config('amd_gpu_raytrasing_allgpus', rsa_decrypt_byte(jason_data['sav_data']['amd_gpu_raytrasing_allgpus'], key).decode("utf-8")))
+                            out.append(brechen_config('amd_gpu_raytrasing_rdan2_only', rsa_decrypt_byte(jason_data['sav_data']['amd_gpu_raytrasing_rdan2_only'], key).decode("utf-8")))
+                        if(sav_Verion ==  "0.3h_crypt" or sav_Verion ==  "0.3i_crypt" or "0.3j_crypt"):
+                            out.append(brechen_config('wine_fsr', rsa_decrypt_byte(jason_data['sav_data']['wine_fsr'], key).decode("utf-8")))
+                        if(sav_Verion ==  "0.3i_crypt" or sav_Verion == "0.3j_crypt"):
+                            out.append(brechen_config('manager_vm_fodler', rsa_decrypt_byte(jason_data['sav_data']['manager_vm_fodler'], key).decode("utf-8")))
+                        if(sav_Verion == "0.3j_crypt"):
+                            optional_array =  rsa_decrypt_byte(jason_data['sav_data']['optional_array'], key).decode("utf-8")
+                            out = optional_array_to_out(out, optional_array);
+                            out.append(brechen_config("optional_array", optional_array));
+                        read_file.close();
                         return out;
-            if(sav_Verion == "0.3f"):
+            if( sav_Verion ==  "0.3j"):
+                optional_array =  jason_data['sav_data']['optional_array'];
+                out = optional_array_to_out(out, optional_array);
+                out.append(brechen_config("optional_array", optional_array));
+            if(sav_Verion ==  "0.3i" or sav_Verion ==  "0.3j"):
+                out.append(brechen_config('manager_vm_fodler', jason_data['sav_data']['manager_vm_fodler']))
+            if(sav_Verion ==  "0.3h" or sav_Verion ==  "0.3i" or sav_Verion ==  "0.3j"):
+                out.append(brechen_config('wine_fsr', jason_data['sav_data']['wine_fsr']))
+            if(sav_Verion == "0.3g" or sav_Verion ==  "0.3h" or sav_Verion ==  "0.3i" or sav_Verion ==  "0.3j"):
+                out.append(brechen_config('amd_gpu_raytrasing_allgpus', jason_data['sav_data']['amd_gpu_raytrasing_allgpus']))
+                out.append(brechen_config('amd_gpu_raytrasing_rdan2_only', jason_data['sav_data']['amd_gpu_raytrasing_rdan2_only']))
+            if(sav_Verion == "0.3f" or sav_Verion == "0.3g" or sav_Verion ==  "0.3h" or sav_Verion ==  "0.3i" or sav_Verion ==  "0.3j"):
                 out.append(brechen_config('read_only', jason_data['sav_data']['read_only']))
                 out.append(brechen_config('read_only_password', jason_data['sav_data']['read_only_password']))
-            if(sav_Verion == "0.3e" or sav_Verion == "0.3f"):
+            if(sav_Verion == "0.3e" or sav_Verion == "0.3f" or sav_Verion == "0.3g" or sav_Verion ==  "0.3h" or sav_Verion ==  "0.3i" or sav_Verion ==  "0.3j"):
                 out.append(brechen_config('wine_32bit_speed_hak', jason_data['sav_data']['wine_32bit_speed_hak']))
-            if(sav_Verion == "0.3c" or sav_Verion == "0.3e" or sav_Verion == "0.3f"):
+            if(sav_Verion == "0.3c" or sav_Verion == "0.3e" or sav_Verion == "0.3f" or sav_Verion == "0.3g" or sav_Verion ==  "0.3h" or sav_Verion ==  "0.3i" or sav_Verion ==  "0.3j"):
                 out.append(brechen_config('faketime', jason_data['sav_data']['faketime']))
-            if(sav_Verion == "0.3a" or sav_Verion == "0.3c" or sav_Verion == "0.3e" or sav_Verion == "0.3f"):
+            if(sav_Verion == "0.3a" or sav_Verion == "0.3c" or sav_Verion == "0.3e" or sav_Verion == "0.3f" or sav_Verion == "0.3g" or sav_Verion ==  "0.3h" or sav_Verion ==  "0.3i" or sav_Verion ==  "0.3j"):
                 out.append(brechen_config('ipv6_privacy', jason_data['sav_data']['ipv6_privacy']))
-            if(sav_Verion == "0.2d"or sav_Verion == "0.3a" or sav_Verion == "0.3c" or sav_Verion == "0.3e" or sav_Verion == "0.3f"):
+            if(sav_Verion == "0.2d"or sav_Verion == "0.3a" or sav_Verion == "0.3c" or sav_Verion == "0.3e" or sav_Verion == "0.3f" or sav_Verion == "0.3g" or sav_Verion ==  "0.3h" or sav_Verion ==  "0.3i" or sav_Verion ==  "0.3j"):
                 out.append(brechen_config('hidraw_acs_overrides_patch', jason_data['sav_data']['hidraw_acs_overrides_patch']))
-            if(sav_Verion == "0.2b" or sav_Verion == "0.2d" or sav_Verion == "0.3a" or sav_Verion == "0.3c" or sav_Verion == "0.3e" or sav_Verion == "0.3f"):
+            if(sav_Verion == "0.2b" or sav_Verion == "0.2d" or sav_Verion == "0.3a" or sav_Verion == "0.3c" or sav_Verion == "0.3e" or sav_Verion == "0.3f" or sav_Verion == "0.3g" or sav_Verion ==  "0.3h" or sav_Verion ==  "0.3i" or sav_Verion ==  "0.3j"):
                 out.append(brechen_config('docker_user', jason_data['sav_data']['docker_user']))
                 out.append(brechen_config('gpu_render', jason_data['sav_data']['gpu_render']))
                 out.append(brechen_config('disk_device_name', jason_data['sav_data']['disk_device_name']))
@@ -184,6 +227,32 @@ def file_read_json(sfile):
     except KeyError:
         return [];
     return [];
+
+def optional_array_to_out(out, array_str):
+    if(array_str == ""):
+        return out;
+    array = array_str.split("^");
+    if(len(array) >= 1 and array[0] != ""):
+        out.append(brechen_config('smart_acces_meomory', array[0]));
+    if(len(array) >= 2 and array[1] != ""):
+        out.append(brechen_config('vulkan_device_name', array[1]));
+    if(len(array) >= 3 and array[2] != ""):
+        out.append(brechen_config('steam_proton_run_without_steam', array[2]));
+    if(len(array) >= 4 and array[3] != ""):
+        out.append(brechen_config('mango_hud', array[3]));
+    if(len(array) >= 5 and array[4] != ""):
+        out.append(brechen_config('vkbasalt', array[4]));
+    if(len(array) >= 6 and array[5] != ""):
+        out.append(brechen_config('freesync', array[5]));
+    if(len(array) >= 7 and array[6] != ""):
+        out.append(brechen_config('vsync', array[6]));
+    if(len(array) >= 8 and array[7] != ""):
+        out.append(brechen_config('docker_system', array[7]));
+    if(len(array) >= 9 and array[8] != ""):
+        out.append(brechen_config('lxc_readonly', array[8]));
+    if(len(array) >= 10 and array[9] != ""):
+        out.append(brechen_config('lxc_network_mac', array[9]));
+    return out;
 
 def file_read_json_0_1(sfile):
     if(os.path.isfile(sfile) == False):
