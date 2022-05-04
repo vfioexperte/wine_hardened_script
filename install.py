@@ -13,9 +13,9 @@ import string
 import subprocess
 import time
 
-#last edit 13.03.2022
+#last edit 04.05.2022
 
-version = "0.1a"
+version = "0.1b"
 appname = "docker install script"
 
 abspath = os.path.abspath(sys.argv[0])
@@ -41,6 +41,7 @@ def intsall(config):
     system("ln -sf build command");
     system("ln -sf build command_root");
     system("ln -sf build edit_config");
+    system("ln -sf build manager");
     sdir = os.path.join(dirname, "archlinux_std_docker", "archlinux_std_docker_big", "archlinux_std_docker");
     os.chdir(sdir);
     #cd archlinux_std_docker/archlinux_std_docker_big/archlinux_std_docker/
@@ -48,15 +49,24 @@ def intsall(config):
     system("ln -sf ../../../Code Code");
     system("cp ../../../hidraw_acs_overrides_patch.py hidraw_acs_overrides_patch.py");
     system("cp ../../../chmod_check.py chmod_check.py");
+    system("cp ../../../pacman.conf pacman.conf");
+    system("cp ../../../mirrorlist mirrorlist");
     if(config == 0):
         system("cp config_file_json_big config_file_json");
     elif(config == 1):
         system("cp config_file_json_min config_file_json");
     else:
         system("cp config_file_json_big config_file_json");
+    system("ln -sf build login");
+    system("ln -sf build manager");
+    system("ln -sf build edit_config");
+    os.system("./manager");
+    os.system("./edit_config");
     sdir2 = os.path.join(sdir, "archlinux_std_docker");
     os.chdir(sdir2);
     system("ln -sf build login");
+    system("ln -sf build manager");
+    system("ln -sf build edit_config");
     system("chmod +x build");
     os.chdir(dirname);
     return 0;
