@@ -5,7 +5,8 @@
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #this is a fork from https://github.com/kritzsie/steam-on-docker
 
-version = "0.3e"
+version = "0.4a lxc"
+# 0.4a lxc patch 0.1a
 #0.3d add new file /etc/user_patched2.bash and fix faketime 0.1a
 
 import platform
@@ -38,7 +39,7 @@ def system(cmd):
 
 def patching_pulse_audio_config(id):
     s0 = "#version 0.1\n"
-    s1 = "default-server = unix:/run/user/" + id + "/pulse/native\n";
+    s1 = "default-server = unix:/etc/user/" + id + "/pulse/native\n";
     s2 = "autospawn = no\n";
     s3 = "daemon-binary = /bin/true\n";
     s4 = "enable-shm = false\n"
@@ -53,7 +54,7 @@ def patching_pulse_audio_config(id):
     return 0;
 
 
-def patching_user(docker_user, command2, command, id, hidraw_acs_overrides_patch, ipv6_privacy, faketime, wine_32bit_speed_hak):
+def patching_user(docker_user, command2, command, id, hidraw_acs_overrides_patch, ipv6_privacy, faketime, wine_32bit_speed_hak, string_bash_add, string_bash_add_root):
     s0 = "#!/bin/bash\n#version=0.1\n";
     s1 = "usermod -u "+ id + " "  + docker_user + "\n";
     s1 = s1 + "usermod -aG input " + docker_user + "\n";
@@ -80,6 +81,7 @@ def patching_user(docker_user, command2, command, id, hidraw_acs_overrides_patch
     s2 = s2 + "export PWD=/home/" + docker_user + "\n";
     #s2 = "chown -R "+ docker_user +":users /home/" + docker_user + "\n";
     s2 = s2 + "chown -R root:video /dev/dri\n";
+    s2 = s2 + string_bash_add_root;
     s3 = "";
     if(faketime != ""):
         if(command == "su"):
@@ -99,6 +101,7 @@ def patching_user(docker_user, command2, command, id, hidraw_acs_overrides_patch
                 s3 = s3 + "su " + docker_user + " - -c 'bash /etc/user_patched2.bash'";
 
     s4 = "#!/bin/bash\n#version=0.1\n";
+    s4 = s4 + string_bash_add;
     if(command2 != ""):
         s4 = s4 + command + "\n";
     else:
