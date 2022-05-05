@@ -1,7 +1,6 @@
 this is a fork from https://github.com/kritzsie/steam-on-docker projeckt
 	0.28q beta Wayland support and linux mint and linux ubuntu
-	v0.31e_hotfix_10 alpha lxc support bridge network br0 musst maunel crate it.
-	lxc is archlinux only
+	v0.31e_hotfix_13 alpha lxc support archlinux and linuxmit and ubuntu
 
 installation
 
