@@ -7,11 +7,13 @@
 #start project 04.02.2021
 
 
-#last edit 04.05.2022
+#last edit 05.05.2022
 
-version = "v0.31e_hotfix_10"
+version = "v0.31e_hotfix_13"
 DEBUG_MODE = 1; #0 off, 1 on
 appname_build = "vfio_experte_docker_contianer_gaming_app"
+#v0.31e_hotfix_13 lxc network bridge auto create 0.2a
+#v0.31e_hotfix_12 lxc killall und coanitner copy in redaon lxc mode 0.2a
 #v0.31e_hotfix_8 manger work 0.1a
 #0.31e_hotfix_7 lxc auto install 0.1c
 #v0.31e_hotfix_3 build hotfix lxc
@@ -390,11 +392,14 @@ def docker_kill_all():
     os.system(s1);
     return 0;
 
-def docker_killall():
+def docker_killall(docker_build):
     i1 = input("killall docker coantiner? y,n")
     if(i1 == "y" or i1 == "Y"):
         docker_stop_all();
         docker_kill_all();
+    i1 = input("killall und remove lxc coantiner? y,n")
+    if(i1 == "y" or i1 == "Y"):
+        lxc_remove_all_vms(docker_build);
     return 0;
 
 def main():
@@ -421,9 +426,6 @@ def main():
     abspath = os.path.abspath(sys.argv[0])
     basename = os.path.basename(abspath)
     dirname = os.path.dirname(abspath)
-    if(basename == "killall"):
-        docker_killall();
-        exit(0)
     create_a_new_home_data_fodler(basename);
     config = loading_json_file(dirname + "/config_file_json");
 
@@ -469,6 +471,8 @@ def main():
     docker_system = 1;#1 docker 0 lxc
     lxc_readonly = 1;#1 root readonly
     lxc_network_mac = "";
+    lxc_tmp_auto_create_id = -1;
+    lxc_network_bridge_link = "";
     #lxc staticip wird benotigt und cd dns server angaber
 
 
@@ -589,6 +593,8 @@ def main():
             lxc_readonly = int(tmp[1]);
         elif(tmp[0] == "lxc_network_mac"):
             lxc_network_mac = tmp[1];
+        elif(tmp[0] == "lxc_network_bridge_link"):
+            lxc_network_bridge_link = tmp[1];
         elif(tmp[0] == "sav_Version"):
             json_config_Verison = tmp[1];
         else:
@@ -597,14 +603,36 @@ def main():
             exit(1);
         i = i +1;
 
+    basename_bak = basename;
+    if(basename == "killall"):
+        docker_killall(docker_build);
+        exit(0)
 
-    if(docker_system == 0):
-        #
-        #dbus_rw = 1;# 0 sonst rm /tmp/.X11-unix/X0 gefixt
+    #import pdb
+    #pdb.set_trace()
+    b1 = 0;
+    while True:
+        if(docker_system == 0):
+            if(network_disable == 0):
+                if(network_host == "" or network_host == "0"):
+                    network_host = lxc_find_eth0_network_bridge();
+                    basename = "edit_config_sav";
+                    b1 = 1;
+        if(b1 == 1):
+            if(lxc_network_bridge_link == ""):
+                xc_network_bridge_link = lxc_find_eth0_network_Device();
+                basename = "edit_config_sav";
+                break;
+            else:
+                if(lxc_exist_newtworkdevice(lxc_network_bridge_link) == 0):
+                    network_host = lxc_find_eth0_network_bridge();
+                    lxc_network_bridge_link = lxc_find_eth0_network_Device();
+                    basename = "edit_config_sav";
+                break;
+        else:
+            break;
 
-        #import pdb
-        #pdb.set_trace()
-        pass;
+
     if(json_config_Verison.find("crypt") == -1):
         file_write_json(dirname + "/config_file_json", docker_user, gpu_render, disk_device_name, zugriff_auf_media, sav_home_docker_folder, share_folder_daten, share_folder1_aktiv, share_folder1, network_disable, steam_controller_bool, usb_sharing, usb_name, usb_hidraw_name, docker_build, maxmemory, maxcpus, network_host, portforwding, dbus_rw, pacman_cache, dns, ipv4, wireguard_fix, nosudo, run_in_background, ttyon, pacman_pakgage_install, docker_input, bluethoot_passthrough,
             hidraw_acs_overrides_patch, ipv6_privacy, faketime, wine_32bit_speed_hak, read_only, read_only_password, amd_gpu_raytrasing_allgpus, amd_gpu_raytrasing_rdan2_only, wine_fsr, manager_vm_fodler, optional_array);
@@ -1296,6 +1324,7 @@ def main():
             #base_args.append("/tmp/lxc_empty:/run/user:rw");
             pass;
 
+
         string_bash_add_root = string_bash_add_root + "mkdir /etc/sharefolder/\n"
         string_bash_add_root = string_bash_add_root + "useradd -m -g users -G video,audio,wheel empty\n"
         #string_bash_add_root = string_bash_add_root + "mount -B /etc/user /run/user/\n"
@@ -1380,6 +1409,31 @@ def main():
         #base_args.append(dirname + "/etc:/etc:rw");
         #string_bash_add_root = string_bash_add_root + "chmod -R 777 /etc\n"
 
+    if(basename == "edit_config"):
+        sav_and_exit = 0;
+        start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugriff_auf_media, sav_home_docker_folder, share_folder_daten,
+                            share_folder1_aktiv, share_folder1, network_disable, steam_controller_bool, usb_sharing, usb_name, usb_hidraw_name,
+                            docker_build, docker_input, maxmemory, maxcpus, network_host, portforwding, dbus_rw, pacman_cache, dns, ipv4,
+                            wireguard_fix, nosudo, run_in_background, ttyon, pacman_pakgage_install, bluethoot_passthrough, hidraw_acs_overrides_patch,
+                            ipv6_privacy, faketime, wine_32bit_speed_hak, read_only, read_only_password, amd_gpu_raytrasing_allgpus, amd_gpu_raytrasing_rdan2_only
+                            , wine_fsr, manager_vm_fodler, optional_array, smart_acces_meomory, vulkan_device_name, steam_proton_run_without_steam, mango_hud, vkbasalt,
+                            freesync, vsync, docker_system, lxc_readonly, lxc_network_mac, lxc_network_bridge_link, sav_and_exit);
+    if(basename == "edit_config_sav"):
+        sav_and_exit = 1;
+        start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugriff_auf_media, sav_home_docker_folder, share_folder_daten,
+                            share_folder1_aktiv, share_folder1, network_disable, steam_controller_bool, usb_sharing, usb_name, usb_hidraw_name,
+                            docker_build, docker_input, maxmemory, maxcpus, network_host, portforwding, dbus_rw, pacman_cache, dns, ipv4,
+                            wireguard_fix, nosudo, run_in_background, ttyon, pacman_pakgage_install, bluethoot_passthrough, hidraw_acs_overrides_patch,
+                            ipv6_privacy, faketime, wine_32bit_speed_hak, read_only, read_only_password, amd_gpu_raytrasing_allgpus, amd_gpu_raytrasing_rdan2_only
+                            , wine_fsr, manager_vm_fodler, optional_array, smart_acces_meomory, vulkan_device_name, steam_proton_run_without_steam, mango_hud, vkbasalt,
+                            freesync, vsync, docker_system, lxc_readonly, lxc_network_mac, lxc_network_bridge_link, sav_and_exit);
+        basename = basename_bak;
+    if(basename == "manager"):
+        if(manager_vm_fodler == ""):
+            print("manager_vm_fodler ist leer Bitte starte \"./edit_config\" und bei \"VM Folder for VM Manger:\" folder setzen!")
+            exit()
+        start_manager_gui(manager_vm_fodler);
+
     if(True):
         base_args.append("-v");
         base_args.append(dirname + "/user_patched.bash:/etc/user_patched.bash:ro");
@@ -1424,19 +1478,7 @@ def main():
     if(debug == 1):
         print(build_args)
     base_args.append(dirname_tmp);
-    if(basename == "edit_config"):
-        start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugriff_auf_media, sav_home_docker_folder, share_folder_daten,
-                            share_folder1_aktiv, share_folder1, network_disable, steam_controller_bool, usb_sharing, usb_name, usb_hidraw_name,
-                            docker_build, docker_input, maxmemory, maxcpus, network_host, portforwding, dbus_rw, pacman_cache, dns, ipv4,
-                            wireguard_fix, nosudo, run_in_background, ttyon, pacman_pakgage_install, bluethoot_passthrough, hidraw_acs_overrides_patch,
-                            ipv6_privacy, faketime, wine_32bit_speed_hak, read_only, read_only_password, amd_gpu_raytrasing_allgpus, amd_gpu_raytrasing_rdan2_only
-                            , wine_fsr, manager_vm_fodler, optional_array, smart_acces_meomory, vulkan_device_name, steam_proton_run_without_steam, mango_hud, vkbasalt,
-                            freesync, vsync, docker_system, lxc_readonly, lxc_network_mac);
-    if(basename == "manager"):
-        if(manager_vm_fodler == ""):
-            print("manager_vm_fodler ist leer Bitte starte \"./edit_config\" und bei \"VM Folder for VM Manger:\" folder setzen!")
-            exit()
-        start_manager_gui(manager_vm_fodler);
+
 
     if(docker_system == 1):#docker system
         if(ttyon == 0):
@@ -1653,6 +1695,9 @@ def main():
                 if(lxc_readonly == 0):
                     print("Bitte aktivire read only mode for lxc!");
                     exit(-1);
+            if(dbus_rw == 1):
+                print("Bitte dbus_rw deaktiviren!");
+                exit(-1)
             #ttyon 1 #gui off terminal on
             if(debug == 1):
                 print("Terminal on!")
@@ -1663,16 +1708,26 @@ def main():
                 paths = out[0];
                 variable = out[1];
                 paths2 = out[2];
-                applay_path(paths, docker_build, variable, ttyon, dirname, ipv4, lxc_readonly, network_disable, lxc_network_mac, dns, build_b1, paths2);
                 if(basename != "build"):
-                    os.system("sudo lxc-stop " + docker_build + " -k");
+                    #os.system("sudo lxc-stop " + docker_build + " -k");
                     if(lxc_readonly == 1):
                         pass;
                         os.system("mkdir " + dirname + "/tmp")
-                        os.system("sudo mkdir -p /var/lib/lxc/" + docker_build + "/rootfs/etc/sharefolder/")
+                        os.system("sudo mkdir -p /var/lib/lxc/" + docker_build + "/rootfs/etc/sharefolder/");
+                        lxc_wait_file_look(docker_build);
+                        lxc_tmp_auto_create_id = lxc_create_a_new_vm_copy_auto(docker_build);
+                        lxc_remove_look_file(docker_build);
+                        applay_path(paths, docker_build + "_backing" + str(lxc_tmp_auto_create_id), variable, ttyon, dirname, ipv4, lxc_readonly, network_disable, lxc_network_mac, dns, build_b1, paths2, network_host);
                         #lxc_create_a_snapshot(docker_build);
-                    os.system("sudo lxc-start " + docker_build + " -o start_lxc.log");
-                    os.system("sudo lxc-attach -n " + docker_build + " -e  -- /etc/user_patched.bash");
+                        os.system("sudo lxc-start " + docker_build + "_backing" + str(lxc_tmp_auto_create_id) + " -o start_lxc.log");
+                        os.system("sudo lxc-attach -n " + docker_build + "_backing" + str(lxc_tmp_auto_create_id) + " -e  -- /etc/user_patched.bash");
+                        os.system("sudo lxc-stop " +  docker_build + "_backing" + str(lxc_tmp_auto_create_id) + " -k")
+                        lxc_remove_a_new_vm_copy(docker_build, lxc_tmp_auto_create_id);
+                    else:
+                        applay_path(paths, docker_build, variable, ttyon, dirname, ipv4, lxc_readonly, network_disable, lxc_network_mac, dns, build_b1, paths2, network_host);
+                        os.system("sudo lxc-start " + docker_build + " -o start_lxc.log");
+                        os.system("sudo lxc-attach -n " + docker_build + " -e  -- /etc/user_patched.bash");
+                        os.system("sudo lxc-stop " + docker_build + " -k")
                     if(lxc_readonly == 1):
                         pass;
                         #lxc_create_a_snapshot_back(docker_build);
@@ -1712,10 +1767,25 @@ def main():
                     variable = out[1];
                     paths2 = out[2];
 
-
+                    if(lxc_exist_newtworkdevice(network_host) == 0):
+                        print("create br0 network bridge!")
+                        os.system("sudo brctl addbr br0");
+                        #eth0 = lxc_find_eth0_network_Device();
+                        os.system("sudo brctl addif br0 " + lxc_network_bridge_link);
+                        os.system("sudo ip link br0 up");
+                        os.system("sudo ip link br0 down");
+                        os.system("sudo ip link br0 up");
+                        os.system("sudo ip link br0 down");
+                        os.system("sudo ip link br0 up");
+                        ##
+                        os.system("sudo ifconfig br0 up");
+                        os.system("sudo ifconfig br0 down");
+                        os.system("sudo ifconfig br0 up");
+                        os.system("sudo ifconfig br0 down");
+                        os.system("sudo ifconfig br0 up");
                     os.system("sudo lxc-stop " + docker_build + " -k");
                     os.system("sudo lxc-destroy -n " + docker_build);
-                    os.system("sudo lxc-create -n " + docker_build +" -t download -- --dist archlinux --release current --arch amd64");
+                    os.system("sudo DOWNLOAD_KEYSERVER=\"keyserver.ubuntu.com\" lxc-create -n " + docker_build +" -t download -- --dist archlinux --release current --arch amd64");
                     os.system("sudo chmod 777 /var/lib/lxc/" + docker_build)
                     os.system("sudo chmod 777 /var/lib/lxc/" + docker_build +"/config")
                     #os.system("sudo rm -r /var/lib/lxc/" + docker_build + "/rootfs");
@@ -1724,7 +1794,7 @@ def main():
                     #os.system("sudo chmod 777 /var/lib/lxc/" + docker_build)
                     #os.system("sudo chmod 777 /var/lib/lxc/" + docker_build +"/config")
                     #os.system("sudo pacstrap /var/lib/lxc/" + docker_build + "/rootfs base dhcpcd")
-                    applay_path(paths, docker_build, variable, ttyon, dirname, ipv4, lxc_readonly, network_disable, lxc_network_mac, dns, build_b1, paths2);
+                    applay_path(paths, docker_build, variable, ttyon, dirname, ipv4, lxc_readonly, network_disable, lxc_network_mac, dns, build_b1, paths2, network_host);
                     print("starting mod")
                     start_thread_wait("bash install.bash");
                     print("downloading pacman data..")
