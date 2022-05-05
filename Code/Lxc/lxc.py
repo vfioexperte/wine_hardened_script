@@ -5,7 +5,7 @@
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #this is a fork from https://github.com/kritzsie/steam-on-docker
 
-version = "0.1d hotfix 10 lxc"
+version = "0.1d hotfix 13 lxc"
 
 import platform
 import os
@@ -36,6 +36,26 @@ def system(cmd):
         return "";
 
 
+
+def lxc_question_use_bridge_network(text):
+    from PyQt5 import QtWidgets
+    from PyQt5 import QtGui
+    from PyQt5 import QtCore
+    import time
+    import datetime
+    app = QtWidgets.QApplication(sys.argv);
+    class lxc_auswahl(QtWidgets.QWidget):
+        def __init__(self):
+            QtWidgets.QWidget.__init__(self)
+            self.text = text;
+        def start(self, test):
+            text2, okPressed = QtWidgets.QInputDialog.getText(self, "Get text", self.text, QtWidgets.QLineEdit.Normal, "");
+            if(okPressed and text2 != ""):
+                return text2;
+            else:
+                exit(-1);
+    mainwindow = lxc_auswahl()
+    return mainwindow.start(text);
 
 def read_all_cups():
     out = system("cat /proc/cpuinfo | grep 'Processor'")
@@ -131,7 +151,8 @@ def array_add_aarray(array1, addarraay):
         array1.append(tmp);
     return array1;
 
-def applay_path(paths, dockername, vars, ttyon, dirname, staticip, lxc_readonly, network_disable, lxc_network_mac, dns, build_b1, paths2):
+def applay_path(paths, dockername, vars, ttyon, dirname, staticip, lxc_readonly, network_disable, lxc_network_mac, dns, build_b1, paths2
+, network_host):
     if(os.path.isfile("/var/lib/lxc/" + dockername +"/config") == False):
         print("applay_path error fiel not found!");
         return 0;
@@ -180,20 +201,24 @@ def applay_path(paths, dockername, vars, ttyon, dirname, staticip, lxc_readonly,
         #f1.write("lxc.rootfs.options = rw\n");
     f1.write("lxc.uts.name = " +dockername+ "\n");
     if(network_disable == 0):
-        f1.write("lxc.net.0.type = veth\n");
-        f1.write("lxc.net.0.link = br0\n");
-        #f1.write("lxc.net.0.flags = up\n");
-        if(lxc_network_mac == ""):
+        if(network_host != ""):
+            f1.write("lxc.net.0.type = veth\n");
+            f1.write("lxc.net.0.link = " + network_host + "\n");
+            #f1.write("lxc.net.0.flags = up\n");
+            if(lxc_network_mac == ""):
+                pass;
+            else:
+                f1.write("lxc.net.0.hwaddr = " + lxc_network_mac +"\n");
+            if(staticip != ""):
+                f1.write("lxc.net.0.ipv4.address=" + staticip + "\n")
+            #f1.write("lxc.net.0.ipv4.dns=" + dns + "\n")
+            if(dns == ""):
+                f1.write("lxc.mount.entry = " + "/etc/resolv.conf" +" etc/resolv.conf" + " none bind,optional,create=file,ro\n")
+            else:
+                f1.write("lxc.mount.entry = " + "/etc/resolv.conf" +" etc/resolv.conf" + " none bind,optional,create=file,ro\n")
+        else:
             pass;
-        else:
-            f1.write("lxc.net.0.hwaddr = " + lxc_network_mac +"\n");
-        if(staticip != ""):
-            f1.write("lxc.net.0.ipv4.address=" + staticip + "\n")
-        #f1.write("lxc.net.0.ipv4.dns=" + dns + "\n")
-        if(dns == ""):
-            f1.write("lxc.mount.entry = " + "/etc/resolv.conf" +" etc/resolv.conf" + " none bind,optional,create=file,ro\n")
-        else:
-            f1.write("lxc.mount.entry = " + "/etc/resolv.conf" +" etc/resolv.conf" + " none bind,optional,create=file,ro\n")
+            f1.write("lxc.net.0.type=empty\n")
     else:
         pass;
         f1.write("lxc.net.0.type=empty\n")
@@ -347,3 +372,150 @@ def lxc_create_a_snapshot_back(docker_build):
     os.system("sudo lxc-snapshot -d=" +docker_build + "_sav")
     os.system("sudo lxc-snapshot -n " + docker_build + " --restore=" +docker_build + "_sav");
     return 0;
+
+def lxc_exist_newtworkdevice(device):
+    b1 = 1;
+    out = system("ip a");
+    for tmp2 in out:
+        tmp = tmp2.split();
+        if(len(tmp) >= 3 and tmp[0] == str(b1) + ":"):
+            b1 = b1 + 1;
+            if(b1 >= 2):
+                if(tmp[1] == device + ":"):
+                    return 1;
+    return 0;
+
+
+def lxc_find_eth0_network_Device():
+    while True:
+        try:
+            b1 = 1;
+            out = system("ip a");
+            out2 = [];
+            out2_up = [];
+            for tmp2 in out:
+                tmp = tmp2.split();
+                if(len(tmp) >= 3 and tmp[0] == str(b1) + ":"):
+                    b1 = b1 + 1;
+                    if(b1 >= 2):
+                        out2.append(tmp[1].split(":")[0]);
+                        out2_up.append(tmp[2].split(":")[0]);
+            if(len(out2) == 0):
+                return -1;
+            out3 = [];
+            out3_up = [];
+            for i in range(len(out2)):
+                tmp = out2[i];
+                tmp2 = out2_up[i];
+                if(tmp.find("br") != -1):
+                    continue;
+                if(tmp.find("docker") != -1):
+                    continue;
+                if(tmp.find("lxc") != -1):
+                    continue;
+                if(tmp.find("lo") != -1):
+                    continue;
+                if(tmp.find("anbox") != -1):
+                    continue;
+                if(tmp.find("eth") != -1):
+                    out3.append(tmp);
+                    out3_up.append(tmp2);
+                if(tmp.find("en") != -1):
+                    out3.append(tmp);
+                    out3_up.append(tmp2);
+                if(tmp.find("wl") != -1):
+                    out3.append(tmp);
+                    out3_up.append(tmp2);
+            if(len(out3) == 1):
+                return out3[0];
+            text = "your network bridge link internet:"
+            text = text + "choice:\n";
+            for i in range(len(out3)):
+                tmp = out3[i];
+                text = text + "[" + str(i) + "]" + tmp + "\n"
+            text = text + "your eth0 network:"
+            br = lxc_question_use_bridge_network(text);
+            br1 = int(br);
+            if(br1 >= 0):
+                if(br1 < len(out3)):
+                    return out3[br1];
+            print("EROOR auswahl not found!")
+            return "";
+        except ValueError:
+            print("EROOR auswahl no int found!")
+
+
+def lxc_wait_file_look(docker_build):
+    i = 0;
+    while True:
+        if(os.path.isfile("/var/lib/lxc/look.file.tmp") == False):
+            os.system("sudo echo \"1\" >/var/lib/lxc/ "+ docker_build + "/look.file.tmp");
+            return 0;
+        time.sleep(5);
+        i = i + 1;
+        if(i == 20):
+            break;
+    return 0;
+
+
+def lxc_create_a_new_vm_copy(docker_build, id):
+    os.system("sudo mkdir -p /var/lib/lxc/" + docker_build + "_backing" +str(id) + "/rootfs");
+    os.system("sudo chown -R  100000:100000  /var/lib/lxc/" + docker_build + "_backing" +str(id) + "")
+    os.system("sudo chmod -R 777   /var/lib/lxc/" + docker_build + "_backing" +str(id) + "")
+    os.system("sudo mount -B /var/lib/lxc/" + docker_build + "/rootfs/  /var/lib/lxc/" + docker_build + "_backing" +str(id) + "/rootfs/ -o ro");
+    os.system("echo 1 > /var/lib/lxc/" + docker_build + "_backing" +str(id) + "/config")
+    return 0;
+
+def lxc_remove_look_file(docker_build):
+    os.system("sudo rm /var/lib/lxc/ "+ docker_build + "/look.file.tmp");
+    return  0;
+
+def lxc_remove_a_new_vm_copy(docker_build, id):
+    os.system("sudo umount /var/lib/lxc/" + docker_build + "_backing" +str(id) +"/rootfs/");
+    os.system("sudo rm -r /var/lib/lxc/" + docker_build + "_backing" +str(id));
+    return 0;
+
+def lxc_create_a_new_vm_copy_auto(docker_build):
+    i = 1;
+    while True:
+        if(os.path.isdir("/var/lib/lxc/" + docker_build + "_backing" +str(i)) == False):
+            lxc_create_a_new_vm_copy(docker_build, i);
+            return i;
+        i = i +1;
+    return -1;
+
+def lxc_find_eth0_network_bridge():
+    while True:
+        b1 = 1;
+        out2 = [];
+        out = system("brctl  show")[1::];
+        for tmp in out:
+            tmp2 = tmp.split();
+            if(len(tmp2) >= 3):
+                out2.append(tmp2[0])
+        if(len(out2) == 1):
+            return out2;
+        else:
+            if(len(out2) == 0):
+                return "";
+        text = "choice:\n";
+        for tmp in out2:
+            text = text + tmp + "\n"
+        text = text + "your bridge network:"
+        br = lxc_question_use_bridge_network(text);
+        for tmp in out2:
+            if(tmp == br):
+                return tmp;
+        print("EROOR auswahl not found!")
+
+
+def lxc_remove_all_vms(docker_build):
+    i = 1;
+    while True:
+        if(os.path.isdir("/var/lib/lxc/" + docker_build + "_backing" +str(i)) == True):
+            os.system("sudo lxc-stop -n " + docker_build + "_backing" +str(i) + " -k");
+            lxc_remove_a_new_vm_copy(docker_build, i);
+        i = i +1;
+        if( i == 10000):
+            break;
+    return -1;
