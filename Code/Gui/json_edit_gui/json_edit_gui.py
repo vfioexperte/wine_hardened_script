@@ -5,7 +5,7 @@
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #this is a fork from https://github.com/kritzsie/steam-on-docker
 
-version_jsongui = "0.4f hotfix 3 lxc version"
+version_jsongui = "0.4f hotfix 3 lxc hotfix 13"
 #0.4f docker input label fix 0.1a
 #0.4e docker system combobox fix 0.1a
 #0.4d new desinge 0.2a
@@ -181,7 +181,7 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
                     wireguard_fix, nosudo, run_in_background, ttyon, pacman_pakgage_install, bluethoot_passthrough, hidraw_acs_overrides_patch,
                     ipv6_privacy, faketime, wine_32bit_speed_hak, read_only, read_only_password, amd_gpu_raytrasing_allgpus, amd_gpu_raytrasing_rdan2_only
                     , wine_fsr, manager_vm_fodler, optional_array, smart_acces_meomory, vulkan_device_name, steam_proton_run_without_steam, mango_hud, vkbasalt,
-                    freesync, vsync, docker_system, lxc_readonly, lxc_network_mac):
+                    freesync, vsync, docker_system, lxc_readonly, lxc_network_mac, lxc_network_bridge_link, sav_and_exit):
     from PyQt5 import QtWidgets
     from PyQt5 import QtGui
     from PyQt5 import QtCore
@@ -376,10 +376,15 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
             self.layouth17 = QtWidgets.QHBoxLayout();
             self.network_host_label = QtWidgets.QLabel("network_host gib eine netwerk geräte per name an oder lass es lerr für default network bridge more with network names ^ getrennt (\"0\" disable): ");
             self.network_host = QtWidgets.QLineEdit(network_host);
+            #lxc_network_bridge_link
+            self.lxc_network_bridge_link_link_eth0_lbael = QtWidgets.QLabel("Network link eth0 for internet: ");
+            self.lxc_network_bridge_link = QtWidgets.QLineEdit(lxc_network_bridge_link);
             self.lxc_network_mac_label = QtWidgets.QLabel("macaddr from network \"\" is random mac addr lxc: ");
             self.lxc_network_mac = QtWidgets.QLineEdit(lxc_network_mac);
             self.layouth17.addWidget(self.network_host_label);
             self.layouth17.addWidget(self.network_host);
+            self.layouth17.addWidget(self.lxc_network_bridge_link_link_eth0_lbael);
+            self.layouth17.addWidget(self.lxc_network_bridge_link);
             self.layouth17.addWidget(self.lxc_network_mac_label);
             self.layouth17.addWidget(self.lxc_network_mac);
             self.layoutv1.addLayout(self.layouth17);
@@ -705,8 +710,9 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
             docker_system = str(self.bool_to_int(self.docker_system.isChecked()));
             lxc_readonly = str(self.bool_to_int(self.lxc_readonly.isChecked()));
             lxc_network_mac = self.lxc_network_mac.text();
+            lxc_network_bridge_link = self.lxc_network_bridge_link.text();
             #, steam_proton_run_without_steam, mango_hud, vkbasalt
-            optional_array = [smart_acces_meomory, vulkan_device, steam_proton_run_without_steam, mango_hud, vkbasalt, freesync, vsync, docker_system, lxc_readonly, lxc_network_mac];
+            optional_array = [smart_acces_meomory, vulkan_device, steam_proton_run_without_steam, mango_hud, vkbasalt, freesync, vsync, docker_system, lxc_readonly, lxc_network_mac, lxc_network_bridge_link];
             optional_array_str = self.optional_array_to_string(optional_array);
 
             #file_write_json(dirname + "/config_file_json", docker_user, gpu_render, disk_device_name, zugriff_auf_media, sav_home_docker_folder, share_folder_daten,
@@ -990,6 +996,10 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
 
 
     mainwindow = seb_sync_clinet_gui()
-    mainwindow.show()
-    app.exec_()
-    exit();
+    if(sav_and_exit == 1):
+        mainwindow.save();
+        exit();
+    else:
+        mainwindow.show()
+        app.exec_()
+        exit();
