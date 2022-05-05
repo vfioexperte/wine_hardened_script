@@ -5,7 +5,7 @@
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #this is a fork from https://github.com/kritzsie/steam-on-docker
 
-version = "0.4d lxc"
+version = "0.4d lxc hotfix 13"
 #0.4c lxc support 0.1a
 #0.3l_hotfix_2 optional_array empty array[0] fix 0.1a
 #0.3l optional_array and freesync, vsync
@@ -252,6 +252,8 @@ def optional_array_to_out(out, array_str):
         out.append(brechen_config('lxc_readonly', array[8]));
     if(len(array) >= 10 and array[9] != ""):
         out.append(brechen_config('lxc_network_mac', array[9]));
+    if(len(array) >= 11 and array[10] != ""):
+        out.append(brechen_config('lxc_network_bridge_link', array[10]));
     return out;
 
 def file_read_json_0_1(sfile):
