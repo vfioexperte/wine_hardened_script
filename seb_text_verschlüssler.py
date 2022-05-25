@@ -5,7 +5,7 @@
 # You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 # Warnung der Programmierer hafte nicht auf Schäden oder auf unsachgemäßen Umgang der APP
 # 17.05.2021 #start wirting app
-# 17.05.2021 last edit
+# 01.12.2022 last edit
 
 import shlex
 import subprocess
@@ -46,7 +46,8 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 import time
 
-version = "v0.1b"
+version = "v0.2a"
+#v0.2a binary file support
 print(version)
 appname = "Text_verschlüssler"
 
@@ -89,6 +90,8 @@ class sebs_text_verschluessler(QtWidgets.QWidget):
             "Text verschlüsseln!")
         self.buttontextentschlusseln = QtWidgets.QPushButton(
             "Text entschlüsseln!")
+        self.buttonfileverschlusseln = QtWidgets.QPushButton(
+            "File entschlüsseln!")
         self.label_key = QtWidgets.QLabel("key: ")
         self.label_iv = QtWidgets.QLabel("iv: ")
         self.key = QtWidgets.QLineEdit()
@@ -100,8 +103,10 @@ class sebs_text_verschluessler(QtWidgets.QWidget):
 
         self.layouth3.addWidget(self.buttontextverschlusseln)
         self.layouth3.addWidget(self.buttontextentschlusseln)
+        self.layouth3.addWidget(self.buttonfileverschlusseln)
         self.buttontextverschlusseln .clicked.connect(self.text_verschluesseln)
         self.buttontextentschlusseln .clicked.connect(self.text_entschluesseln)
+        self.buttonfileverschlusseln .clicked.connect(self.file_verschluesseln)
 
         self.layoutv1.addLayout(self.layouth1)
         self.layoutv1.addLayout(self.layouth2)
@@ -220,7 +225,7 @@ class sebs_text_verschluessler(QtWidgets.QWidget):
             msgBox2.setText("key line edit ist leer oder iv ist leer")
             msgBox2.exec()
             return 0
-        text = self.textbox.toPlainText()
+        text = "Text" + self.textbox.toPlainText()
         bencrypt = self.bytes_encryption(
             self.remove_sapce(self.key.text()).encode(), self.remove_sapce(self.iv.text()).encode(), text.encode())
         self.textbox.setPlainText(self.byte_to_hex(bencrypt).decode())
@@ -237,7 +242,11 @@ class sebs_text_verschluessler(QtWidgets.QWidget):
         text = self.hex_to_String(text)
         bencrypt = self.bytes_decryption(
             self.remove_sapce(self.key.text()).encode(), self.remove_sapce(self.iv.text()).encode(), text)
-        self.textbox.setPlainText(bencrypt.decode())
+        b1 = bencrypt;
+        if(self.find_text_or_file(b1) == 1):
+            self.textbox.setPlainText(b1.decode()[4::])
+        else:
+            self.save_file(b1[3::]);
         return 0
 
     def bytes_decryption(self, key, iv, sin):
@@ -328,6 +337,42 @@ class sebs_text_verschluessler(QtWidgets.QWidget):
         bin = encryptor.finalize()
         return bout
 
+    def find_text_or_file(self, s1):
+        try:
+            s1 = s1.decode();
+            if(len(s1) >= 5):
+                if(s1[0] == "T"):
+                    if(s1[1] == "e"):
+                        if(s1[2] == "x"):
+                            if(s1[3] == "t"):
+                                return 1;
+        except UnicodeDecodeError:
+            return 0;
+        return 0;
+
+    def save_file(self, b1):
+        filename = QtWidgets.QFileDialog.getSaveFileName();
+        f1 = open(filename[0], "wb");
+        f1.write(b1);
+        f1.close();
+        return 0;
+
+    def open_file(self):
+        filename = QtWidgets.QFileDialog.getOpenFileName();
+        f1 = open(filename[0], "rb");
+        f1.seek(0, 2);
+        size = f1.tell();
+        f1.seek(0, 0);
+        b1 = f1.read(size);
+        f1.close();
+        return b1;
+
+    def file_verschluesseln(self):
+        file = b"BIN" + self.open_file();
+        bencrypt = self.bytes_encryption(
+        self.remove_sapce(self.key.text()).encode(), self.remove_sapce(self.iv.text()).encode(), file)
+        self.textbox.setPlainText(self.byte_to_hex(bencrypt).decode())
+        return 0
 
 mainwindow = sebs_text_verschluessler()
 mainwindow.show()
