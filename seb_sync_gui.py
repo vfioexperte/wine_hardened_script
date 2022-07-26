@@ -1,13 +1,19 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #Copyright (C) 2020  vfio_experte
 #This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
 #This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #Warnung der Programmierer hafte nicht auf Schäden oder auf unsachgemäßen Umgang der APP
 #19.12.2020 #start wirting app
-#20.11.2021 last edit
+#26.07.2022 last edit
 #rollback to 0.6d
-version = "v0.7h"
+version = "v0.7p_zstd_thinker_0.1f"
+#0.7p_zstd_thinker_0.1f progrssbar_label 1 of 1 0.2a
+#v0.7p_zstd_thinker_0.1e progrssbar_label 1 of 1
+#v0.7p_zstd thinker 0.1d window size fix 0.1a
+#v0.7m vorschau aplha 0.1a
+#v0.7l noquestion mode auto server start 0.1a
+#v0.7i ipv6 0.1a beta
 #v0.7h aufraumen speed fix 1
 #v0.7f sav before start fodler paths 1
 #v0.7f fix internet abruch 2 add debug command -testmode_errror
@@ -22,8 +28,8 @@ appname = "Sebs Sync App";
 
 try:
     import math
-    from PyQt5 import QtWidgets
-    from PyQt5 import QtGui
+    #from PyQt6 import QtWidgets
+    #from PyQt6 import QtGui
     import sys
     import os
     import os.path
@@ -48,12 +54,24 @@ try:
     import time
     import json
     import argparse
+    import zstd
+    from tkinter import *
+    import tkinter.simpledialog
+    from tkinter import messagebox
+    from tkinter.simpledialog import Dialog
+    from tkinter.ttk import Progressbar
+    import threading
+
 except ImportError:
     import pip
-    failed = pip.main(["install", "pyQT5"]);
+    if(platform.system() == 'Linux'):
+        os.system("sudo pacman -Sy tk")
     failed = pip.main(["install", "pywinpty"]);
     failed = pip.main(["install", "requests"]);
     failed = pip.main(["install", "cryptography"]);
+    failed = pip.main(["install", "zstd"]);
+    failed = pip.main(["install", "tkinter.simpledialog"]);
+    #failed = pip.main(["install", "tk"]);
 
 import math
 import sys
@@ -78,24 +96,82 @@ import os
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 import time
-from PyQt5 import QtWidgets
-from PyQt5 import QtGui
+#from PyQt6 import QtWidgets
+#from PyQt6 import QtGui
 import json
 import argparse
+import zstd
+from tkinter import *
+from tkinter import filedialog
+import tkinter.simpledialog
+from tkinter import messagebox
+from tkinter.simpledialog import Dialog
+from tkinter.ttk import Progressbar
+import threading
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-testmode', action='store_true', default=False, dest='boolean_version', help='aktived loacl test mode');
 parser.add_argument("-ip", type=str,  default="", dest="ip", help="set force a server ip")
 parser.add_argument('-testmode_errror', action='store_true', default=False, dest='testerror', help='aktived loacl test mode simulate error');
+parser.add_argument('-noencrypt_mode', action='store_true', default=False, dest='noencrypt_mode', help='disable no encrypt mode Server only');
+parser.add_argument("-aeskey", type=str,  default="", dest="aes_key", help="set aeskey")
+parser.add_argument("-iv", type=str,  default="", dest="iv_key", help="set iv key")
+parser.add_argument("-port", type=str,  default="", dest="port", help="set network port")
+parser.add_argument('-ipv6', action='store_true', default=False, dest='ipv6_mode', help='disavble ipv4 enable ipv6');
+parser.add_argument('-ipv4', action='store_true', default=False, dest='ipv4_mode', help='disavble ipv6 enable ipv4');
+parser.add_argument('-serverstartauto', action='store_true', default=False, dest='serverstartauto', help='start auto server');
+parser.add_argument("-serverstartautodir", type=str,  default="", dest="serverstartautodir", help="start auto server dir path")
+parser.add_argument('-noqeestionmode', action='store_true', default=False, dest='noqeestionmode', help='server no qestion mode');
 results = parser.parse_args();
 ip = "";
 test_fehelrmode = 0
 testmode = 0;
+noencrypt_mode = 0;
+aes_key = "";
+iv_key = "";
+port = -1;
+ip_mode = -1;
+serverstartauto = 0;
+noqeestionmode = 0;
+serverstartautodir = "";
+
+server_block_übertragungs_länge = 1024*64;
+#1024*64 speed fix ipv4 maxmut 64kb
+#1024*500
+#https://en.wikipedia.org/wiki/Maximum_transmission_unit
+
 if(results.boolean_version == True):
     testmode = 1;
 if(results.ip != ""):
-    testmode = 1;
+    #testmode = 1;
     ip = results.ip
+
+if(results.aes_key != ""):
+    aes_key = results.aes_key
+
+if(results.iv_key != ""):
+    iv_key = results.iv_key
+
+if(results.port != ""):
+    port = int(results.port)
+
+if(results.ipv6_mode == True):
+    ip_mode = 6;
+
+if(results.ipv4_mode == True):
+    ip_mode = 4;
+
+if(results.serverstartauto == True):
+    serverstartauto = 1;
+    noqeestionmode = 1;
+
+if(results.serverstartautodir != ""):
+    serverstartautodir = results.serverstartautodir;
+
+if(results.noqeestionmode == True):
+    noqeestionmode = 1;
+
+
 if(testmode == 1):
     print("Test mdoe on");
 if(testmode == 1 and results.ip != ""):
@@ -104,9 +180,13 @@ if(results.testerror == True):
     print("test fehler mdoe on!");
     test_fehelrmode = 1;
 
+if(results.noencrypt_mode == True):
+    print("no encrypt_moder mdoe on!");
+    noencrypt_mode = 1;
+
 jason_data = {};
 
-app = QtWidgets.QApplication(sys.argv);
+#app = QtWidgets.QApplication(sys.argv);
 
 trenner = b"x";
 trenner_str = trenner.decode();
@@ -124,18 +204,36 @@ else:
     Betribsystem = True;
 
 
-class seb_sync_clinet_gui(QtWidgets.QWidget):
+class seb_sync_clinet_gui():
     def __init__(self):
-        QtWidgets.QWidget.__init__(self)
+        if(noencrypt_mode == 0):
+            self.noencryptmode = noencrypt_mode;
+            self.title = appname + " encrypt mode on - " + version;
+        else:
+            self.noencryptmode = noencrypt_mode;
+            self.title = appname + " encrypt mode off - " + version;
+        self.textedit_Verzeichniss1  = "";
+        self.filecount = 0;
+        self.maxfilecount = 0;
+        self.vorschau = False;
+        self.progressbar_firststart = 0;
+        return
+        #QtWidgets.QWidget.__init__(self)
         #self.ip = "127.0.0.1";
         #self.port = 9044;
         #self.self.statusBar().showMessage('Message in statusbar.');
         self.statusbar = QtWidgets.QStatusBar();
         self.statusbar.showMessage("test");
-        self.title = appname + " - " + version;
+        if(noencrypt_mode == 0):
+            self.noencryptmode = noencrypt_mode;
+            self.title = appname + " encrypt mode on - " + version;
+        else:
+            self.noencryptmode = noencrypt_mode;
+            self.title = appname + " encrypt mode off - " + version;
         self.setWindowTitle(self.title);
         self.resize(600, 200);
         self.layoutv1 = QtWidgets.QVBoxLayout(self)
+        self.vorschau = False;
 
         self.layouth00 = QtWidgets.QHBoxLayout(self)
         self.layouth0 = QtWidgets.QHBoxLayout(self)
@@ -286,81 +384,107 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
             self.update_progress_info("loading savfile finsihed", 0, 400);
 
     def update_progress_info(self, text, progrssbar_value, progrssbar_maxvalue):
-        if(self.maxfilecount != 0):
-            self.statusbar.showMessage(text + " " + str(self.filecount) + "/" + str(self.maxfilecount));
+        self.progrssbar_text = text + " %" + str( self.float_to_int(100 / progrssbar_maxvalue * progrssbar_value) )  + " " + str(self.filecount) + " of " + str(self.maxfilecount);
+        self.progrssbar_value = progrssbar_value;
+        self.progrssbar_maxvalue = progrssbar_maxvalue;
+        self.progrssbar['value'] = progrssbar_value;
+        self.progrssbar['maximum'] = progrssbar_maxvalue;
+        self.progrssbar_label.set(self.progrssbar_text)
+        print("#######################PROGRESSBAR_INFO#######################")
+        print(self.progrssbar_text)
+        #self.progrssbar.start();
+        self.window.update_idletasks();
+        #self.window.wait_window();
+        return 0;
+        class mypogressbar():
+            def __init__(self, a1):
+                pass;
+            def init(self, text, progrssbar_value, progrssbar_maxvalue):
+                self.root = Tk()
+                self.progress = Progressbar(self.root, orient=HORIZONTAL, length=progrssbar_maxvalue, mode='determinate');
+                self.progress['value'] = progrssbar_value;
+                self.root.update_idletasks();
+                self.label_str = StringVar()
+                self.root.title(text)
+                self.progress.pack(fill="x")
+                #self.label_str.set(text)
+                self.label = Label( self.root, textvariable=self.label_str, relief=RAISED )
+                self.label_str.set(text)
+                self.label.pack(fill="x");
+
+            def set(self, text, progrssbar_value, progrssbar_maxvalue):
+                self.text = text;
+                self.progrssbar_value = progrssbar_value;
+                self.progrssbar_maxvalue = progrssbar_maxvalue;
+                self.progress['value'] = progrssbar_value;
+                self.progress.start();
+                self.label_str = self.text;
+                self.root.update_idletasks();
+                self.root.wait_window()
+                #self.progress.stop();
+                #self.progress.grid_forget();
+
+
+            def quit(self):
+                self.root.quit();
+                self.root.destroy();
+
+        if(self.progressbar_firststart == 0):
+            self.progressbar_firststart = 1;
+            self.mypogressbar = mypogressbar(text);
+            self.mypogressbar.init(text, progrssbar_value, progrssbar_maxvalue);
+            self.mypogressbar.quit();
         else:
-            self.statusbar.showMessage(text);
-        self.progressbar.setMaximum(progrssbar_maxvalue);
-        self.progressbar.setValue(progrssbar_value);
-        app.processEvents();
+            self.mypogressbar.set(text, progrssbar_value, progrssbar_maxvalue);
+
         return 0;
 
     def start_sync(self):
         if(testmode != 1):
             self.sav();
-        self.button_start_Server.setDisabled(True);
-        self.button_start_Client.setDisabled(True);
+        #self.button_start_Server.setDisabled(True);
+        #self.button_start_Client.setDisabled(True);
         aes_key = self.question_aes_key();
         iv_ = self.question_iv_key();
         b1 = 0;
-        if(self.textedit_Verzeichniss1.toPlainText() != ""):
+        stxt = "";
+        if(self.textedit_Verzeichniss1 != ""):
             b1 = 1;
             self.listpatharray = [];
-            self.update_progress_info("start sync 1.. " + self.textedit_Verzeichniss_name1.toPlainText(), 0, 400);
-            self.start_Client("5", "0", self.textedit_Verzeichniss1.toPlainText(), aes_key, iv_);
+            stxt = os.path.join(self.textedit_Verzeichniss1, "1.txt");
+            #self.update_progress_info("start sync 1.. " + self.textedit_Verzeichniss_name1, 0, 400);
+            self.start_Client("5", "0", self.textedit_Verzeichniss1, aes_key, iv_);
             self.listpatharray = [];
-            self.update_progress_info("start sync 2.. " + self.textedit_Verzeichniss_name1.toPlainText(),0, 400);
-            self.start_Client("5", "0", self.textedit_Verzeichniss1.toPlainText(), aes_key, iv_);
-            self.listpatharray = [];
-        if(self.textedit_Verzeichniss2.toPlainText() != ""):
-            b1 = 1;
-            self.listpatharray = [];
-            self.update_progress_info("start sync 1.. " + self.textedit_Verzeichniss_name2.toPlainText(),0, 400);
-            self.start_Client("5", "0", self.textedit_Verzeichniss2.toPlainText(), aes_key, iv_);
-            self.listpatharray = [];
-            self.update_progress_info("start sync 2.. " + self.textedit_Verzeichniss_name2.toPlainText(),0, 400);
-            self.start_Client("5", "0", self.textedit_Verzeichniss2.toPlainText(), aes_key, iv_);
-            self.listpatharray = [];
-        if(self.textedit_Verzeichniss3.toPlainText() != ""):
-            b1 = 1;
-            self.listpatharray = [];
-            self.update_progress_info("start sync 1.. " + self.textedit_Verzeichniss_name3.toPlainText(),0, 400);
-            self.start_Client("5", "0", self.textedit_Verzeichniss3.toPlainText(), aes_key, iv_);
-            self.listpatharray = [];
-            self.update_progress_info("start sync 2.. " + self.textedit_Verzeichniss_name3.toPlainText(),0, 400);
-            self.start_Client("5", "0", self.textedit_Verzeichniss3.toPlainText(), aes_key, iv_);
-            self.listpatharray = [];
-        if(self.textedit_Verzeichniss4.toPlainText() != ""):
-            b1 = 1;
-            self.listpatharray = [];
-            self.update_progress_info("start sync 1.. " + self.textedit_Verzeichniss_name4.toPlainText(),0, 400);
-            self.start_Client("5", "0", self.textedit_Verzeichniss4.toPlainText(), aes_key, iv_);
-            self.listpatharray = [];
-            self.update_progress_info("start sync 2.. " + self.textedit_Verzeichniss_name4.toPlainText(),0, 400);
-            self.start_Client("5", "0", self.textedit_Verzeichniss4.toPlainText(), aes_key, iv_);
+            #self.update_progress_info("start sync 2.. " + self.textedit_Verzeichniss_name1,0, 400);
+            self.start_Client("5", "0", self.textedit_Verzeichniss1, aes_key, iv_);
             self.listpatharray = [];
         if(b1 == 0):
-            msgBox2 = QtWidgets.QMessageBox();
-            msgBox2.setText("All Textboxen is empty. please click browse!",0, 400);
-            msgBox2.exec();
+            if(noqeestionmode == 0):
+                #msgBox2 = QtWidgets.QMessageBox();
+                #msgBox2.setText("All Textboxen is empty. please click browse!",0, 400);
+                #msgBox2.exec();
+                messagebox.showinfo("ERROR", "All Textboxen is empty. please click browse!")
             self.update_progress_info("sync ende",0, 400);
             self.listpatharray = [];
+            if(os.path.isfile(stxt) == True):
+                os.remove(stxt)
             return -1;
-        msgBox2 = QtWidgets.QMessageBox();
-        msgBox2.setText("Sync Fertig!");
-        msgBox2.exec();
+        if(noqeestionmode == 0):
+            #msgBox2 = QtWidgets.QMessageBox();
+            #msgBox2.setText("Sync Fertig!");
+            #msgBox2.exec();
+            messagebox.showinfo("fertig", "Sync Fertig!")
         if(testmode != 1):
             self.sav();
         self.update_progress_info("sync ende",0, 400);
-        self.button_start_Server.setDisabled(False);
-        self.button_start_Client.setDisabled(False);
+        #self.button_start_Server.setDisabled(False);
+        #self.button_start_Client.setDisabled(False);
+        if(os.path.isfile(stxt) == True):
+            os.remove(stxt)
         return 0;
 
     def sav(self):
-        s1 = self.textedit_Verzeichniss1.toPlainText() + "^" + self.textedit_Verzeichniss_name1.toPlainText() + "^";
-        s1 = s1 + self.textedit_Verzeichniss2.toPlainText() + "^" + self.textedit_Verzeichniss_name2.toPlainText() + "^";
-        s1 = s1 + self.textedit_Verzeichniss3.toPlainText() + "^" + self.textedit_Verzeichniss_name3.toPlainText() + "^";
-        s1 = s1 + self.textedit_Verzeichniss4.toPlainText() + "^" + self.textedit_Verzeichniss_name4.toPlainText() + "^";
+        s1 = self.textedit_Verzeichniss1 + "^" + "1" + "^";
         fobj = open(sav_filepaht, "wb");
         fobj.write(s1.encode());
         fobj.close();
@@ -432,9 +556,11 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
         try:
             stxt = os.path.join(folder, "1.txt");
             if(os.path.isfile(stxt) == False):
-                msgBox2 = QtWidgets.QMessageBox();
-                msgBox2.setText("ERROR Connection File not exist! 1.txt file not found in seleted folder");
-                msgBox2.exec();
+                if(noqeestionmode == 0):
+                    #msgBox2 = QtWidgets.QMessageBox();
+                    #msgBox2.setText("ERROR Connection File not exist! 1.txt file not found in seleted folder");
+                    #msgBox2.exec();
+                    messagebox.showinfo("ERROR", "ERROR Connection File not exist! 1.txt file not found in seleted folder")
                 print("ERROR Connection File not exist!");
                 return [];
             if(len(self.json_array) != 0):
@@ -460,6 +586,7 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
             hash = self.json_aes_hash;
             key_ = self.bytes_decryption(aeskey, iv, self.json_aes);
             iv_ = self.bytes_decryption(aeskey, iv, self.json_iv);
+            ipv6 = self.ipv6;
             #s2 = byte_1bin.decode();
             #s3 = s2.split("^");
             #ip = s3[0];
@@ -482,56 +609,82 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
             print("hash_aes_key: ", hash_aes_key)
             print("hash: ", hash)
             if(hash_aes_key != hash):
-                msgBox2 = QtWidgets.QMessageBox();
-                msgBox2.setText("ERROR Connection File not corupt or passwor wrong!");
-                msgBox2.exec();
+                if(noqeestionmode == 0):
+                    #msgBox2 = QtWidgets.QMessageBox();
+                    #msgBox2.setText("ERROR Connection File not corupt or passwor wrong!");
+                    #msgBox2.exec();
+                    messagebox.showinfo("ERROR", "ERROR Connection File not corupt or passwor wrong!")
                 print("ERROR Connection File not corupt or passwor wrong!");
                 #os.remove(sbin);
                 #os.remove(sbin_decrypt);
                 return [];
-            self.json_array = [ip, port, key_, iv_, hash];
+            if(noencrypt_mode == 0):
+                self.noencryptmode = noencrypt_mode;
+                self.title = appname + " encrypt mode on - " + version;
+            else:
+                self.noencryptmode = noencrypt_mode;
+                self.title = appname + " encrypt mode off - " + version;
+                if(noqeestionmode == 0):
+                    #msgBox2 = QtWidgets.QMessageBox();
+                    #msgBox2.setText("Warning encrypt mode off!");
+                    #msgBox2.exec();
+                    messagebox.showinfo("Warning", "Warning encrypt mode off!")
+
+            self.json_array = [ip, port, key_, iv_, hash, ipv6, self.noencryptmode];
             return self.json_array;
         except UnicodeDecodeError:
-            msgBox2 = QtWidgets.QMessageBox();
-            msgBox2.setText("ERROR Connection File not corupt or passwor wrong!");
-            msgBox2.exec();
+            if(noqeestionmode == 0):
+                #msgBox2 = QtWidgets.QMessageBox();
+                #msgBox2.setText("ERROR Connection File not corupt or passwor wrong!");
+                #msgBox2.exec();
+                messagebox.showinfo("ERROR", "ERROR Connection File not corupt or passwor wrong!")
             print("ERROR Connection File not corupt or passwor wrong!");
             return [];
         except IndexError:
-            msgBox2 = QtWidgets.QMessageBox();
-            msgBox2.setText("ERROR Connection File not corupt or passwor wrong!");
-            msgBox2.exec();
+            if(noqeestionmode == 0):
+                #msgBox2 = QtWidgets.QMessageBox();
+                #msgBox2.setText("ERROR Connection File not corupt or passwor wrong!");
+                #msgBox2.exec();
+                messagebox.showinfo("ERROR", "ERROR Connection File not corupt or passwor wrong!")
             print("ERROR Connection File not corupt or passwor wrong!");
             return [];
 
 
     def question_dns_or_ip(self):
-        msgBox2 = QtWidgets.QMessageBox();
-        msgBox2.setText("have you a dns?");
-        yesbuttom = QtWidgets.QPushButton("Yes");
-        nobuttom = QtWidgets.QPushButton("No");
-        msgBox2.addButton(yesbuttom, QtWidgets.QMessageBox.AcceptRole);
-        msgBox2.addButton(nobuttom, QtWidgets.QMessageBox.NoRole);
-        msgBox2.exec();
-        if(msgBox2.clickedButton() == yesbuttom):
+        if(ip != ""):
             return 1;
-        elif(msgBox2.clickedButton() == nobuttom):
+        #msgBox2 = QtWidgets.QMessageBox();
+        #msgBox2.setText("have you a dns?");
+        tmp = self.my_yes_no_dialog("have you a dns?")
+        #yesbuttom = QtWidgets.QPushButton("Yes");
+        #nobuttom = QtWidgets.QPushButton("No");
+        #yesbuttom = msgBox2.addButton("Yes", QtWidgets.QMessageBox.ButtonRole.AcceptRole);
+        #nobuttom = msgBox2.addButton("No", QtWidgets.QMessageBox.ButtonRole.NoRole);
+
+
+        #out = msgBox2.exec();
+        if(tmp == 1):
+            return 1;
+        elif(tmp == 0):
             return 0;
         else:
             exit(-1);
 
 
     def question_port(self):
-        i, okPressed = QtWidgets.QInputDialog.getInt(self, "Get integer","Your port:", 9044, 1, 65000, 1);
-        if okPressed:
-            if(i >= 1):
-                if(i <= 65000):
-                    return i;
+        if(port != -1):
+            return port;
+        i = tkinter.simpledialog.askinteger("Get integer", "Your port:");
+        #i, okPressed = QtWidgets.QInputDialog.getInt(self, "Get integer","Your port:", 9044, 1, 65000, 1);
+        if(i >= 1):
+            if(i <= 65000):
+                return i;
         else:
             exit(-1);
 
     def question_textbox(self):
-        i, okPressed = QtWidgets.QInputDialog.getInt(self, "Get integer","Starten welcher gespeicherten Textboxen: ", 1, 1, 4, 1);
+        i = tkinter.simpledialog.askinteger("Get integer", "Your port:");
+        #i, okPressed = QtWidgets.QInputDialog.getInt(self, "Get integer","Starten welcher gespeicherten Textboxen: ", 1, 1, 4, 1);
         if okPressed:
             if(i >= 1):
                 if(i <= 4):
@@ -540,22 +693,31 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
             exit(-1);
 
     def question_aes_key(self):
-        text, okPressed = QtWidgets.QInputDialog.getText(self, "Get text", "your aes key", QtWidgets.QLineEdit.Normal, "");
-        if(okPressed and text != ""):
+        if(aes_key != ""):
+            return aes_key.encode();
+        text = tkinter.simpledialog.askstring("Get text", "your aes key");
+        #text, okPressed = QtWidgets.QInputDialog.getText(self, "Get text", "your aes key");
+        if(text != ""):
             return self.key_size_anpassen(text.encode());
         else:
             exit(-1);
 
     def question_ip(self):
-        text, okPressed = QtWidgets.QInputDialog.getText(self, "Get text", "your aes ip or dns name", QtWidgets.QLineEdit.Normal, "");
-        if(okPressed and text != ""):
+        if(ip != ""):
+            return ip.encode();
+        text = tkinter.simpledialog.askstring("Get text", "your ip or dns name");
+        #text, okPressed = QtWidgets.QInputDialog.getText(self, "Get text", "your ip or dns name");
+        if(text != ""):
             return text.encode();
         else:
             exit(-1);
 
     def question_iv_key(self):
-        text, okPressed = QtWidgets.QInputDialog.getText(self, "Get text", "your aes iv key", QtWidgets.QLineEdit.Normal, "");
-        if(okPressed and text != ""):
+        if(iv_key != ""):
+            return iv_key.encode();
+        text = tkinter.simpledialog.askstring("Get text", "your aes iv key");
+        #text, okPressed = QtWidgets.QInputDialog.getText(self, "Get text", "your aes iv key");
+        if(text != ""):
             return self.iv_size_anpassen(text.encode());
         else:
             exit(-1);
@@ -567,13 +729,36 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
             if(os.path.isdir(str(file)) == True):
                 return (str(file));
 
-    def start_listen_Server(self, port):
+    def question_server_ipv6_or_ipv4(self):
+        if(ip_mode !=  -1):
+            return ip_mode;
+        while True:
+            text = tkinter.simpledialog.askstring("Get text",  "server on ipv6 (6) or ipv4 (4)?")
+            #text, okPressed = QtWidgets.QInputDialog.getText(self, "Get text", "server on ipv6 (6) or ipv4 (4)?");
+            if(text != ""):
+                if(text == "4"):
+                    return 4;
+                elif(text == "6"):
+                    return 6;
+                else:
+                    print("ERROR Falsche eingabe Bitte nocheinmal 4 oder 6 eingebn!");
+            else:
+                exit(-1);
+
+    def start_listen_Server(self, port, ip_system):
+        #ip_system = self.question_server_ipv6_or_ipv4();
         while True:
             try:
-                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM);
-                s.bind(("", port));
-                print("Server gestartet");
-                return s;
+                if(ip_system == 4):
+                    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM);
+                    s.bind(("", port));
+                    print("Server gestartet IPv4");
+                    return s;
+                elif(ip_system == 6):
+                    s = socket.socket(socket.AF_INET6, socket.SOCK_STREAM);
+                    s.bind(("", port));
+                    print("Server gestartet IPv6");
+                    return s;
             except OSError:
                 print("Die Adresse wird bereits verwendet");
                 time.sleep(60);
@@ -650,7 +835,7 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
 
     def send_stream_encrypt(self, addr, s, aeskey, iv, messege):
         try:
-            bout = self.bytes_encryption(aeskey ,iv, messege);
+            bout = self.bytes_encryption(aeskey ,iv, zstd.compress(messege));
             size = len(bout);
             self.wirte_connection_simple_mode(addr, s, str(size));
             s.send(bout);
@@ -681,7 +866,7 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
                 b1 = b1 + b2;
                 i = i +sizetemp;
             b1 = self.bytes_decryption(aeskey ,iv, b1);
-            return b1;
+            return zstd.decompress(b1);
         except ConnectionResetError:
             return "";
         except BrokenPipeError:
@@ -695,7 +880,7 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
             self.status_downloadedbytes = 0
             self.status_totaltransfertime = 0
             self.update_progress_info("upload file..",0, 100);
-            block = 1024*500;
+            block = server_block_übertragungs_länge;
             sdir = "";
             array = [0, sdir];
             if(len(self.listpatharray) == 0):
@@ -822,7 +1007,7 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
             self.status_starttime = time.time()
             self.status_downloadedbytes = 0
             self.status_totaltransfertime = 0
-            block = 1024*500;
+            block = server_block_übertragungs_länge;
             print("file encryption andere PC..");
             self.update_progress_info("file encryption andere PC..",0, 100);
             filename = self.recive_decrypt(addr, komm, aeskey, iv);
@@ -940,6 +1125,8 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
     def clinet_sync(self, addr, komm, aeskey, iv, folder):
         dwid = [];
         up = [];
+        paths_dwid = [];
+        paths_up = [];
         size2 =  self.read_connection_simple_mode(addr, komm);
         size2 = int(size2);
         i = 0;
@@ -962,6 +1149,7 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
             else:
                 server_hash = self.read_connection_simple_mode(addr, komm);
                 dwid.append(i);
+                paths_dwid.append(sfilepath);
                 self.wirte_connection_simple_mode(addr, komm, "1");
                 i = i +1;
                 continue;
@@ -997,6 +1185,7 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
             if(hash_ != server_hash):
                 if(mtime  > clientst_mtime):
                     dwid.append(str(i));
+                    paths_dwid.append(sfilepath);
                 elif(mtime  < clientst_mtime):
                     sdir  = "";
                     array = [0, sdir];
@@ -1013,20 +1202,24 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
                             break;
                         if(patharray[j] == sfilepath):
                             up.append(str(j));
+                            paths_up.append(sfilepath);
                         elif(patharray[j] == self.flips_schlasch(sfilepath)):
                             up.append(str(j));
+                            paths_up.append(sfilepath);
                         j = j +1;
                 else:
                     dwid.append(str(i));
+                    paths_dwid.append(sfilepath);
             self.wirte_connection_simple_mode(addr, komm, "1");
             i = i +1;
         komm.close();
         print("clinet_sync ende");
-        return [dwid, up];
+        return [dwid, up, paths_dwid, paths_up];
 
     def clinet_sync_add(self, addr, komm, aeskey, iv, folder):
         print("clinet_sync_add start")
         up = [];
+        paths_up = [];
         sdir  = "";
         array = [0, sdir];
         if(len(self.listpatharray) == 0):
@@ -1053,10 +1246,11 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
             check = self.read_connection_simple_mode(addr, komm);
             if(check == "0"):
                 up.append(str(i));
+                paths_up.append(patharray)
             i = i +1;
         komm.close();
         print("clinet_sync_add ende");
-        return up;
+        return [[], up, [], paths_up];
 
         return 0;
 
@@ -1160,15 +1354,15 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
         komm.close();
         return 0;
 
-    def start_Clinet_prozess(self, mode, id, folder, myip, key_, iv_, port):
+    def start_Clinet_prozess(self, mode, id, folder, myip, key_, iv_, port, ipv6):
         i = 0;
         while True:
-            tmp = self.start_Clinet_prozess_2(mode, id, folder, myip, key_, iv_, port);
+            tmp = self.start_Clinet_prozess_2(mode, id, folder, myip, key_, iv_, port, ipv6);
             if(len(tmp) == 1):
                 if(tmp[0] == -1):
                     time.sleep(1);
                     i = i +1;
-                    if(i >= 600):
+                    if(i >= 25):
                         return [-1];
                 elif(tmp[0] == -2):
                     i = 0;
@@ -1178,19 +1372,33 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
                 return tmp;
             time.sleep(1);
             i = i +1;
-            if(i >= 600):
+            if(i >= 25):
                 return [-1];
 
-    def start_Clinet_prozess_2(self, mode, id, folder, myip, key_, iv_, port):
-        self.aufraumen(folder);
+    def client_socket_connect(self, myip, port, ipv6):
         try:
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM);
-            s.connect((myip, port));
+            if(ipv6 == 6):
+                print("Cleint conenct with ipv6")
+                s = socket.socket(socket.AF_INET6, socket.SOCK_STREAM);
+                s.connect((myip, port));
+                return s;
+            else:
+                print("Cleint conenct with ipv4")
+                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM);
+                s.connect((myip, port));
+                return s;
         except OSError:
             print("ERROR no Server found!");
-            msgBox2 = QtWidgets.QMessageBox();
-            msgBox2.setText("ERROR no Server found!");
-            msgBox2.exec();
+            if(noqeestionmode == 0):
+                #msgBox2 = QtWidgets.QMessageBox();
+                #msgBox2.setText("ERROR no Server found!");
+                #msgBox2.exec();
+                messagebox.showinfo("ERROR", "ERROR no Server found!")
+            return -1;
+    def start_Clinet_prozess_2(self, mode, id, folder, myip, key_, iv_, port, ipv6):
+        self.aufraumen(folder);
+        s = self.client_socket_connect(myip, port, ipv6);
+        if(s == -1):
             return [-1];
         if(mode == "10"):
             #connection file download
@@ -1256,9 +1464,11 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
             if(tmp == "0"):
                 print("ERROR version nicht comptible!");
                 s.close();
-                msgBox2 = QtWidgets.QMessageBox();
-                msgBox2.setText("ERROR version nicht comptible!");
-                msgBox2.exec();
+                if(noqeestionmode == 0):
+                    #msgBox2 = QtWidgets.QMessageBox();
+                    #msgBox2.setText("ERROR version nicht comptible!");
+                    #msgBox2.exec();
+                    messagebox.showinfo("ERROR", "ERROR version nicht comptible!")
                 return [-1];
             s.close();
             return [];
@@ -1273,7 +1483,15 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
 
 
     def start_Client(self, mode, id, folder, aes_key, iv_):
+        stxt = os.path.join(folder, "1.txt");
+        #if(os.path.isfile(stxt) == True):
+        #    os.remove(stxt)
         self.json_array = [];
+
+        self.vorschau_bak = self.vorschau;
+
+
+
         while True:
             b1 = 0;
             if(Betribsystem == True):
@@ -1292,15 +1510,16 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
                 port = connection_file[1];
                 key = connection_file[2];
                 iv =  connection_file[3];
+                ipv6 = connection_file[5];
                 #print(connection_file);
-                tmp = self.start_Clinet_prozess("10", "0", folder, myip, key, iv, port);
+                tmp = self.start_Clinet_prozess("10", "0", folder, myip, key, iv, port, ipv6);
                 if(len(tmp) == 1):
                     if(tmp[0] == -1):
                         myip = self.question_ip();
                         port = self.question_port();
                         key = "";
                         iv = "";
-                        tmp = self.start_Clinet_prozess("10", "0", folder, myip, key, iv, port);
+                        tmp = self.start_Clinet_prozess("10", "0", folder, myip, key, iv, port, ipv6);
                         if(len(tmp) == 1):
                             if(tmp[0] == -1):
                                 self.mesage_eroor();
@@ -1308,22 +1527,23 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
             else:
                 myip = self.question_ip();
                 port = self.question_port();
+                ipv6 = self.question_server_ipv6_or_ipv4();
                 key = "";
                 iv = "";
-                tmp = self.start_Clinet_prozess("10", "0", folder, myip, key, iv, port);
+                tmp = self.start_Clinet_prozess("10", "0", folder, myip, key, iv, port, ipv6);
                 if(len(tmp) == 1):
                     if(tmp[0] == -1):
                         self.mesage_eroor();
                         return -1;
 
-            tmp = self.start_Clinet_prozess("10", "0", folder, myip, key, iv, port);
+            tmp = self.start_Clinet_prozess("10", "0", folder, myip, key, iv, port, ipv6);
             if(len(tmp) == 1):
                 if(tmp[0] == -1):
                     myip = self.question_ip();
                     port = self.question_port();
                     key = "";
                     iv = "";
-                    tmp = self.start_Clinet_prozess("10", "0", folder, myip, key, iv, port);
+                    tmp = self.start_Clinet_prozess("10", "0", folder, myip, key, iv, port, ipv6);
             connection_file = self.read_Connetion_file(folder, aes_key, iv_);
             if(len(connection_file) == 0):
                 return -1;
@@ -1331,12 +1551,14 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
             port = connection_file[1];
             key = connection_file[2];
             iv =  connection_file[3];
+            ipv6 = connection_file[5];
+            self.noencryptmode = connection_file[6];
             #print(connection_file);
-            tmp = self.start_Clinet_prozess("9", "0", folder, myip, key, iv, port);
+            tmp = self.start_Clinet_prozess("9", "0", folder, myip, key, iv, port, ipv6);
             if(tmp == -1):
                 self.mesage_eroor();
                 return -1;
-            array = self.start_Clinet_prozess(mode, id, folder, myip, key, iv, port);
+            array = self.start_Clinet_prozess(mode, id, folder, myip, key, iv, port, ipv6);
             if(len(array) != 0):
                 dwid = array[0];
                 up = array[1];
@@ -1344,30 +1566,37 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
                     b1 = 1;
                 self.filecount = 0;
                 self.maxfilecount = len(up) + len(dwid);
-                if(self.start_Clinet_prozess("8", "0", folder, myip, key, iv, port) == -1):
+                if(self.start_Clinet_prozess("8", "0", folder, myip, key, iv, port, ipv6) == -1):
                     self.mesage_eroor();
                     return -1;
                 #server size of file server
                 #print("dwid: ", dwid);
                 #print("up: ", up);
+                if(self.vorschau_bak == True):
+                    self.vorschau_bak = False;
+                    self.prozess_vorschau(array);
                 for tmp in dwid:
-                    if(self.start_Clinet_prozess("4", str(tmp), folder, myip, key, iv, port) == -1):
+                    if(self.start_Clinet_prozess("4", str(tmp), folder, myip, key, iv, port, ipv6) == -1):
                         self.mesage_eroor();
                         return -1;
                     self.filecount = self.filecount + 1;
                 for tmp in up:
-                    if(self.start_Clinet_prozess("1",  str(tmp), folder, myip, key, iv, port) == -1):
+                    if(self.start_Clinet_prozess("1",  str(tmp), folder, myip, key, iv, port, ipv6) == -1):
                         self.mesage_eroor();
                         return -1;
                     self.filecount = self.filecount + 1;
                 #sync add
                 self.filecount = 0;
-                array = self.start_Clinet_prozess("7",  "0", folder, myip, key, iv, port);
+                array_tmp = self.start_Clinet_prozess("7",  "0", folder, myip, key, iv, port, ipv6);
                 if(array == -1):
                     self.mesage_eroor();
                     return -1;
+                array = array_tmp[1];
+                if(self.vorschau_bak == True):
+                    self.vorschau_bak = False;
+                    self.prozess_vorschau(array);
                 self.maxfilecount = len(array);
-                if(self.start_Clinet_prozess("8", "0", folder, myip, key, iv, port) == -1):
+                if(self.start_Clinet_prozess("8", "0", folder, myip, key, iv, port, ipv6) == -1):
                     self.mesage_eroor();
                     return -1;
                 #server size of file server
@@ -1375,64 +1604,66 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
                 self.listpatharray = [];
                 for tmp in array:
                     self.filecount = self.filecount + 1;
-                    if(self.start_Clinet_prozess("1",  str(tmp), folder, myip, key, iv, port) == -1):
+                    if(self.start_Clinet_prozess("1",  str(tmp), folder, myip, key, iv, port, ipv6) == -1):
                         self.mesage_eroor();
                         return -1;
                 self.maxfilecount = 0;
                 self.filecount = 0;
-                if(self.start_Clinet_prozess("8", "0", folder, myip, key, iv, port) == -1):
+                if(self.start_Clinet_prozess("8", "0", folder, myip, key, iv, port, ipv6) == -1):
                     self.mesage_eroor();
                     return -1;
                 print("sync ende")
             if(b1 == 1):
                 self.aufraumen(folder);
                 break;
+        stxt = os.path.join(folder, "1.txt");
+        #if(os.path.isfile(stxt) == True):
+        #    os.remove(stxt)
         return 0;
 
 
 
     def start_Server(self):
+        if(serverstartautodir != ""):
+            self.json_array = [];
+            self.listpatharray = [];
+            self.button_start_Server.setDisabled(True);
+            self.button_start_Client.setDisabled(True);
+            ip_system = self.question_server_ipv6_or_ipv4();
+            self.b1 = 1;
+            #folder = self.question_folder();
+            aes_key = self.question_aes_key();
+            iv_ = self.question_iv_key();
+            text = [];
+            self.textedit_Verzeichniss1 = serverstartautodir;
+            self.start_Server_prozess(self.textedit_Verzeichniss1, aes_key, iv_, ip_system);
+            exit();
         if(testmode != 1):
             self.sav();
         self.json_array = [];
         self.listpatharray = [];
-        self.button_start_Server.setDisabled(True);
-        self.button_start_Client.setDisabled(True);
+        #self.button_start_Server.setDisabled(True);
+        #self.button_start_Client.setDisabled(True);
+        ip_system = self.question_server_ipv6_or_ipv4();
         self.b1 = 1;
         #folder = self.question_folder();
         aes_key = self.question_aes_key();
         iv_ = self.question_iv_key();
         text = [];
-        if(self.textedit_Verzeichniss1.toPlainText() != ""):
+        if(self.textedit_Verzeichniss1 != ""):
             text.append(1);
-        if(self.textedit_Verzeichniss2.toPlainText() != ""):
-            text.append(2);
-        if(self.textedit_Verzeichniss3.toPlainText() != ""):
-            text.append(3);
-        if(self.textedit_Verzeichniss4.toPlainText() != ""):
-            text.append(4);
 
         if(len(text) == 1):
             if(text[0] == 1):
                 self.json_array = [];
                 self.listpatharray = [];
-                self.start_Server_prozess(self.textedit_Verzeichniss1.toPlainText(), aes_key, iv_);
-            elif(text[0] == 2):
-                self.json_array = [];
-                self.listpatharray = [];
-                self.start_Server_prozess(self.textedit_Verzeichniss2.toPlainText(), aes_key, iv_);
-            elif(text[0] == 3):
-                self.json_array = [];
-                self.listpatharray = [];
-                self.start_Server_prozess(self.textedit_Verzeichniss3.toPlainText(), aes_key, iv_);
-            elif(text[0] == 4):
-                self.json_array = [];
-                self.listpatharray = [];
-                self.start_Server_prozess(self.textedit_Verzeichniss4.toPlainText(), aes_key, iv_);
+                self.start_Server_prozess(self.textedit_Verzeichniss1, aes_key, iv_, ip_system);
         elif(len(text) == 0):
-            msgBox2 = QtWidgets.QMessageBox();
-            msgBox2.setText("All Textboxen is empty. please click browse!");
-            msgBox2.exec();
+            if(noqeestionmode == 0):
+                #msgBox2 = QtWidgets.QMessageBox();
+                #msgBox2.setText("All Textboxen is empty. please click browse!");
+                #msgBox2.exec();
+                messagebox.showinfo("ERROR", "All Textboxen is empty. please click browse!")
             return -1;
         else:
             while True:
@@ -1442,19 +1673,8 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
                         if(text[0] == 1):
                             self.listpatharray = [];
                             self.json_array = [];
-                            self.start_Server_prozess(self.textedit_Verzeichniss1.toPlainText(), aes_key, iv_);
-                        elif(text[0] == 2):
-                            self.listpatharray = [];
-                            self.json_array = [];
-                            self.start_Server_prozess(self.textedit_Verzeichniss2.toPlainText(), aes_key, iv_);
-                        elif(text[0] == 3):
-                            self.listpatharray = [];
-                            self.json_array = [];
-                            self.start_Server_prozess(self.textedit_Verzeichniss3.toPlainText(), aes_key, iv_);
-                        elif(text[0] == 4):
-                            self.listpatharray = [];
-                            self.json_array = [];
-                            self.start_Server_prozess(self.textedit_Verzeichniss4.toPlainText(), aes_key, iv_);
+                            self.start_Server_prozess(self.textedit_Verzeichniss1, aes_key, iv_, ip_system);
+
         if(testmode != 1):
             self.sav();
         self.update_progress_info("sync ende", 0, 100);
@@ -1474,66 +1694,79 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
         if(os.path.isfile(stxt) == True):
             connection_file = self.read_Connetion_file(folder, aes_key, iv_);
             if(len(connection_file) != 0 and testmode == 0 and self.question_dns_or_ip() == 1):
-                myip = input("DNS name: ");
+                myip = self.question_ip();
                 port = connection_file[1];
                 aes_key_new = connection_file[2];
                 newiv = connection_file[3];
+                ipv6 = self.question_server_ipv6_or_ipv4();
                 #print(connection_file);
-                self.create_Connetion_file(aes_key, iv_, myip, port, folder, aes_key_new, newiv);
+                self.create_Connetion_file(aes_key, iv_, myip.decode(), port, folder, aes_key_new, newiv, ipv6);
                 return(self.read_Connetion_file(folder, aes_key, iv_));
             else:
                 myip = requests.get('https://www.wikipedia.org').headers['X-Client-IP'];
+                ipv6 = self.question_server_ipv6_or_ipv4();
                 if(testmode == 1 and ip != "" and self.b1 != 2):
                     myip = ip;
-                    msgBox2 = QtWidgets.QMessageBox();
-                    msgBox2.setText("Test Mode aktivirt! force ip: "+ myip);
-                    msgBox2.exec();
+                    if(noqeestionmode == 0):
+                        msgBox2 = QtWidgets.QMessageBox();
+                        msgBox2.setText("Test Mode aktivirt! force ip: "+ myip);
+                        msgBox2.exec();
                     self.b1 = 2;
                 elif(testmode == 1 and self.b1 != 2):
                     myip = "127.0.0.1";
                     #myip = "192.168.111.30"
-                    msgBox2 = QtWidgets.QMessageBox();
-                    msgBox2.setText("Test Mode aktivirt!");
-                    msgBox2.exec();
+                    if(noqeestionmode == 0):
+                        msgBox2 = QtWidgets.QMessageBox();
+                        msgBox2.setText("Test Mode aktivirt!");
+                        msgBox2.exec();
                     self.b1 = 2;
-                port = connection_file[1];
-                aes_key_new = connection_file[2];
-                newiv = connection_file[3];
+                port = self.question_port();
+                aes_key_new = os.urandom(64);
+                newiv = os.urandom(16);
+                #ipv6 = connection_file[5];
                 print(connection_file);
-                self.create_Connetion_file(aes_key, iv_, myip, port, folder, aes_key_new, newiv);
+                self.create_Connetion_file(aes_key, iv_, myip.decode(), port, folder, aes_key_new, newiv, ipv6);
                 return(self.read_Connetion_file(folder, aes_key, iv_));
 
         else:
-            msgBox2 = QtWidgets.QMessageBox();
-            msgBox2.setText("Conection file (1.txt) not found in the fodler. the APP create a neu 1.txt fiel in the fodler. you must send the 1.txt to teh clinet");
-            msgBox2.exec();
+            if(noqeestionmode == 0):
+                #msgBox2 = QtWidgets.QMessageBox();
+                #msgBox2.setText("Conection file (1.txt) not found in the fodler. the APP create a neu 1.txt fiel in the fodler. you must send the 1.txt to teh clinet");
+                #msgBox2.exec();
+                messagebox.showinfo("ERROR", "Conection file (1.txt) not found in the fodler. the APP create a neu 1.txt fiel in the fodler. you must send the 1.txt to teh clinet")
             print("Conection file (1.txt) not found in the fodler. the APP create a neu 1.txt fiel in the fodler. you must send the 1.txt to teh clinet");
             connection_file = [];
             if(self.question_dns_or_ip() == 1):
-                myip = input("DNS name: ");
+                myip = self.question_ip();
+                ipv6 = self.question_server_ipv6_or_ipv4();
                 port = self.question_port();
                 aes_key_new = os.urandom(64);
 
                 newiv = os.urandom(16);
-                self.create_Connetion_file(aes_key, iv_, myip, port, folder, aes_key_new, newiv);
+                self.create_Connetion_file(aes_key, iv_, myip.decode(), port, folder, aes_key_new, newiv, ipv6);
                 return(self.server_read_connectionfile(folder, aes_key, iv_));
             else:
                 myip = requests.get('https://www.wikipedia.org').headers['X-Client-IP'];
+                ipv6 = self.question_server_ipv6_or_ipv4();
                 if(testmode == 1 and self.b1 != 2):
                     myip = "127.0.0.1";
-                    msgBox2 = QtWidgets.QMessageBox();
-                    msgBox2.setText("Test Mode aktivirt!");
-                    msgBox2.exec();
+                    if(noqeestionmode == 0):
+                        msgBox2 = QtWidgets.QMessageBox();
+                        msgBox2.setText("Test Mode aktivirt!");
+                        msgBox2.exec();
                     self.b1 = 2;
                 port = self.question_port();
                 aes_key_new = os.urandom(256);
 
                 newiv = os.urandom(16);
-                self.create_Connetion_file(aes_key, iv_, myip, port, folder, aes_key_new, newiv);
+                self.create_Connetion_file(aes_key, iv_, myip.decode(), port, folder, aes_key_new, newiv, ipv6);
                 return(self.read_Connetion_file(folder, aes_key, iv_));
             return 0;
 
-    def start_Server_prozess(self, folder, aes_key, iv_):
+    def start_Server_prozess(self, folder, aes_key, iv_, ip_system):
+        stxt = os.path.join(folder, "1.txt");
+        if(os.path.isfile(stxt) == True):
+            os.remove(stxt)
         self.aufraumen(folder);
         if(Betribsystem == True):
             #widnows
@@ -1543,8 +1776,9 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
         port = connection_file[1];
         key2 = connection_file[2];
         iv2 =  connection_file[3];
+        ipv6 = connection_file[5];
         #print(connection_file);
-        server = self.start_listen_Server(port);
+        server = self.start_listen_Server(port, ipv6);
         while True:
             self.update_progress_info("Server listen..", 0, 100);
             server.listen(1);
@@ -1622,6 +1856,9 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
                         print("start version check.. ERROR");
                     komm.close();
         self.aufraumen(folder);
+        stxt = os.path.join(folder, "1.txt");
+        if(os.path.isfile(stxt) == True):
+            os.remove(stxt)
         return 0;
 
     def string_to_hash(self, s1):
@@ -1842,7 +2079,7 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
     def hex_to_String(self, hex):
         return binascii.unhexlify(hex);
 
-    def create_Connetion_file(self, aeskey, iv, myip, port, folder, newkey, newiv):
+    def create_Connetion_file(self, aeskey, iv, myip, port, folder, newkey, newiv, ipv6):
         stxt = os.path.join(folder, "1.txt");
         hash_aes_key = hashlib.sha256();
         hash_aes_key.update(str(myip).encode());
@@ -1859,7 +2096,7 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
 
         newkey = self.bytes_encryption(aeskey, iv, newkey);
         newiv = self.bytes_encryption(aeskey, iv, newiv);
-        self.json_file_write(stxt, newkey, newiv, hash_aes_key, "", myip, port);
+        self.json_file_write(stxt, newkey, newiv, hash_aes_key, "", myip, port, ipv6);
 
         #s1 = myip + "^" + str(port) + "^" + self.string_to_hex(newkey) + "^" + self.string_to_hex(newiv) + "^" + hash_aes_key;
         #bin1_aes = self.bytes_encryption(aeskey, iv, s1.encode());
@@ -2082,6 +2319,8 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
         return bytes(out);
 
     def bytes_decryption(self, key, iv, sin):
+        if(self.noencryptmode == 1):
+            return sin;
         key = self.string_to_hash(key);
         backend = default_backend();
         cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=backend);
@@ -2134,6 +2373,8 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
         return bout;
 
     def bytes_encryption(self, key, iv, sin):
+        if(self.noencryptmode == 1):
+            return sin;
         key = self.string_to_hash(key);
         backend = default_backend();
         cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=backend);
@@ -2174,8 +2415,8 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
         #print("ende encrypt");
         return bout;
 
-    def json_file_write(self, sfile, aes, iv, aes_hash, iv_hash, myip, port):
-        jason_data['sav_data'] = {'aes': binascii.hexlify(aes).decode(), 'iv' : binascii.hexlify(iv).decode(), 'aes_hash' : aes_hash, 'iv_hash' : iv_hash, "myip" : myip, "port" : port};
+    def json_file_write(self, sfile, aes, iv, aes_hash, iv_hash, myip, port, ipv6):
+        jason_data['sav_data'] = {'aes': binascii.hexlify(aes).decode(), 'iv' : binascii.hexlify(iv).decode(), 'aes_hash' : aes_hash, 'iv_hash' : iv_hash, "myip" : myip, "port" : port, "ipv6" : ipv6, "noencryptmode" : self.noencryptmode};
         with open(sfile, "w") as write_file:
             json.dump(jason_data, write_file);
             write_file.close();
@@ -2193,20 +2434,28 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
                 self.json_iv_hash = jason_data['sav_data']['iv_hash'];
                 self.json_myip =  jason_data['sav_data']['myip'];
                 self.json_port =  jason_data['sav_data']['port'];
+                self.ipv6 = jason_data['sav_data']['ipv6'];
+                self.noencryptmode =  jason_data['sav_data']['noencryptmode'];
                 read_file.close();
             except json.decoder.JSONDecodeError:
                 return -1;
             except TypeError:
                 return -1;
+            except KeyError:
+                return -1;
         return 0;
+
     def mesage_eroor(self):
-        msgBox2 = QtWidgets.QMessageBox();
-        msgBox2.setText("ERROR in der übertragung!");
+        if(noqeestionmode == 0):
+            return 0;
+        #msgBox2 = QtWidgets.QMessageBox();
+        #msgBox2.setText("ERROR in der übertragung!");
         #yesbuttom = QtWidgets.QPushButton("Yes");
         #nobuttom = QtWidgets.QPushButton("No");
         #msgBox2.addButton(yesbuttom, QtWidgets.QMessageBox.AcceptRole);
         #msgBox2.addButton(nobuttom, QtWidgets.QMessageBox.NoRole);
-        msgBox2.exec();
+        #msgBox2.exec();
+        messagebox.showinfo("ERROR", "ERROR in der übertragung!")
         #if(msgBox2.clickedButton() == yesbuttom):
         #    return 1;
         #elif(msgBox2.clickedButton() == nobuttom):
@@ -2215,7 +2464,129 @@ class seb_sync_clinet_gui(QtWidgets.QWidget):
         #    exit(-1);
         return 0;
 
+    def prozess_vorschau(self, array):
+        dwid = array[0];
+        up = array[1];
+        paths_dwid = array[2];
+        paths_up = array[3];
+        msgBox2 = QtWidgets.QMessageBox();
+        msgBox2.setText("Download files from Server: " + str(len(paths_dwid)) + "\n" + "Uploade files to Server: " + str(len(paths_up))+ "\n");
+        msgBox2.exec();
+        return 0
+
+    def my_yes_no_dialog(self, text):
+        class MyDialog():
+            def __init__(self, a1):
+                pass;
+            def init(self, text):
+                self.root = Tk()
+                label_str = StringVar()
+                self.root.title(text)
+                #self.label_str.set(text)
+                self.label = Label( self.root, textvariable=label_str, relief=RAISED )
+                label_str.set(text)
+                #self.label["textvariable"] = StringVar().set(text);
+                self.label.pack(fill="x")
+                self.root.minsize(width=800, height=200)
+                self.root.geometry('800x200+0+0')
+
+                self.out_ = 0;
+                def yes():
+                    self.out_ = 1;
+                    self.root.quit();
+                def no():
+                    self.out_ = 0;
+                    self.root.quit();
+                self.button_yes = Button(self.root, text ="yes", command = yes)
+                self.button_yes.pack()
+                self.button_no = Button(self.root, text ="no", command = no)
+                self.button_no.pack()
+                self.root.mainloop()
+            def out(self):
+                return self.out_;
+            def quit(self):
+                self.root.quit();
+                self.root.destroy();
+        tmp = MyDialog(text);
+        tmp.init(text);
+        tmp.quit();
+        return (tmp.out());
+
+    def set_verzeichnis(self, text):
+        self.textedit_Verzeichniss1 = text;
+        return 0;
+
+    def progressbar_infos():
+        return [self.progrssbar_value, self.progrssbar_maxvalue, self.progrssbar_text]
+
+    def ser_progressbar(self, progressbar, label):
+        self.progrssbar = progressbar;
+        self.progrssbar_label = label;
+        return 0;
+
+    def set_Window(self, window):
+        self.window = window;
+        return 0;
+
+
+
+
+
+
+
+
 
 mainwindow = seb_sync_clinet_gui();
-mainwindow.show();
-app.exec_();
+if(serverstartauto == 1):
+    mainwindow.start_Server();
+else:
+    root = Tk()
+    label_str = StringVar()
+    label = Label( root, textvariable=label_str, relief=RAISED )
+    label_str.set("Sync Ordner")
+    label.pack()
+
+    LineEdit = Entry(root)
+    LineEdit["borderwidth"] = "2px"
+    LineEdit.pack()
+
+    def ordner_browse():
+        filename = filedialog.askdirectory()
+        LineEdit.delete(0,END);
+        LineEdit.insert(0, [filename])
+        mainwindow.set_verzeichnis(filename);
+    button_start_browse = Button(root, text ="browse..", command = ordner_browse)
+    button_start_browse.pack()
+
+    def start_Server_():
+        threading.Thread( target=mainwindow.start_Server()).start();
+    button_start_Server = Button(root, text ="start Server", command = start_Server_)
+    button_start_Server.pack()
+
+    def start_Client_():
+        threading.Thread( target=mainwindow.start_sync()).start();
+        #mainwindow.start_sync();
+    button_start_Client = Button(root, text ="start Client", command = start_Client_)
+    button_start_Client.pack()
+
+    progress = Progressbar(root, orient=HORIZONTAL, length=100, mode='determinate');
+    progress['value'] = 0;
+    progress['maximum'] = 100;
+    #self.root.update_idletasks();
+    label_str2 = StringVar()
+    #self.root.title(text)
+    progress.pack(fill="x")
+    #self.label_str.set(text)
+    label = Label( root, textvariable=label_str2, relief=RAISED )
+    label_str2.set("")
+    label.pack(fill="x");
+
+    mainwindow.ser_progressbar(progress, label_str2);
+    mainwindow.set_Window(root)
+
+    root.title(mainwindow.title)
+    root.minsize(width=800, height=200)
+    root.geometry('800x200+0+0')
+    root.mainloop()
+    #mainwindow.show();
+    #app.exec();
