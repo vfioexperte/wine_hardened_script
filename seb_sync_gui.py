@@ -7,7 +7,8 @@
 #19.12.2020 #start wirting app
 #26.07.2022 last edit
 #rollback to 0.6d
-version = "v0.7p_zstd_thinker_0.1f"
+version = "v0.8a_zstd_thinker"
+#v0.8a_zstd_thinker download size caluclete 0.1a
 #0.7p_zstd_thinker_0.1f progrssbar_label 1 of 1 0.2a
 #v0.7p_zstd_thinker_0.1e progrssbar_label 1 of 1
 #v0.7p_zstd thinker 0.1d window size fix 0.1a
@@ -221,7 +222,7 @@ class seb_sync_clinet_gui():
         #QtWidgets.QWidget.__init__(self)
         #self.ip = "127.0.0.1";
         #self.port = 9044;
-        #self.self.statusBar().showMessage('Message in statusbar.');
+        #self.statusBar().showMessage('Message in statusbar.');
         self.statusbar = QtWidgets.QStatusBar();
         self.statusbar.showMessage("test");
         if(noencrypt_mode == 0):
@@ -383,8 +384,18 @@ class seb_sync_clinet_gui():
 
             self.update_progress_info("loading savfile finsihed", 0, 400);
 
-    def update_progress_info(self, text, progrssbar_value, progrssbar_maxvalue):
-        self.progrssbar_text = text + " %" + str( self.float_to_int(100 / progrssbar_maxvalue * progrssbar_value) )  + " " + str(self.filecount) + " of " + str(self.maxfilecount);
+    def update_progress_info(self, text, progrssbar_value, progrssbar_maxvalue, size = -1):
+        self.calulate_size_mb = -1;
+        if(size != -1):
+            self.calulate_size = self.calulate_size + size  ;
+            self.calulate_size_mb = self.calulate_size / 1024 / 1024;
+        if(progrssbar_value == 0 and progrssbar_maxvalue == 0):
+            self.progrssbar_text = text;
+        else:
+            if(self.calulate_size_mb  != -1):
+                self.progrssbar_text = text + " %" + str( self.float_to_int(100 / progrssbar_maxvalue * progrssbar_value) )  + " | " + str(self.filecount) + "/" + str(self.maxfilecount) + " | " + str(self.float_to_int(self.calulate_size_mb)) + "/" +  str(self.float_to_int(self.calulate_max_size / 1024 / 1024)) + "MB";
+            else:
+                self.progrssbar_text = text + " %" + str( self.float_to_int(100 / progrssbar_maxvalue * progrssbar_value) )  + " | " + str(self.filecount) + "/" + str(self.maxfilecount);
         self.progrssbar_value = progrssbar_value;
         self.progrssbar_maxvalue = progrssbar_maxvalue;
         self.progrssbar['value'] = progrssbar_value;
@@ -918,6 +929,7 @@ class seb_sync_clinet_gui():
             i = 0;
             sizetemp = 0;
             self.update_progress_info("file upload..",0, 100);
+            size3 = 0;
             while True:
                 if(i >= size):
                     break;
@@ -926,6 +938,7 @@ class seb_sync_clinet_gui():
                 else:
                     sizetemp = block;
                 s1 = fobj.read(sizetemp);
+                size3 = size3 + len(s1)
                 hash.update(s1);
                 if(test_fehelrmode == 1):
                     print("Test fehler erzeugt hash defck")
@@ -962,7 +975,8 @@ class seb_sync_clinet_gui():
                         #print("Zeit2: ", self.zeit2)
                     s2 = float(i) * float(100) / float(size);
                     s1 = str(i) + "/" + str(size) + ":" + str(s2) + "%";
-                    self.update_progress_info("file upload.." + " Zeit: ~" +  str(self.float_to_int(self.zeit2)) + "sec ", self.float_to_int(s2), 100);
+                    self.update_progress_info("file upload.." + " Zeit: ~" +  str(self.float_to_int(self.zeit2)) + "sec ", self.float_to_int(s2), 100, size3);
+                    size3 = 0;
                     #print("upload: ", s1);
             fobj.close();
             print("upload: ", 100.0);
@@ -1037,6 +1051,7 @@ class seb_sync_clinet_gui():
             data = "";
             i = 0;
             size_temp = 0;
+            size3 = 0;
             self.update_progress_info("file download..",0, 100);
             while True:
                 if(i >= size):
@@ -1053,6 +1068,7 @@ class seb_sync_clinet_gui():
                 sizetemp = len(data);
                 hash.update(data);
                 fobj.write(data);
+                size3 = size3 + len(data)
                 i = i +sizetemp;
                 timenow = time.time()
                 self.status_downloadedbytes = i
@@ -1072,7 +1088,8 @@ class seb_sync_clinet_gui():
                         s2 = float(i) * float(100) / float(size);
                         s1 = str(i) + "/" + str(size) + ":" + str(s2) + "%";
                         #print("Downlaod: ", s1);
-                        self.update_progress_info("file download.." + " Zeit: ~" +  str(self.float_to_int(self.zeit2)) + "sec ", self.float_to_int(s2), 100);
+                        self.update_progress_info("file download.." + " Zeit: ~" +  str(self.float_to_int(self.zeit2)) + "sec ", self.float_to_int(s2), 100, size3);
+                        size3 = 0;
             hash_ = hash.hexdigest();
             fobj.close();
             if(self.wirte_connection_simple_mode(addr, komm, "OK") == ""):
@@ -1127,6 +1144,8 @@ class seb_sync_clinet_gui():
         up = [];
         paths_dwid = [];
         paths_up = [];
+        up_size = [];
+        dwid_size = [];
         size2 =  self.read_connection_simple_mode(addr, komm);
         size2 = int(size2);
         i = 0;
@@ -1148,8 +1167,10 @@ class seb_sync_clinet_gui():
                 clientst_mtime = float(stinfo.st_mtime);
             else:
                 server_hash = self.read_connection_simple_mode(addr, komm);
+                size = self.read_connection_simple_mode(addr, komm);
                 dwid.append(i);
                 paths_dwid.append(sfilepath);
+                dwid_size.append(int(size));
                 self.wirte_connection_simple_mode(addr, komm, "1");
                 i = i +1;
                 continue;
@@ -1180,11 +1201,13 @@ class seb_sync_clinet_gui():
             shash = hash.hexdigest();
             hash_  = shash;
             server_hash = self.read_connection_simple_mode(addr, komm);
+            size = self.read_connection_simple_mode(addr, komm);
             print("hash clinet: ", hash_);
             print("hash server: ", server_hash);
             if(hash_ != server_hash):
                 if(mtime  > clientst_mtime):
                     dwid.append(str(i));
+                    dwid_size.append(int(size));
                     paths_dwid.append(sfilepath);
                 elif(mtime  < clientst_mtime):
                     sdir  = "";
@@ -1202,9 +1225,11 @@ class seb_sync_clinet_gui():
                             break;
                         if(patharray[j] == sfilepath):
                             up.append(str(j));
+                            up_size.append(int(size));
                             paths_up.append(sfilepath);
                         elif(patharray[j] == self.flips_schlasch(sfilepath)):
                             up.append(str(j));
+                            up_size.append(int(size));
                             paths_up.append(sfilepath);
                         j = j +1;
                 else:
@@ -1212,6 +1237,10 @@ class seb_sync_clinet_gui():
                     paths_dwid.append(sfilepath);
             self.wirte_connection_simple_mode(addr, komm, "1");
             i = i +1;
+        self.maxsize_array = [up_size, dwid_size];
+        self.calulate_array_maxsize();
+        self.wirte_connection_simple_mode(addr, komm, str(self.calulate_max_size));
+        self.calulate_size = 0;
         komm.close();
         print("clinet_sync ende");
         return [dwid, up, paths_dwid, paths_up];
@@ -1219,6 +1248,7 @@ class seb_sync_clinet_gui():
     def clinet_sync_add(self, addr, komm, aeskey, iv, folder):
         print("clinet_sync_add start")
         up = [];
+        up_size = [];
         paths_up = [];
         sdir  = "";
         array = [0, sdir];
@@ -1243,16 +1273,32 @@ class seb_sync_clinet_gui():
             else:
                 sdata = patharray[i];
             self.send_encrypt(addr, komm, aeskey, iv, sdata);
+            sfilepath = sdata;
+            spath = "";
+            if(Betribsystem == False):
+                spath = folder + sfilepath;
+            else:
+                spath = folder + self.flips_schlasch(sfilepath);
             check = self.read_connection_simple_mode(addr, komm);
             if(check == "0"):
                 up.append(str(i));
                 paths_up.append(patharray)
+                if(os.path.isfile(spath) == True):
+                    f1 = open(spath, "r");
+                    f1.seek(0, 2);
+                    size3 = f1.tell();
+                    f1.close();
+                    up_size.append(int(size3))
+                else:
+                    up_size.append(int(0))
             i = i +1;
+        self.maxsize_array = [up_size, []];
+        self.calulate_array_maxsize();
+        self.wirte_connection_simple_mode(addr, komm, str(self.calulate_max_size));
         komm.close();
+        self.calulate_size = 0;
         print("clinet_sync_add ende");
         return [[], up, [], paths_up];
-
-        return 0;
 
 
     def server_sync_add(self, addr, komm, aeskey, iv, folder):
@@ -1260,6 +1306,7 @@ class seb_sync_clinet_gui():
         if(size == ""):
             return -1;
         size = int(size);
+        size2 = "";
         i = 0;
         while True:
             if( i>= size):
@@ -1276,7 +1323,9 @@ class seb_sync_clinet_gui():
             else:
                 self.wirte_connection_simple_mode(addr, komm, "0");
             i = i +1;
+        self.calulate_max_size = int(self.read_connection_simple_mode(0, komm));
         komm.close();
+        self.calulate_size = 0;
         return 0;
 
 
@@ -1333,8 +1382,11 @@ class seb_sync_clinet_gui():
             fobj.close();
             shash = hash.hexdigest();
             self.wirte_connection_simple_mode(addr, komm, shash);
+            self.wirte_connection_simple_mode(addr, komm, str(size))
             b1 = self.read_connection_simple_mode(addr, komm);
             i = i +1;
+        self.calulate_size = 0;
+        self.calulate_max_size = int(self.read_connection_simple_mode(0, komm));
         komm.close();
         print("server_sync ende");
         return 0;
@@ -1703,7 +1755,7 @@ class seb_sync_clinet_gui():
                 self.create_Connetion_file(aes_key, iv_, myip.decode(), port, folder, aes_key_new, newiv, ipv6);
                 return(self.read_Connetion_file(folder, aes_key, iv_));
             else:
-                myip = requests.get('https://www.wikipedia.org').headers['X-Client-IP'];
+                myip = requests.get('https://www.wikipedia.org').headers['X-Client-IP'].encode("utf-8");
                 ipv6 = self.question_server_ipv6_or_ipv4();
                 if(testmode == 1 and ip != "" and self.b1 != 2):
                     myip = ip;
@@ -1746,7 +1798,7 @@ class seb_sync_clinet_gui():
                 self.create_Connetion_file(aes_key, iv_, myip.decode(), port, folder, aes_key_new, newiv, ipv6);
                 return(self.server_read_connectionfile(folder, aes_key, iv_));
             else:
-                myip = requests.get('https://www.wikipedia.org').headers['X-Client-IP'];
+                myip = requests.get('https://www.wikipedia.org').headers['X-Client-IP'].encode("utf-8");
                 ipv6 = self.question_server_ipv6_or_ipv4();
                 if(testmode == 1 and self.b1 != 2):
                     myip = "127.0.0.1";
@@ -2475,16 +2527,27 @@ class seb_sync_clinet_gui():
         return 0
 
     def my_yes_no_dialog(self, text):
+        tmp = messagebox.askyesno(text, text)
+        print(tmp);
+        if(tmp == True):
+            return 1;
+        elif(tmp == False):
+            return 0;
+        else:
+            exit();
+
+
         class MyDialog():
             def __init__(self, a1):
                 pass;
             def init(self, text):
+                print("text: ", text)
                 self.root = Tk()
-                label_str = StringVar()
+                self.label_str = StringVar()
                 self.root.title(text)
                 #self.label_str.set(text)
-                self.label = Label( self.root, textvariable=label_str, relief=RAISED )
-                label_str.set(text)
+                self.label_str.set(text)
+                self.label = Label( self.root, textvariable=self.label_str, relief=RAISED )
                 #self.label["textvariable"] = StringVar().set(text);
                 self.label.pack(fill="x")
                 self.root.minsize(width=800, height=200)
@@ -2507,7 +2570,7 @@ class seb_sync_clinet_gui():
             def quit(self):
                 self.root.quit();
                 self.root.destroy();
-        tmp = MyDialog(text);
+        tmp = MyDialog("");
         tmp.init(text);
         tmp.quit();
         return (tmp.out());
@@ -2526,6 +2589,18 @@ class seb_sync_clinet_gui():
 
     def set_Window(self, window):
         self.window = window;
+        return 0;
+
+    def calulate_array_maxsize(self):
+        a1 = self.maxsize_array;
+        up_size = self.maxsize_array[0];
+        dwid_size = self.maxsize_array[1];
+        size = 0;
+        for tmp in up_size:
+            size = size + tmp;
+        for tmp in dwid_size:
+            size = size + tmp;
+        self.calulate_max_size = size;
         return 0;
 
 
