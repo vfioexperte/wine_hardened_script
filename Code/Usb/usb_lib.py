@@ -5,7 +5,7 @@
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #this is a fork from https://github.com/kritzsie/steam-on-docker
 
-version = "0.1a"
+version = "0.1b"
 
 import platform
 import os
@@ -20,17 +20,19 @@ jason_data = {};
 lsusb_temp_file = "/tmp/873264832654893775963457967hsdifhreufgdurbgfkuseb"
 tmpfile = "/tmp/lsscsi1i3u45hz835z8345z3-384534875z3485z487"
 
-def system(cmd):
-    try:
-        #out = subprocess.check_output(cmd, shell=True).decode().split("\n")
-        os.system(cmd)
-        #return out
-    except subprocess.CalledProcessError:
-        return []
 
 def system(cmd):
     try:
         output = subprocess.check_output(cmd, shell=True).decode().split("\n");
+        return output;
+    except subprocess.CalledProcessError:
+        return "";
+    except FileNotFoundError:
+        return "";
+
+def system_without_split(cmd):
+    try:
+        output = subprocess.check_output(cmd, shell=True).decode();
         return output;
     except subprocess.CalledProcessError:
         return "";
@@ -109,18 +111,20 @@ def read_steam_Controller():
 
 
 def usb_pasthrough(name):
+    b1 = ""
     if(name == ""):
-        system("lsusb >"+ lsusb_temp_file);
+        b1 = system_without_split("lsusb ");
     else:
-        system("lsusb | grep \"" + name + "\" >"+ lsusb_temp_file);
-    if(os.path.isfile(lsusb_temp_file) == False):
-        print("usb_pasthrough() ERROR not find file: lsusb_temp_file: "+ lsusb_temp_file);
-        return 0;
-    file1 = open(lsusb_temp_file, "r");
-    file1.seek(0, 2);
-    size = file1.tell();
-    file1.seek(0, 0);
-    b1 = file1.read(size);
+        b1 = system_without_split("lsusb | grep \"" + name + "\"");
+    #if(os.path.isfile(lsusb_temp_file) == False):
+    #    print("usb_pasthrough() ERROR not find file: lsusb_temp_file: "+ lsusb_temp_file);
+    #    return 0;
+    #file1 = open(lsusb_temp_file, "r");
+    #file1.seek(0, 2);
+    #size = file1.tell();
+    #file1.seek(0, 0);
+    #b1 = file1.read(size);
+
     i = 0;
     bus = [];
     bus_temp = "";
@@ -156,6 +160,6 @@ def usb_pasthrough(name):
                 bus_temp = "";
                 dev_temp = "";
         i = i +1;
-    if(os.path.isfile(lsusb_temp_file) == True):
-        os.remove(lsusb_temp_file);
+    #if(os.path.isfile(lsusb_temp_file) == True):
+    #    os.remove(lsusb_temp_file);
     return [bus, dev];
