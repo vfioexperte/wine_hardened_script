@@ -6,7 +6,7 @@ installation
 
 archlinux pacman install command
 
-	pacman -Syu  python-pip python cdemu-client cdemu-daemon vhba-module-dkms k3b lsscsi docker criu busybox mesa-demos mesa-utils archiso lxc  lxc apparmor dnsmasq lxd archiso python-pip python-cryptography
+	pacman -Syu  python-pip python cdemu-client cdemu-daemon vhba-module-dkms k3b lsscsi docker criu busybox mesa-demos mesa-utils archiso lxc lxc apparmor dnsmasq lxd archiso python-pip python-cryptography lsscsi
 		
 linux mint and ubuntu apt get install command
 
