@@ -5,7 +5,7 @@
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #this is a fork from https://github.com/kritzsie/steam-on-docker
 
-version_jsongui = "0.4f hotfix 3 lxc hotfix 13"
+version_jsongui = "0.4f hotfix 3 lxc hotfix 55"
 #0.4f docker input label fix 0.1a
 #0.4e docker system combobox fix 0.1a
 #0.4d new desinge 0.2a
@@ -117,7 +117,8 @@ def read_glxinfo(dri_prime, basename):
     #return s1[1]
     #cmd_start("./command 'DRI_PRIME=" + str(dri_prime) + " glxinfo | grep \"OpenGL renderer\" > /tmp/pipe.tmp'");
     #cmd_start("./system_only DRI_PRIME=" + str(dri_prime) + " glxinfo | grep \"OpenGL renderer\" 2>/tmp/pipe.tmp");
-    cmd_start("./system_only2 'DRI_PRIME=" + str(dri_prime) + " glxinfo | grep \"OpenGL renderer\" >/tmp/pipe.tmp'");
+    #cmd_start
+    cmd_start("./system_only2 'DRI_PRIME=" + str(dri_prime) + " glxinfo | grep \"OpenGL renderer\" >/etc/tmp/pipe.tmp'");
 
     f1 = open("pipe.tmp", "r");
     f1.seek(0, 2);
@@ -175,13 +176,16 @@ def read_docker_imags(docker_system):
                 out.append(tmp2[0]);
         return out;
 
+
 def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugriff_auf_media, sav_home_docker_folder, share_folder_daten,
                     share_folder1_aktiv, share_folder1, network_disable, steam_controller_bool, usb_sharing, usb_name, usb_hidraw_name,
                     docker_build, docker_input, maxmemory, maxcpus, network_host, portforwding, dbus_rw, pacman_cache, dns, ipv4,
                     wireguard_fix, nosudo, run_in_background, ttyon, pacman_pakgage_install, bluethoot_passthrough, hidraw_acs_overrides_patch,
                     ipv6_privacy, faketime, wine_32bit_speed_hak, read_only, read_only_password, amd_gpu_raytrasing_allgpus, amd_gpu_raytrasing_rdan2_only
                     , wine_fsr, manager_vm_fodler, optional_array, smart_acces_meomory, vulkan_device_name, steam_proton_run_without_steam, mango_hud, vkbasalt,
-                    freesync, vsync, docker_system, lxc_readonly, lxc_network_mac, lxc_network_bridge_link, sav_and_exit):
+                    freesync, vsync, docker_system, lxc_readonly, lxc_network_mac, lxc_network_bridge_link, sav_and_exit, docker_disable_ipv6,
+                    nvidia_dlss, nvidia_dlss_non_nvida_gpu, wineesync_and_winefsync, pulseaudio_stotterfix, amdgpu_nohyperz, amdgpu_pswave32, amdgpu_nv_ms,
+                    amdgpu_vrs ):
     from PyQt5 import QtWidgets
     from PyQt5 import QtGui
     from PyQt5 import QtCore
@@ -379,7 +383,7 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
             #lxc_network_bridge_link
             self.lxc_network_bridge_link_link_eth0_lbael = QtWidgets.QLabel("Network link eth0 for internet: ");
             self.lxc_network_bridge_link = QtWidgets.QLineEdit(lxc_network_bridge_link);
-            self.lxc_network_mac_label = QtWidgets.QLabel("macaddr from network \"\" is random mac addr lxc: ");
+            self.lxc_network_mac_label = QtWidgets.QLabel("macaddr from network \"\" is random mac addr lxc \"0\" for disable: ");
             self.lxc_network_mac = QtWidgets.QLineEdit(lxc_network_mac);
             self.layouth17.addWidget(self.network_host_label);
             self.layouth17.addWidget(self.network_host);
@@ -390,11 +394,14 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
             self.layoutv1.addLayout(self.layouth17);
 
             self.layouth29 = QtWidgets.QHBoxLayout();
+            self.docker_disable_ipv6 = QtWidgets.QCheckBox("ipv6 addr dsiable");
+            self.docker_disable_ipv6.setChecked(self.int_to_bool(docker_disable_ipv6));
             self.ipv6_privacy_label = QtWidgets.QLabel("ipv6_privacy mode (ramdon mac addr in ipv6 adress) 0 = disabel , 1= enable 2=all devies patch on Server: ");
             self.ipv6_privacy1 = QtWidgets.QSpinBox();
             self.ipv6_privacy1.setValue(ipv6_privacy);
             self.ipv6_privacy1.setMinimum(0);
             self.ipv6_privacy1.setMaximum(2);
+            self.layouth29.addWidget(self.docker_disable_ipv6);
             self.layouth29.addWidget(self.ipv6_privacy_label);
             self.layouth29.addWidget(self.ipv6_privacy1);
             self.layoutv1.addLayout(self.layouth29);
@@ -541,11 +548,49 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
             self.amd_gpu_raytrasing_rdan2_only = QtWidgets.QCheckBox("amd gpu for all raytrasing wav64 sped hak support rdna 2(amd rx 6000) only up mesa 22.0");
             self.amd_gpu_raytrasing_rdan2_only.setChecked(self.int_to_bool(amd_gpu_raytrasing_rdan2_only));
             self.amd_gpu_raytrasing_rdan2_only.toggled.connect(self.amdgpu_spinbox_value_change)
+            self.wineesync_and_winefsync = QtWidgets.QCheckBox("wine and Proton speed patch FSYNC ab linux kernel 5.19");
+            self.wineesync_and_winefsync.setChecked(self.int_to_bool(wineesync_and_winefsync));
             self.layouth31.addWidget(self.wine_32bit_speed_hak);
             self.layouth31.addWidget(self.amd_gpu_raytrasing_allgpus);
             self.layouth31.addWidget(self.amd_gpu_raytrasing_rdan2_only);
+            self.layouth31.addWidget(self.wineesync_and_winefsync);
             self.layoutv1.addLayout(self.layouth31);
             self.amd_gpu_raytrasing_bak = 0;
+
+            self.nvidia_dlss = QtWidgets.QCheckBox("aktiviren NVIDIA DLSS (dxvk nvapi hak)");
+            self.nvidia_dlss.setChecked(self.int_to_bool(nvidia_dlss));
+            self.nvidia_dlss.toggled.connect(self.nvidia_dlss_change)
+            self.nvidia_dlss_non_nvida_gpu = QtWidgets.QCheckBox("aktiviren NVIDAI DLSS non NVIDIA GPU");
+            self.nvidia_dlss_non_nvida_gpu.setChecked(self.int_to_bool(nvidia_dlss_non_nvida_gpu));
+            self.nvidia_dlss_non_nvida_gpu.toggled.connect(self.nvidia_dlss_non_nvida_gpu_change)
+            self.layouth31_2 = QtWidgets.QHBoxLayout();
+            self.layouth31_2.addWidget(self.nvidia_dlss);
+            self.layouth31_2.addWidget(self.nvidia_dlss_non_nvida_gpu);
+            self.layoutv1.addLayout(self.layouth31_2);
+
+            self.pulseaudio_stotterfix = QtWidgets.QCheckBox("pulseaudio stotter fix");
+            self.pulseaudio_stotterfix.setChecked(self.int_to_bool(pulseaudio_stotterfix));
+            self.amdgpu_nohyperz = QtWidgets.QCheckBox("yuzu emu amd gpu grafik fix");
+            self.amdgpu_nohyperz.setChecked(self.int_to_bool(amdgpu_nohyperz));
+            self.amdgpu_pswave32 = QtWidgets.QCheckBox("amdgpu enable wave32 for pixel shaders (GFX10+)");
+            self.amdgpu_pswave32.setChecked(self.int_to_bool(amdgpu_pswave32));
+            self.amdgpu_nv_ms = QtWidgets.QCheckBox("amdgpu enable unofficial experimental support for NV_mesh_shader");
+            self.amdgpu_nv_ms.setChecked(self.int_to_bool(amdgpu_nv_ms));
+            self.amdgpu_vrs = QtWidgets.QComboBox();
+            if(amdgpu_vrs == ""):
+                self.amdgpu_vrs_array = ["disable", "1x1", "1x2", "2x1", "2x2"]
+            else:
+                self.amdgpu_vrs_array = [amdgpu_vrs, "disable", "1x1", "1x2", "2x1", "2x2"]
+            self.amdgpu_vrs.addItems(self.amdgpu_vrs_array)
+            self.amdgpu_vrs.update();
+            self.layouth31_3 = QtWidgets.QHBoxLayout();
+            self.layouth31_3.addWidget(self.pulseaudio_stotterfix);
+            self.layouth31_3.addWidget(self.amdgpu_nohyperz);
+            self.layouth31_3.addWidget(self.amdgpu_pswave32);
+            self.layouth31_3.addWidget(self.amdgpu_nv_ms);
+            self.layouth31_3.addWidget(self.amdgpu_vrs);
+            self.layoutv1.addLayout(self.layouth31_3);
+
 
             self.layouth_tmp6 =  QtWidgets.QHBoxLayout();
             self.layouth_tmp6_label = QtWidgets.QLabel("--------------------------------------------------------Time & Advacne--------------------------------------------------------")
@@ -582,7 +627,7 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
             self.layouth37 = QtWidgets.QHBoxLayout();
             self.steam_proton_run_without_steam = QtWidgets.QCheckBox("steam_proton_run_without_steam");
             self.steam_proton_run_without_steam.setChecked(self.int_to_bool(steam_proton_run_without_steam));
-            self.mango_hud = QtWidgets.QCheckBox("mango_hud");
+            self.mango_hud = QtWidgets.QCheckBox("mango_hud not used run Gamescope");
             self.mango_hud.setChecked(self.int_to_bool(mango_hud));
             self.vkbasalt = QtWidgets.QCheckBox("vkbasalt");
             self.vkbasalt.setChecked(self.int_to_bool(vkbasalt));
@@ -685,7 +730,7 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
             nosudo = str(self.bool_to_int(self.nosudo.isChecked()));
             run_in_background = str(self.bool_to_int(self.run_in_background.isChecked()));
             ttyon = str(self.ttyon.value());
-            pacman_pakgage_install = self.pacman_pakgage_install.text();
+            pacman_pakgage_install = self.remove_string_tablaotor(self.pacman_pakgage_install.text());
             docker_input = self.docker_input.text();
             bluethoot_passthrough = str(self.bool_to_int(self.bluethoot_passthrough.isChecked()));
             hidraw_acs_overrides_patch = str(self.bool_to_int(self.hidraw_acs_overrides_patch.isChecked()));
@@ -711,8 +756,20 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
             lxc_readonly = str(self.bool_to_int(self.lxc_readonly.isChecked()));
             lxc_network_mac = self.lxc_network_mac.text();
             lxc_network_bridge_link = self.lxc_network_bridge_link.text();
+            docker_disable_ipv6 = str(self.bool_to_int(self.docker_disable_ipv6.isChecked()));
+
+            wineesync_and_winefsync = str(self.bool_to_int(self.wineesync_and_winefsync.isChecked()));
+            nvidia_dlss = str(self.bool_to_int(self.nvidia_dlss.isChecked()));
+            nvidia_dlss_non_nvida_gpu = str(self.bool_to_int(self.nvidia_dlss_non_nvida_gpu.isChecked()));
+            pulseaudio_stotterfix = str(self.bool_to_int(self.pulseaudio_stotterfix.isChecked()));
+            amdgpu_nohyperz = str(self.bool_to_int(self.amdgpu_nohyperz.isChecked()));
+            amdgpu_pswave32 = str(self.bool_to_int(self.amdgpu_pswave32.isChecked()));
+            amdgpu_nv_ms = str(self.bool_to_int(self.amdgpu_nv_ms.isChecked()));
+            amdgpu_vrs = self.amdgpu_vrs_array[self.amdgpu_vrs.currentIndex()];
+            if(amdgpu_vrs == "disable"):
+                amdgpu_vrs = "";
             #, steam_proton_run_without_steam, mango_hud, vkbasalt
-            optional_array = [smart_acces_meomory, vulkan_device, steam_proton_run_without_steam, mango_hud, vkbasalt, freesync, vsync, docker_system, lxc_readonly, lxc_network_mac, lxc_network_bridge_link];
+            optional_array = [smart_acces_meomory, vulkan_device, steam_proton_run_without_steam, mango_hud, vkbasalt, freesync, vsync, docker_system, lxc_readonly, lxc_network_mac, lxc_network_bridge_link, docker_disable_ipv6, nvidia_dlss, nvidia_dlss_non_nvida_gpu, wineesync_and_winefsync, pulseaudio_stotterfix, amdgpu_nohyperz, amdgpu_pswave32, amdgpu_nv_ms, amdgpu_vrs];
             optional_array_str = self.optional_array_to_string(optional_array);
 
             #file_write_json(dirname + "/config_file_json", docker_user, gpu_render, disk_device_name, zugriff_auf_media, sav_home_docker_folder, share_folder_daten,
@@ -796,7 +853,10 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
         def set_combox_gpu_render_name_vulkan_only(self):
             index = self.gpu_render_combobox.currentIndex()
             self.gpu_render.setText(self.gpu_render_array[index].split(" (")[0]);
-            s1 = self.gpu_render_array[index].split("(")[1].split()[0].split(",")[0];
+            #s1 = self.gpu_render_array[index].split("(")[1].split()[0].split(",")[0];
+            s1 = self.gpu_render_array[index].split(" (")[0].split(" Series")[0].lower();
+            s1 = s1.split();
+            s1 = s1[len(s1) -1];
             if(DEBUG_MODE_jsongui == 1):
                 #print("opengl_device found set: ", self.gpu_render.text())
                 print("vulkan_device found set: ", s1)
@@ -952,8 +1012,11 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
                 self.ttyon.setEnabled(False);
                 self.run_in_background.setEnabled(False);
                 self.nosudo.setEnabled(False);
-                self.lxc_network_mac.setEnabled(True);
+                #self.lxc_network_mac.setEnabled(True);
                 self.lxc_readonly.setEnabled(True);
+                self.gpu_render_combobox_set_name_opengl_only.setEnabled(False);
+                self.gpu_render.setText("");
+                self.gpu_render.setEnabled(False);
             else:
                 #docker
                 #self.docker_build_combobox.setEnabled(True);
@@ -966,8 +1029,27 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
                 self.ttyon.setEnabled(True);
                 self.run_in_background.setEnabled(True);
                 self.nosudo.setEnabled(True);
-                self.lxc_network_mac.setEnabled(False);
+                #self.lxc_network_mac.setEnabled(False);
                 self.lxc_readonly.setEnabled(False);
+                self.gpu_render_combobox_set_name_opengl_only.setEnabled(True);
+                self.gpu_render.setEnabled(True);
+                if(self.network_host.text() != "" and self.network_host.text() != "0"):
+                    def question_networkbridge():
+                        msgBox2 = QtWidgets.QMessageBox();
+                        msgBox2.setText("delete the network bridge for docker conatiner? " + self.network_host.text() + ":");
+                        yesbuttom = QtWidgets.QPushButton("Yes");
+                        nobuttom = QtWidgets.QPushButton("No");
+                        yesbuttom = msgBox2.addButton("Yes", QtWidgets.QMessageBox.ButtonRole.AcceptRole);
+                        nobuttom = msgBox2.addButton("No", QtWidgets.QMessageBox.ButtonRole.NoRole);
+
+                        out = msgBox2.exec();
+                        if(msgBox2.clickedButton() == yesbuttom):
+                            self.network_host.setText("");
+                        elif(msgBox2.clickedButton() == nobuttom):
+                            pass;
+                        else:
+                            pass;
+                    question_networkbridge();
             self.update_docker_build_combobox();
             return 0;
 
@@ -983,6 +1065,58 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
                 if(tmp.find(last) != -1):
                     return i;
             return 0;
+
+        def remove_string_tablaotor(self, s1):
+            out = "";
+            for tmp in s1:
+                if (tmp == '\r'):
+                    out = out +  " ";
+                elif (tmp == '\t'):
+                    out = out +  " ";
+                elif (tmp == '\n'):
+                    out = out +  " ";
+                else:
+                    out = out + tmp;
+            return out;
+
+        def remove_numbers_String(self, s1):
+            out = "";
+            for tmp in s1:
+                if(tmp == "0"):
+                    continue;
+                elif(tmp == "1"):
+                    continue;
+                elif(tmp == "2"):
+                    continue;
+                elif(tmp == "3"):
+                    continue;
+                elif(tmp == "4"):
+                    continue;
+                elif(tmp == "5"):
+                    continue;
+                elif(tmp == "6"):
+                    continue;
+                elif(tmp == "7"):
+                    continue;
+                elif(tmp == "8"):
+                    continue;
+                elif(tmp == "9"):
+                    continue;
+                else:
+                    out = out + tmp;
+            return out;
+
+        def nvidia_dlss_change(self):
+            if(self.nvidia_dlss.isChecked() == True):
+                self.smart_acces_meomory.setChecked(True);
+            else:
+                self.nvidia_dlss_non_nvida_gpu.setChecked(False);
+        def nvidia_dlss_non_nvida_gpu_change(self):
+            if(self.nvidia_dlss_non_nvida_gpu.isChecked() == True):
+                self.smart_acces_meomory.setChecked(True);
+                self.nvidia_dlss.setChecked(True);
+
+
 
 
 
