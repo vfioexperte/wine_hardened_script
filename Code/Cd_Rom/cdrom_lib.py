@@ -5,7 +5,7 @@
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #this is a fork from https://github.com/kritzsie/steam-on-docker
 
-version = "0.2c"
+version = "0.3a"
 
 import platform
 import os
@@ -17,7 +17,7 @@ import math
 import json
 jason_data = {};
 
-
+from Code.Lxc.lxc import *
 
 def system(cmd):
     try:
@@ -48,88 +48,131 @@ def link_device(device, i):
     return (scsi_fodler + "/" + str(i));
 
 
-def read_scsi(device_name):
-    dev = [];
-    dev2 = [];
-    sg = [];
-    try:
-        output = subprocess.check_output("lsscsi -g | grep " + device_name, shell=True).decode().split("\n");
-        for tmp in output:
-            if(len(tmp) != 0):
-                #print(tmp.split())
-                scssiport = tmp.split()[0];
-                #print(scssiport)
-                scssiport = scssiport.split("[")[1].split("]")[0];
-                scssiport = "/dev/bsg/" + scssiport;
-                dev2.append(scssiport)
-                #print(scssiport)
-                cdromdev = tmp.split("/dev")[1].split(" ")[0];
-                #print(cdromdev)
-                cdromdev = "/dev" + cdromdev;
-                dev.append(cdromdev)
-        i = 0;
-        for tmp in dev2:
-            sg.append(link_device(tmp, i));
-            i = i +1;
-        return [dev, sg];
-    except subprocess.CalledProcessError:
-        return [dev, sg]
-    except FileNotFoundError:
-        return [dev, sg]
+def read_scsi(device_name, docker_system):
+    #docker_system == 1
+    if(docker_system == 1):
+        #docker
+        dev = [];
+        dev2 = [];
+        sg = [];
+        try:
+            output = subprocess.check_output("lsscsi -g | grep " + device_name, shell=True).decode().split("\n");
+            for tmp in output:
+                if(len(tmp) != 0):
+                    #print(tmp.split())
+                    scssiport = tmp.split()[0];
+                    #print(scssiport)
+                    scssiport = scssiport.split("[")[1].split("]")[0];
+                    scssiport = "/dev/bsg/" + scssiport;
+                    dev2.append(scssiport)
+                    #print(scssiport)
+                    cdromdev = tmp.split("/dev")[1].split(" ")[0];
+                    #print(cdromdev)
+                    cdromdev = "/dev" + cdromdev;
+                    dev.append(cdromdev)
+            i = 0;
+            for tmp in dev2:
+                sg.append(link_device(tmp, i));
+                i = i +1;
+            return [dev, sg, [], []];
+        except subprocess.CalledProcessError:
+            return [dev, sg, [], []]
+        except FileNotFoundError:
+            return [dev, sg, [], []]
+    else:
+        #lxc
+        dev = [];
+        sg2 = [];
+        sg = [];
+        dev2 = [];
+        try:
+            output = subprocess.check_output("lsscsi -g | grep " + device_name, shell=True).decode().split("\n");
+            for tmp in output:
+                if(len(tmp) != 0):
+                    #print(tmp.split())
+                    scssiport = tmp.split()[0];
+                    #print(scssiport)
+                    scssiport = scssiport.split("[")[1].split("]")[0];
+                    scssiport = "/dev/bsg/" + scssiport;
+                    dev2.append(scssiport)
+                    #print(scssiport)
+                    cdromdev = tmp.split("/dev")[1].split(" ")[0];
+                    if(len(tmp.split("/dev")) > 2):
+                        cdromdev2 = tmp.split("/dev")[2].split(" ")[0];
+                        cdromdev2 = "/dev" + cdromdev2;
+                        sg2.append(cdromdev2)
+                    #print(cdromdev)
+                    cdromdev = "/dev" + cdromdev;
+                    dev.append(cdromdev)
+                    #cdromdev2 = "/dev" + cdromdev2;
+                    #sg2.append(cdromdev2)
+            i = 0;
+            for tmp in dev2:
+                sg.append(link_device(tmp, i));
+                i = i +1;
+            return [dev, dev, dev2, sg2];
+        except subprocess.CalledProcessError:
+            return [dev, dev, dev2, sg2]
+        except FileNotFoundError:
+            return [dev, dev, dev2, sg2]
 
 
 def create_a_cdrom_mount_file_per_dev(devarray, docker_user, folder):
-    if(os.path.isdir(os.path.join(folder, "home")) == False):
-        return 0;
-    print(os.path.join(folder, "home"));
-    array = find_wine_prefix(os.path.join(folder, "home"));
-    print("find_wine_prefix return: ", array)
-    wine_dir = array[0];
-    proton_dir = array[1];
-    dev = devarray[0];
-    sg = devarray[1];
-    if(os.path.isdir("daten/") == False):
-        system("mkdir -p daten");
-    file1 = open("daten/cdrom.bash", "w");
-    file1.write("#!/bin/bash\n");
-    file1.write("usermod -aG optical " + docker_user + "\n");
-    file1.write("usermod -aG cdemu " + docker_user + "\n");
-    i = 0;
-    buchstabe = list(string.ascii_lowercase);
-    buchstabe_i = 3;
-    while True:
-        if(i >= len(dev)):
-            break;
-        if(buchstabe_i >= 26):
-            print("ERROR to much cdrom dirve can not patch " + "/mnt/cdrom"+ str(i+1))
+    print("devarray: ", devarray)
+    #docker_system == 1
+    if(True):
+        if(os.path.isdir(os.path.join(folder, "home")) == False):
+            return 0;
+        print(os.path.join(folder, "home"));
+        array = find_wine_prefix(os.path.join(folder, "home"));
+        print("find_wine_prefix return: ", array)
+        wine_dir = array[0];
+        proton_dir = array[1];
+        dev = devarray[0];
+        sg = devarray[1];
+        if(os.path.isdir("daten/") == False):
+            system("mkdir -p daten");
+        file1 = open("daten/cdrom.bash", "w");
+        file1.write("#!/bin/bash\n");
+        file1.write("usermod -aG optical " + docker_user + "\n");
+        file1.write("usermod -aG cdemu " + docker_user + "\n");
+        i = 0;
+        buchstabe = list(string.ascii_lowercase);
+        buchstabe_i = 3;
+        while True:
+            if(i >= len(dev)):
+                break;
+            if(buchstabe_i >= 26):
+                print("ERROR to much cdrom dirve can not patch " + "/mnt/cdrom"+ str(i+1))
+                buchstabe_i = buchstabe_i +1;
+                i = i +1;
+                continue;
+            tmp = dev[i];
+            tmp2 = sg[i];
+            if(i == 0):
+                file1.write("ln -sf " + tmp + " /dev/cdrom\n");
+            file1.write("mkdir "+ " /mnt/cdrom"+ str(i+1) + "\n");
+            file1.write("mount "+ tmp +" /mnt/cdrom"+ str(i+1) + "\n");
+            patch_wine_fodler_cdrom(tmp ,"/mnt/cdrom"+ str(i+1), buchstabe[buchstabe_i], tmp2);
+            for tmp in wine_dir:
+                patch_wine_fodler_cdrom(tmp ,"/mnt/cdrom"+ str(i+1), buchstabe[buchstabe_i], tmp2, tmp);
+            for tmp in proton_dir:
+                patch_wine_fodler_cdrom(tmp ,"/mnt/cdrom"+ str(i+1), buchstabe[buchstabe_i], tmp2, os.path.join(tmp, "pfx"));
             buchstabe_i = buchstabe_i +1;
             i = i +1;
-            continue;
-        tmp = dev[i];
-        tmp2 = sg[i];
-        if(i == 0):
-            file1.write("ln -sf " + tmp + " /dev/cdrom\n");
-        file1.write("mkdir "+ " /mnt/cdrom"+ str(i+1) + "\n");
-        file1.write("mount "+ tmp +" /mnt/cdrom"+ str(i+1) + "\n");
-        patch_wine_fodler_cdrom(tmp ,"/mnt/cdrom"+ str(i+1), buchstabe[buchstabe_i], tmp2);
-        for tmp in wine_dir:
-            patch_wine_fodler_cdrom(tmp ,"/mnt/cdrom"+ str(i+1), buchstabe[buchstabe_i], tmp2, tmp);
-        for tmp in proton_dir:
-            patch_wine_fodler_cdrom(tmp ,"/mnt/cdrom"+ str(i+1), buchstabe[buchstabe_i], tmp2, os.path.join(tmp, "pfx"));
-        buchstabe_i = buchstabe_i +1;
-        i = i +1;
-    file1.write("su " + docker_user + "\n");
-    file1.close();
-    file2 = open("with_cdrom.bash", "w");
-    file2.write("#!/bin/bash\n");
-    file2.write("./command_root \"/home/empty/daten/cdrom.bash\"\n");
-    file2.close();
-    abspath = os.path.abspath(sys.argv[0]);
-    basename = os.path.basename(abspath);
-    dirname = os.path.dirname(abspath);
-    system("chmod 777 " + dirname + "/daten/cdrom.bash");
-    #system("chmod +x daten/cdrom.bash");
-    return 0;
+        file1.write("su " + docker_user + "\n");
+        file1.close();
+        file2 = open("with_cdrom.bash", "w");
+        file2.write("#!/bin/bash\n");
+        file2.write("./command_root \"/home/empty/daten/cdrom.bash\"\n");
+        file2.close();
+        abspath = os.path.abspath(sys.argv[0]);
+        basename = os.path.basename(abspath);
+        dirname = os.path.dirname(abspath);
+        system("chmod 777 " + dirname + "/daten/cdrom.bash");
+        #system("chmod +x daten/cdrom.bash");
+        return 0;
+
 
 
 def patch_wine_fodler_cdrom(device, mountpoint, buchstabe, sg, folder = ""):
@@ -247,3 +290,21 @@ def find_wine_prefix(folder):
         else:
             wine_dir.append(tmp);
     return [wine_dir, proton_dir];
+
+def lxc_optical_device_to_command(optical_disk, docker_build, s1):
+    i = 1;
+    for tmp in optical_disk[0]:
+        #s1 = s1 + "lxc-config device add " + docker_build+ " cdrom disk readonly=true source=" + tmp + " path=" + tmp + "\n";
+        s1 = s1 + "sudo lxc config device add " + docker_build+ " cdrom disk readonly=true source=" + tmp + " path=" + "/mnt/cdrom" +str(i) + "\n";
+        print(s1);
+        i = i +1;
+    return s1;
+
+
+def lxc_device_array_to_comdands(docker_build, array, optical_disk):
+    s1 = "";
+    for tmp in array:
+        s1 = s1 + "sudo lxc-device -n " + docker_build + " add " + tmp + "\n";
+        print(s1);
+    s1 = lxc_optical_device_to_command(optical_disk, docker_build, s1);
+    return s1;
