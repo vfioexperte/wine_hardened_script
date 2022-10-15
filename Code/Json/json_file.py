@@ -5,7 +5,7 @@
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #this is a fork from https://github.com/kritzsie/steam-on-docker
 
-version = "0.4d lxc hotfix 13"
+version = "0.4d lxc hotfix 55"
 #0.4c lxc support 0.1a
 #0.3l_hotfix_2 optional_array empty array[0] fix 0.1a
 #0.3l optional_array and freesync, vsync
@@ -254,6 +254,24 @@ def optional_array_to_out(out, array_str):
         out.append(brechen_config('lxc_network_mac', array[9]));
     if(len(array) >= 11 and array[10] != ""):
         out.append(brechen_config('lxc_network_bridge_link', array[10]));
+    if(len(array) >= 12 and array[11] != ""):
+        out.append(brechen_config('docker_disable_ipv6', array[11]));
+    if(len(array) >= 13 and array[12] != ""):
+        out.append(brechen_config('nvidia_dlss', array[12]));
+    if(len(array) >= 14 and array[13] != ""):
+        out.append(brechen_config('nvidia_dlss_non_nvida_gpu', array[13]));
+    if(len(array) >= 15 and array[14] != ""):
+        out.append(brechen_config('wineesync_and_winefsync', array[14]));
+    if(len(array) >= 16 and array[15] != ""):
+        out.append(brechen_config('pulseaudio_stotterfix', array[15]));
+    if(len(array) >= 17 and array[16] != ""):
+        out.append(brechen_config('amdgpu_nohyperz', array[16]));
+    if(len(array) >= 18 and array[17] != ""):
+        out.append(brechen_config('amdgpu_pswave32', array[17]));
+    if(len(array) >= 19 and array[18] != ""):
+        out.append(brechen_config('amdgpu_nv_ms', array[18]));
+    if(len(array) >= 20 and array[19] != ""):
+        out.append(brechen_config('amdgpu_vrs', array[19]));
     return out;
 
 def file_read_json_0_1(sfile):
