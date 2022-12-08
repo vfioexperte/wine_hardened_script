@@ -5,7 +5,7 @@
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #this is a fork from https://github.com/kritzsie/steam-on-docker
 
-version = "0.4d lxc hotfix 55"
+version = "0.4d lxc hotfix 58"
 #0.4c lxc support 0.1a
 #0.3l_hotfix_2 optional_array empty array[0] fix 0.1a
 #0.3l optional_array and freesync, vsync
@@ -272,6 +272,8 @@ def optional_array_to_out(out, array_str):
         out.append(brechen_config('amdgpu_nv_ms', array[18]));
     if(len(array) >= 20 and array[19] != ""):
         out.append(brechen_config('amdgpu_vrs', array[19]));
+    if(len(array) >= 21 and array[20] != ""):
+        out.append(brechen_config('pluseaudio_sdl_fix', array[20]));
     return out;
 
 def file_read_json_0_1(sfile):
