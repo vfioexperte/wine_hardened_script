@@ -5,7 +5,7 @@
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #this is a fork from https://github.com/kritzsie/steam-on-docker
 
-version_jsongui = "0.4f hotfix 3 lxc hotfix 55"
+version_jsongui = "0.4f hotfix 3 lxc hotfix 58"
 #0.4f docker input label fix 0.1a
 #0.4e docker system combobox fix 0.1a
 #0.4d new desinge 0.2a
@@ -185,7 +185,7 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
                     , wine_fsr, manager_vm_fodler, optional_array, smart_acces_meomory, vulkan_device_name, steam_proton_run_without_steam, mango_hud, vkbasalt,
                     freesync, vsync, docker_system, lxc_readonly, lxc_network_mac, lxc_network_bridge_link, sav_and_exit, docker_disable_ipv6,
                     nvidia_dlss, nvidia_dlss_non_nvida_gpu, wineesync_and_winefsync, pulseaudio_stotterfix, amdgpu_nohyperz, amdgpu_pswave32, amdgpu_nv_ms,
-                    amdgpu_vrs ):
+                    amdgpu_vrs, pluseaudio_sdl_fix ):
     from PyQt5 import QtWidgets
     from PyQt5 import QtGui
     from PyQt5 import QtCore
@@ -570,6 +570,14 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
 
             self.pulseaudio_stotterfix = QtWidgets.QCheckBox("pulseaudio stotter fix");
             self.pulseaudio_stotterfix.setChecked(self.int_to_bool(pulseaudio_stotterfix));
+
+            self.pluseaudio_sdl_fix_label = QtWidgets.QLabel("pulseaudio sdl use fix for steam and other apps: 0 = disable, 1=pluseaudio, 2=alsa")
+            self.pluseaudio_sdl_fix = QtWidgets.QSpinBox();
+            self.pluseaudio_sdl_fix.setValue(pluseaudio_sdl_fix);
+            self.pluseaudio_sdl_fix.setMaximum(2);
+            self.pluseaudio_sdl_fix.setMinimum(0);
+
+
             self.amdgpu_nohyperz = QtWidgets.QCheckBox("yuzu emu amd gpu grafik fix");
             self.amdgpu_nohyperz.setChecked(self.int_to_bool(amdgpu_nohyperz));
             self.amdgpu_pswave32 = QtWidgets.QCheckBox("amdgpu enable wave32 for pixel shaders (GFX10+)");
@@ -585,6 +593,8 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
             self.amdgpu_vrs.update();
             self.layouth31_3 = QtWidgets.QHBoxLayout();
             self.layouth31_3.addWidget(self.pulseaudio_stotterfix);
+            self.layouth31_3.addWidget(self.pluseaudio_sdl_fix_label);
+            self.layouth31_3.addWidget(self.pluseaudio_sdl_fix);
             self.layouth31_3.addWidget(self.amdgpu_nohyperz);
             self.layouth31_3.addWidget(self.amdgpu_pswave32);
             self.layouth31_3.addWidget(self.amdgpu_nv_ms);
@@ -766,10 +776,12 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
             amdgpu_pswave32 = str(self.bool_to_int(self.amdgpu_pswave32.isChecked()));
             amdgpu_nv_ms = str(self.bool_to_int(self.amdgpu_nv_ms.isChecked()));
             amdgpu_vrs = self.amdgpu_vrs_array[self.amdgpu_vrs.currentIndex()];
+            pluseaudio_sdl_fix = str(self.pluseaudio_sdl_fix.value());
             if(amdgpu_vrs == "disable"):
                 amdgpu_vrs = "";
             #, steam_proton_run_without_steam, mango_hud, vkbasalt
-            optional_array = [smart_acces_meomory, vulkan_device, steam_proton_run_without_steam, mango_hud, vkbasalt, freesync, vsync, docker_system, lxc_readonly, lxc_network_mac, lxc_network_bridge_link, docker_disable_ipv6, nvidia_dlss, nvidia_dlss_non_nvida_gpu, wineesync_and_winefsync, pulseaudio_stotterfix, amdgpu_nohyperz, amdgpu_pswave32, amdgpu_nv_ms, amdgpu_vrs];
+            optional_array = [smart_acces_meomory, vulkan_device, steam_proton_run_without_steam, mango_hud, vkbasalt, freesync, vsync, docker_system, lxc_readonly, lxc_network_mac, lxc_network_bridge_link, docker_disable_ipv6, nvidia_dlss, nvidia_dlss_non_nvida_gpu, wineesync_and_winefsync, pulseaudio_stotterfix, amdgpu_nohyperz, amdgpu_pswave32, amdgpu_nv_ms, amdgpu_vrs,
+            pluseaudio_sdl_fix];
             optional_array_str = self.optional_array_to_string(optional_array);
 
             #file_write_json(dirname + "/config_file_json", docker_user, gpu_render, disk_device_name, zugriff_auf_media, sav_home_docker_folder, share_folder_daten,
