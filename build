@@ -7,11 +7,13 @@
 #start project 04.02.2021
 
 
-#last edit 15.10.2022
+#last edit 06.12.2022
 
-version = "v0.31e_hotfix_56"
+version = "v0.32c"
 DEBUG_MODE = 1; #0 off, 1 on
 appname_build = "vfio_experte_docker_contianer_gaming_app"
+#v0.32b Xorg DISAPLAY crash fix 0.2a gamescope crash fix
+#v0.31e_hotfix_58 steam docker audio fix 0.2a
 #v0.31e_hotfix_56 lxc build fix 0.1a
 #"v0.31e_hotfix_55 add new config oprtions amdgpu_nohyperz,amdgpu_pswave32,amdgpu_nv_ms,amdgpu_vrs
 #v0.31e_hotfix_54 nvidia dlss fix 0.2a
@@ -622,6 +624,7 @@ def main():
     amdgpu_pswave32 = 0;
     amdgpu_nv_ms = 0;
     amdgpu_vrs = "";
+    pluseaudio_sdl_fix = 0;
 
     i = 0;
     while True:
@@ -759,6 +762,8 @@ def main():
             amdgpu_nv_ms = int(tmp[1]);
         elif(tmp[0] == "amdgpu_vrs"):
             amdgpu_vrs = tmp[1];
+        elif(tmp[0] == "pluseaudio_sdl_fix"):
+            pluseaudio_sdl_fix = int(tmp[1]);
         elif(tmp[0] == "sav_Version"):
             json_config_Verison = tmp[1];
         else:
@@ -1025,8 +1030,17 @@ def main():
             print("/etc/localtime not found!")
         exit(-1);
 
-    base_args = device_folder_passthrough("/dev/snd", base_args);
-    base_args = device_folder_passthrough("/dev/shm", base_args);
+    if(docker_system == 0):
+        #lxc
+        base_args = device_folder_passthrough("/dev/snd", base_args);
+        base_args = device_folder_passthrough("/dev/shm", base_args);
+    else:
+        #docker
+        base_args.append("-v");
+        base_args.append("/dev/snd");
+        base_args.append("-v");
+        base_args.append("/dev/snd");
+
     if(docker_system == 0):
         #lxc
         if(basename == "system_only" or basename == "system_only2" or basename == "edit_config" or basename == "build"):
@@ -1081,7 +1095,7 @@ def main():
         if(debug == 1):
             print("dbus_rw on");
         base_args.append("-v");
-        base_args.append("/var/lib/dbus:/var/lib/dbus",);
+        base_args.append("/var/lib/dbus:/var/lib/dbus");
         if(docker_system == 1):
             base_args.append("-v");
             base_args.append("/tmp/.X11-unix:/tmp/.X11-unix:rw");
@@ -1117,10 +1131,17 @@ def main():
             elif(docker_input == "block"):
                 if(debug == 1):
                     print("add block empty folder for xinput");
+                os.system("mkdir -p " + emptyfolder + "/by-id")
+                os.system("mkdir -p " + emptyfolder + "/by-path")
+                #os.system("sudo chmod 000 -R " + emptyfolder)
                 base_args.append("-v");
                 base_args.append(emptyfolder + ":"+ "/dev/input" + ":rw");
-                base_args.append("-v");
-                base_args.append(emptyfolder + ":"+ "/dev/input/event3" + ":rw");
+
+
+
+
+                #base_args.append("-v");
+                #base_args.append(emptyfolder + ":"+ "/dev/input/event3" + ":rw");
                 #out = add_input_device(docker_input);
             else:
                 #print("add empty folder for xinput");
@@ -1582,6 +1603,22 @@ def main():
                 base_args.append("--mac-address");
                 base_args.append(lxc_network_mac);
 
+    #steam audio fix
+    #string_bash_add_root = string_bash_add_root + "export SDL_AUDIODRIVER=pluse\n"
+    #string_bash_add = string_bash_add + "export SDL_AUDIODRIVER=pluse\n"
+    if(pluseaudio_sdl_fix == 1):
+        string_bash_add_root = string_bash_add_root + "export SDL_AUDIODRIVER=pulseaudio\n";
+        string_bash_add = string_bash_add + "export SDL_AUDIODRIVER=pulseaudio\n";
+
+    if(pluseaudio_sdl_fix == 2):
+        string_bash_add_root = string_bash_add_root + "export SDL_AUDIODRIVER=alsa\n";
+        string_bash_add = string_bash_add + "export SDL_AUDIODRIVER=alsa\n";
+
+    #Xorg DISAPLAY crash fix 0.2a
+    string_bash_add_root = string_bash_add_root + "chmod -R 777 /tmp/.X11-unix\n";
+    string_bash_add_root = string_bash_add_root + "chmod 755 /tmp/.X11-unix\n";
+    string_bash_add_root = string_bash_add_root + "chown -R  " + docker_user + ":users /tmp/.X11-unix\n";
+    string_bash_add_root = string_bash_add_root + "chmod +x /tmp/.X11-unix\n";
 
     if(True):
         tmp1 = check_env("WAYLAND_DISPLAY");
@@ -1872,6 +1909,12 @@ def main():
                 tmp1 = tmp1 + "," + tmp;
         string_bash_add_root = string_bash_add_root + "export RADV_PERFTEST=" + tmp1 + "\n";
 
+    if(docker_input == "block"):
+        string_bash_add_root = string_bash_add_root + "chmod 000 -R /dev/input\n";
+
+
+
+
 
     if(basename == "edit_config"):
         sav_and_exit = 0;
@@ -1883,7 +1926,8 @@ def main():
                             ipv6_privacy, faketime, wine_32bit_speed_hak, read_only, read_only_password, amd_gpu_raytrasing_allgpus, amd_gpu_raytrasing_rdan2_only
                             , wine_fsr, manager_vm_fodler, optional_array, smart_acces_meomory, vulkan_device_name, steam_proton_run_without_steam, mango_hud, vkbasalt,
                             freesync, vsync, docker_system_bak, lxc_readonly_bak, lxc_network_mac, lxc_network_bridge_link, sav_and_exit, docker_disable_ipv6,
-                            nvidia_dlss, nvidia_dlss_non_nvida_gpu, wineesync_and_winefsync, pulseaudio_stotterfix, amdgpu_nohyperz, amdgpu_pswave32, amdgpu_nv_ms, amdgpu_vrs);
+                            nvidia_dlss, nvidia_dlss_non_nvida_gpu, wineesync_and_winefsync, pulseaudio_stotterfix, amdgpu_nohyperz, amdgpu_pswave32, amdgpu_nv_ms, amdgpu_vrs,
+                            pluseaudio_sdl_fix);
     if(basename == "edit_config_sav"):
         sav_and_exit = 1;
         start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugriff_auf_media, sav_home_docker_folder, share_folder_daten,
@@ -1893,7 +1937,8 @@ def main():
                             ipv6_privacy, faketime, wine_32bit_speed_hak, read_only, read_only_password, amd_gpu_raytrasing_allgpus, amd_gpu_raytrasing_rdan2_only
                             , wine_fsr, manager_vm_fodler, optional_array, smart_acces_meomory, vulkan_device_name, steam_proton_run_without_steam, mango_hud, vkbasalt,
                             freesync, vsync, docker_system_bak, lxc_readonly_bak, lxc_network_mac, lxc_network_bridge_link, sav_and_exit, docker_disable_ipv6,
-                            nvidia_dlss, nvidia_dlss_non_nvida_gpu, wineesync_and_winefsync, pulseaudio_stotterfix, amdgpu_nohyperz, amdgpu_pswave32, amdgpu_nv_ms, amdgpu_vrs);
+                            nvidia_dlss, nvidia_dlss_non_nvida_gpu, wineesync_and_winefsync, pulseaudio_stotterfix, amdgpu_nohyperz, amdgpu_pswave32, amdgpu_nv_ms, amdgpu_vrs,
+                            pluseaudio_sdl_fix);
         basename = basename_bak;
     if(basename == "manager"):
         if(manager_vm_fodler == ""):
