@@ -7,90 +7,63 @@
 #start project 04.02.2021
 
 
-#last edit 06.12.2022
+#last edit 09.10.2023
 
-version = "v0.32c"
+version = "v0.37f"
 DEBUG_MODE = 1; #0 off, 1 on
 appname_build = "vfio_experte_docker_contianer_gaming_app"
-#v0.32b Xorg DISAPLAY crash fix 0.2a gamescope crash fix
-#v0.31e_hotfix_58 steam docker audio fix 0.2a
-#v0.31e_hotfix_56 lxc build fix 0.1a
-#"v0.31e_hotfix_55 add new config oprtions amdgpu_nohyperz,amdgpu_pswave32,amdgpu_nv_ms,amdgpu_vrs
-#v0.31e_hotfix_54 nvidia dlss fix 0.2a
-#v0.31e_hotfix_53 nvidia dlss and wine esync_fsync
-#v0.31e_hotfix_52 fix cdromlib 0.3a
-#v0.31e_hotfix_51 acces denied after create a home and daten folder fix 0.1
-#v0.31e_hotfix_50 userid 1001 crash fix 0.1b
-#v0.31e_hotfix_48 pacman eroor code reading 0.1a apha
-#v0.31e_hotfix_47 autoatisch "./killall -killall" 0.1a
-#v0.31e_hotfix_46 usb_lib.py crash by muti start fix 0.1b
-#v0.31e_hotfix_45 sudo sicherheits patch 0.1a
-#v0.31e_hotfix_44 docker build fix 0.1a
-#v0.31e_hotfix_43 neu fuktion ipv6 addr dsiable 0.1a
-#v0.31e_hotfix_42 lxc mac patch fix 0.1a and json gui 0.4f hotfix 3 lxc hotfix 42 network bridge question by swit from lxc to docker fix 0.1a
-#v0.31e_hotfix_41 add mac addr for docker 0.1a
-#v0.31e_hotfix_39 dbus lxc continer fix 0.1a
-#v0.31e_hotfix_38 lxc vulkan device name to singel card fix 0.1a
-#v0.31e_hotfix_37 XAUTHORITY fiel mnot exist in system_only2 command run fix 0.1a
-#v0.31e_hotfix_36 keyboard no input user acces denied fi x0.1a
-#v0.31e_hotfix_35 mount path in lxc contianer fix 0.1a
-#v0.31e_hotfix_34 faile to start fix 0.1a
-#v0.31e_hotfix_32 beta 1 lxc /etc mount fix 0.1a and /etc/localtime found is a file fix 0.1a
-#v0.31e_hotfix_27 beta radmon mac addr by lxc fix 0.1a
-#v0.31e_hotfix_26 empty user id fix 0.1a
-#0.1d hotfix 25 lxc , 0.4f hotfix 3 lxc hotfix 25 lxc fix muti gpu to singel gpu in vm convert fix 0.1a
-#v0.31e_hotfix_24 build error free sapce pacman fix 0.2a
-#v0.31e_hotfix_19 cdrom not work
-#v0.31e_hotfix_17 unset container fix 0.1a
-#v0.31e_hotfix_16 gamescope fix 0.1a
-#v0.31e_hotfix_15 dbus_rw = 1 fix 0.1a, gamescope fix 0.1a
-#v0.31e_hotfix_13 lxc network bridge auto create 0.2a
-#v0.31e_hotfix_12 lxc killall und coanitner copy in redaon lxc mode 0.2a
-#v0.31e_hotfix_8 manger work 0.1a
-#0.31e_hotfix_7 lxc auto install 0.1c
-#v0.31e_hotfix_3 build hotfix lxc
-#v0.31d" 0.1d steam fix 0.1a
-#v0.31c 0.4e docker system combobox fix 0.1a
-#v0.31b 0.1c lxc.yp moudle bug fix 0.1c
-#docker_system = 0;#1 docker 0 lxc
-#lxc_readonly = 1;#1 root readonly
-#lxc staticip wird benotigt und cd dns server angaber
-#dns und mac
-#v0.31b joson gui new desgine 0.2a
-#v0.31b dbus_rw remote display files from /tmp/.X11-unix/X0 fixed 0.1b
-#0.31a more as one netwrok inten faces fix 0.1 beta 1
-#v0.30k_hotfix9 default network_disable on fix 01.a
-#v0.30k_hotfix6 mesa-utils use in docker conatiner fix 0.1a
-#v0.30k_hotfix3 ICE default IO error handler doing an exit(), pid = 82334, errno = 32 fix 0.1b
-#v0.30k add new command killall 0.1a
-#v0.3j hotfix 4 system_only command 0.1d
-#v0.30g 0.4a_hotfix_5 glxinfo run in archlinux docker coantiner
-#v0.30f new manager_gui add create a new vm 0.1b
-#v0.30e raytrasing and smart_acces_meomory fix 0.1a
-#v0.30d josn file 0.3l_hotfix_2 0.1a
-#v0.30c add freesync and vsync 0.1a
-#v0.30b add dxvk.conf_sam 0.1a
-#v0.29g add new command steam_proton_run_without_steam, mango_hud, vkbasalt 0.1a
-#0.29f vulkan_index 01.b
-#v0.29e optional_array and smart_acces_meomory add
-#v0.29d debug_mode 0.1a
-#v0.29b manager_gui command and gui 0.1a
-#v0.29a wine_fsr
-#0.28t mesa 3d amd gpu raytrasing support
-#0.28r json gui 0.3f_6  virgl hot fix 0.1a
-#0.28q gpu redner not loading by encrypt file 1.0 #json file 0.3f_3
-#0.28o pacman cahche empty
-#0.28o wayland support 0.1a
-#0.28n build failed fix 0.1a
-#0.28m add DRI_PRIME reading fix 0.2a #create_links 0.1a
-#0.28k #0.3f_3 json_edit_gui add a scrollbar
-#0.28i patching_lib .3d add new file /etc/cmd/user_patched2.bash and fix faketime 0.1a
-#json_file.py loading bug fix 1 + json gui rechtscheibung fix 1
-#0.28g docker_build standard fix 0.1a
-#0.28f bearbeitung schutz 0.1a mit Fernet
-#0.28e 32bit speed hak "sysctl -w abi.vsyscall32=0"
+#v0.37f docker and podman container buid with reflector fix 0.1a
+#v0.37e json_file.py and json_edit_gui.py 0.8a add new option gamescope_render_auflosung
+#v0.37d 0.2a lxc fix gamescope vulkan_device select auto
+#v0.37c json_edit_gui 0.7m4, 0.1j lxc degrade fuktion vulkan_device fix 0.1a
+#v0.37b json_edit_gui 0.7m3 degrade fuktion vulkan_device fix 0.1a
+#v0.37a ncie prozess prio of -30 patching_lib.py 0.5c lxc podman
+#v0.36i gamescope_not_used no output fix 0.1b
+#v0.36h steam proton fix 0.1a and neu options FORCE_PACMAN_BUILD_ERROR_NOT_ENOF_FREE_SPACE 0.1a podman crash fix
+#v0.36f env vairable DOCKER_RUN_IN_BACKGROUND 0.1a
+#v0.36e podman build fix podman_pkg_doppelt_check podman.py 0.1c version_jsongui 0.7m
+#v0.36d new system# fuction 0.1a
+#v0.36c 0.1h pacman_list_a_downlaod_pkg crash fix 0.1b
+#v0.35z satble json_edit_gui 0.7l hang on edit_config 0.1a fix
+#v0.35x_stable gamescope_bypass stop worng id fix 0.1a
+#v0.35p_stable dns empty fix 0.1a podman.py 0.1g
+#v0.35o_stable add sysctl -w vm.max_map_count of 524288
+#v0.35m_stable ttyon=1 fix 0.1a
+#v0.35l_stable podman 0.1f code auslagerung
+#v0.35k_stable gamescope_not_used 0.2a
+#v0.35i_stable GAMESCOPE_BYPASS wiht terminal output 0.2a
+#v0.35e_stable 0.1beta5
+#v0.35d_stable json_file 0.7j json_edit_gui ryujinx_emu_crash_fix 0.1a
+#v0.35c_stable podman.py 0.1c and json_edit_gui 0.7i pacman_pakgage_install check before sav 0.1a
+#v0.35b_stable docker and podman_build fix 0.1b
+#v0.34p_beta_20 gamescope_bypass nex option 0.1e
+#v0.34p_beta_19 aplha add new option docker_user_password 0.1a
+#v0.34p_beta_16 cdrom_lib.py 0.3d fix podman wine not foudn cdrom drive 0.1a
+#v0.34p_beta_14 docker_continer_auto_update 0.5c crash fix network bridge not found check v0.1a
+#v0.34p_beta_13 ubisoft ubisoft_connect_mut_fix 0.1a
+#roolback to v0.34p_beta_10
+#v0.34p_beta_10 sleep 5 sec by podman conatiner netwokr bussy fix 0.2a
+#v0.34p_beta_8 unset container env fix
+#v0.34p_beta_7  json_edit_gui 0.6i python qt6
+#v0.34p_beta_6 add new amdgpu_gpl_pipline
+#v0.34p_beta_2 0.1g lxc fix amd gpu card nummer not work fix
+#0.34o docker_continer_auto_update 0.5c beta 1
+#0.34o docker_continer_auto_update 0.5a, docker_auto_backup 0.2a fix podman crash
+#v0.34n podman build crash fix 0.2a
+#v0.34l fix json_edit_gui.py 0.6f not change read_docker_imags fix 0.1a
+#v0.34k fix openvpn server crash dhcpv6 fix 0.1a
+#v0.34j podman login to docker_user fix 0.1c
+#v0.34g cdrom_lib.py 0.3c crash bug fix
+#v0.34 vfiodock not working
+#v0.34d podman experimentel aplha
+#v0.34c docker_continer_auto_update 0.4b
+#v0.34b add new variable amdgpu_mesh_shader_support
+#v0.34a docker_auto_backup 0.1b
+#v0.33g auto udpate fix 0.3c
+#v0.33f fix logrotade lucke, check_user_groups 0.1c crash sudo ./build fix
+#v0.33e clean up 0.1a
 
-print(version);
+print(appname_build + " - " + version);
 
 import platform
 import os
@@ -116,6 +89,8 @@ from Code.Bluethooth.bluethooth_lib import *
 from Code.Crypt.rsa_lib import *
 from Code.Gui.manager_gui.manager_gui import *
 from Code.Lxc.lxc import *
+from Code.Podman.podman import *
+from Code.Http.http_server import *
 
 
 jason_data = {};
@@ -124,7 +99,7 @@ jason_data = {};
 
 pacman_downloads = 3;
 
-pacman_pkgage_install = "unbound qt5pas teamspeak3 python-ntlm-auth  python-requests-ntlm perl-ntlm python-ntlm-auth python-requests-ntlm  lutris python-beaker python-mako valgrind llvm lib32-llvm meson vulkan-swrast net-tools wireguard-tools nautilus shared-mime-info gdk-pixbuf2 thunderbird-i18n-de python-pyqt5  gnu-netcat opendoas retroarch-assets-glui retroarch-assets-ozone ninja ccache glm openvr yad archlinux-keyring base base-devel xf86-video-ati xf86-video-amdgpu  xorg xorg-server xorg-xinit mesa-demos vulkan-tools  vulkan-mesa-layers vulkan-radeon  vulkan-icd-loader pulseaudio alsa-tools alsa-utils pulseaudio-alsa pavucontrol  wine lib32-mpg123 openra winetricks openal firefox-i18n-de xfce4-terminal openvpn dotnet-runtime dotnet-sdk thunar ntfs-3g exfat-utils boost mpv desmume mgba-qt mgba-sdl xfce4 xfce4-goodies blender opencl-mesa  gst-plugins-ugly  qt5-webengine qt5-base qt5-multimedia qt5-tools fmt libxkbcommon-x11 sdl2 desktop-file-utils shared-mime-info nlohmann-json boost catch2 cmake git  nano adriconf   qt5-webglplugin qt5-webkit qt5-websockets qt5-webview  veracrypt desmume libretro-desmume nano p7zip snes9x retroarch libretro-mesen  mgba-qt python-pyqt5 mkvtoolnix-gui k3b qt5 sndio rkhunter qutebrowser hexedit youtube-dl vlc lib32-libpulse lib32-alsa-plugins hexedit qutebrowser youtube-dl obs-studio cdemu-client  cdemu-daemon vhba-module-dkms  virtualbox blender  gimp gimp-help-de   nfs-utils rsync subversion qemu cdrtools dolphin-emu lib32-mesa-vdpau mesa-vdpau  lib32-vulkan-radeon vulkan-radeon lib32-libva-mesa-driver libva-mesa-driver exfat-utils  python3 python-pip   python2-pip  python2 python-lz4 python2-apipkg python-lz4 python python-setuptools python-pip gphoto2 gvfs-gphoto2 libgphoto2  mono  wine-mono wine_gecko kvantum-qt5   qtcreator  falkon glfw-x11  git cmake  gcc clang htop shotcut archiso vulkan-headers vulkan-tools vulkan-extra-layers gimp-nufraw xdotool xorg-xinput gnu-netcat   gimp-help-de opencl-mesa  firefox-i18n-de vkd3d lib32-vkd3d  gparted libreoffice-still-de  inkscape  partclone pigz gedit pkgstats scons python-pyusb clamav clamtk  cura encfs playonlinux cura encfs steam xmlto docbook-xsl kmod inetutils bc git libelf steam-native-runtime xreader rawtherapee  nautilus minetest-server minetest";
+pacman_pkgage_install = "";
 
 
 
@@ -150,14 +125,44 @@ manager_gui_set_veriable(home, home_fodler_daten, dxvk_config_sam_on, dxvk_confi
 def brechen_config(name, value):
     return [name, value]
 
-def system(cmd):
-    try:
-        output = subprocess.check_output(cmd, shell=True).decode().split("\n");
-        return output;
-    except subprocess.CalledProcessError:
-        return "";
-    except FileNotFoundError:
-        return "";
+
+def system_build_only(cmd):
+    return system(cmd, "start_tmp2.bash")
+
+def system(cmd, sfile = "start_tmp.bash"):
+    #print(cmd)
+    os.system("rm " + sfile)
+    #import pdb; pdb.set_trace()
+    f2 = open(sfile, "w");
+    f2.write("#!/bin/bash\n");
+    f2.write(cmd + "\n");
+    f2.write("echo \"EXITCODE--EXITCODE $?\"\n");
+    f2.close();
+    time.sleep(1)
+    os.system("chmod 777 " + sfile)
+    os.system("bash " + sfile + " >pipe.tmp")
+    #import pdb; pdb.set_trace()
+    time.sleep(1)
+    f1 = open("pipe.tmp", "r");
+    f1.seek(0, 2);
+    size = f1.tell();
+    f1.seek(0, 0);
+    out1 = f1.read(size);
+    f1.close();
+    out2 = out1.split("\n");
+    out = [];
+    b1 = 0;
+    for tmp in out2:
+        if(tmp.find("EXITCODE--EXITCODE") != -1):
+            ret1 = tmp.split("EXITCODE--EXITCODE ")[1];
+            if(ret1 == "0"):
+                b1 = 1;
+                break;
+        else:
+            out.append(tmp);
+    if(b1 == 1):
+        return out;
+    return [];
 
 devices = read_steam_Controller();
 
@@ -196,6 +201,10 @@ def filter_docker_build(cmdarray):
             i = i + 1;
             i = i +1;
             continue;
+        elif(tmp == "--dns"):
+            i = i + 1;
+            i = i +1;
+            continue;
         elif(tmp == "--security-opt=seccomp:unconfined"):
             i = i + 1;
             continue;
@@ -206,21 +215,76 @@ def filter_docker_build(cmdarray):
     return out;
 
 
-def read_docker_ps(suche):
+def read_docker_ps(suche, docker_system, podman_runs_root):
+    if(suche.find("localhost/") != -1):
+        suche = suche.split("localhost/")[1]
+    #print(suche)
+    #import pdb; pdb.set_trace()
     try:
-        cmd = subprocess.check_output("docker ps ", shell=True).decode().split("\n");
+        cmd = [];
+        if(docker_system == 1):
+            #docker
+            cmd = subprocess.check_output("docker ps ", shell=True).decode().split("\n");
+        elif(docker_system == 2):
+            #podman
+            if(podman_runs_root == 1):
+                cmd = subprocess.check_output("sudo podman ps ", shell=True).decode().split("\n");
+            else:
+                cmd = subprocess.check_output("podman ps ", shell=True).decode().split("\n");
+            cmd = cmd[::-1];
+        #print(cmd)
         for tmp in cmd:
-            if(tmp.split()[0] == "CONTAINER"):
+            tmp2 = tmp.split();
+            #print(tmp2);
+            if(len(tmp2) < 2):
+                #print("E4")
                 continue;
-            elif(tmp.split()[1] == suche):
+            if(tmp2[0] == "CONTAINER"):
+                continue;
+            elif(tmp2[1] == suche):
                 return tmp.split()[0];
+            elif(tmp2[1] == "localhost/" + suche):
+                return tmp.split()[0];
+            elif(tmp2[1] == suche + ":latest"):
+                return tmp.split()[0];
+            elif(tmp2[1] == "localhost/" + suche + ":latest"):
+                return tmp.split()[0];
+            #elif(tmp.split()[1].find(suche) != -1):
+            #    return tmp.split()[0];
         return "";
+
     except subprocess.CalledProcessError:
+        #print("E1")
         return "";
     except FileNotFoundError:
+        #print("E2")
         return "";
     except IndexError:
+        #print("E3")
         return "";
+
+def gamescope_to_window_id_x11():
+    out = [];
+    cmd = system("xwininfo -root -children -all")
+    if(len(cmd) == 0):
+        print("ERROR array empty!");
+        exit(-1);
+    for tmp in cmd:
+        tmp2 = tmp.split();
+        if(len(tmp2) >= 4):
+            if(tmp2[0] == "xwininfo:"):
+                continue;
+            if(tmp2[0] == "Root"):
+                continue;
+            if(tmp2[0] == "Parent"):
+                continue;
+            if(tmp2[1] == "\"gamescope\":"):
+                #print(tmp2);
+                out.append(tmp2[0]);
+                continue;
+                #exit()
+    #import pdb; pdb.set_trace()
+    return out;
 
 def args_array_to_str(array):
     s1 = "";
@@ -228,12 +292,12 @@ def args_array_to_str(array):
         s1 = s1 + tmp + " ";
     return s1;
 
-def wait_build_fertig(sfile, dirname_tmp):
-    dockerid = read_docker_ps(dirname_tmp);
+def wait_build_fertig(sfile, dirname_tmp, docker_system, podman_runs_root):
+    dockerid = read_docker_ps(dirname_tmp, docker_system, podman_runs_root);
     if(os.path.isfile(sfile) == True):
         os.remove(sfile);
     while True:
-        id = read_docker_ps(dirname_tmp);
+        id = read_docker_ps(dirname_tmp, docker_system, podman_runs_root);
         if(id != dockerid):
             print("ERROR docker coantiner is exit can not svae it!");
             exit();
@@ -255,13 +319,30 @@ class cmd_thread(threading.Thread):
     def run(self):
         #system(self.cmd);
         #cmd = subprocess.check_output(self.cmd, shell=True).decode();
+        system(self.cmd, "tmp3.bash");
+        #print(cmd);
+        self.exit = 1;
+    def exit(self):
+        return self.exit;
+
+class cmd_thread_ossystem(threading.Thread):
+    def __init__(self):
+        super(cmd_thread_ossystem, self).__init__()
+        self.total=0
+    def set(self, cmd):
+        self.cmd = cmd;
+        self.exit = 0;
+        return 0;
+    def run(self):
+        #system(self.cmd);
+        #cmd = subprocess.check_output(self.cmd, shell=True).decode();
         os.system(self.cmd);
         #print(cmd);
         self.exit = 1;
     def exit(self):
         return self.exit;
 
-thread = cmd_thread();
+#thread = cmd_thread();
 
 def chek_eroor_found(array):
     for tmp in array:
@@ -271,24 +352,31 @@ def chek_eroor_found(array):
     return 0;
 
 def start_thread_wait(cmd):
-    out = system(cmd);
-    for tmp in out:
-        tmp2 = tmp.split("EXITCODE--EXITCODE ");
-        if(len(tmp2) >= 2):
-            if(int(tmp2[1][0]) != 0):
-                chek_eroor_found(out);
-                print(out);
-            return int(tmp2[1][0]);
-    if(out == ""):
+    out = system_build_only(cmd);
+    if(len(out) == 0):
         return 1;
-    return 0;
+    else:
+        return 0;
 
 def start_thread(cmd):
+    thread = cmd_thread();
     thread.set(cmd);
     thread.start();
-    return 0;
+    return thread;
 
-def thread_wait_is_exit():
+def start_thread_ossystem(cmd):
+    thread = cmd_thread_ossystem();
+    thread.set(cmd);
+    thread.start();
+    return thread;
+
+def start_thread2(cmd):
+    thread = cmd_thread();
+    thread.set(cmd);
+    thread.start();
+    return thread;
+
+def thread_wait_is_exit(thread):
     thread.join();
     return 0;
 
@@ -342,9 +430,14 @@ def create_links():
     os.system("ln -sf build system_only3")
     os.system("ln -sf build command_root")
     os.system("ln -sf build command_root_lxc")
+    os.system("ln -sf build command_root_docker")
     os.system("ln -sf build killall")
     os.system("ln -sf build edit_config")
     os.system("ln -sf build manager")
+    os.system("ln -sf build  auto_update")
+    os.system("ln -sf build  gamescope_not_used")
+    os.system("ln -sf build  auto_backup")
+    os.system("ln -sf build  http_server_start")
     os.system("chmod +x build");
     os.system("chmod +x chmod_check.py");
     os.system("chmod +x hidraw_acs_overrides_patch.py");
@@ -361,35 +454,23 @@ def check_env(s1):
 def suche_vulkandevice(vkdevicename):
     if(basename == "system_only" or basename == "system_only2" or basename == "build"):
         return 0;
-    system("./system_only2 'MESA_VK_DEVICE_SELECT=\"list\" vkcube 2>/etc/tmp/pipe.tmp'");
-    f1 = open("pipe.tmp", "r");
-    f1.seek(0, 2);
-    size = f1.tell();
-    f1.seek(0, 0);
-    s1 = f1.read(size);
-    f1.close();
-    #print(s1);
-    s2 = s1.split("\n");
-    #print(s2)
-    b1 = 0;
-    for tmp in s2:
-        s3 = tmp.split();
-        if(b1 == 0):
-            if(len(s3) >= 2):
-                if(s3[0] == "selectable"):
-                    if(s3[1] == "devices:"):
-                        b1 = 1;
-                        print("b1 = 1")
-        elif(b1 == 1):
-            if(len(s3) >= 6):
-                device_name = s3[5].split("\"")[0];
-                device_id = s3[2];
-                if(device_name == vkdevicename):
-                    return device_id;
-                if(device_name.upper() == vkdevicename):
-                    return device_id;
-                if(device_name.lower() == vkdevicename):
-                    return device_id;
+
+    device = list_mesa_vulkan_device();
+    print(vkdevicename)
+    print(device)
+    if(device == 0):
+        return 0;
+    for tmp in device:
+        device1 = tmp[0];
+        device2 = tmp[1];
+        device3 = tmp[2];
+        devicid = tmp[3];
+        abool = [];
+        abool.append(device1.find(vkdevicename.upper()) != -1 );
+        abool.append(device2.find(vkdevicename.upper()) != -1 );
+        abool.append(device3.find(vkdevicename.upper()) != -1 );
+        if True in abool:
+            return "MESA_VK_DEVICE_SELECT=\"" + devicid + "\"";
     return 0;
 
 def read_users_name():
@@ -447,19 +528,99 @@ def docker_kill_all():
     os.system(s1);
     return 0;
 
+def read_podman_ps_all_continer_runing():
+    out = [];
+    try:
+        cmd = subprocess.check_output("podman ps ", shell=True).decode().split("\n")[1::];
+        for tmp in cmd:
+            out.append(tmp.split()[0]);
+        return out;
+    except subprocess.CalledProcessError:
+        return out;
+    except FileNotFoundError:
+        return out;
+    except IndexError:
+        return out;
+
+
+def read_podman_ps_all_continer_runing_root():
+    out = [];
+    try:
+        cmd = subprocess.check_output("sudo podman ps ", shell=True).decode().split("\n")[1::];
+        for tmp in cmd:
+            out.append(tmp.split()[0]);
+        return out;
+    except subprocess.CalledProcessError:
+        return out;
+    except FileNotFoundError:
+        return out;
+    except IndexError:
+        return out;
+
+def podman_stop_all():
+    ids = read_podman_ps_all_continer_runing();
+    s1 = "podman stop ";
+    for tmp in ids:
+        s1 = s1 + " " + tmp;
+    print(s1)
+    os.system(s1);
+    return 0;
+
+def podman_kill_all():
+    ids = read_podman_ps_all_continer_runing();
+    s1 = "podman kill ";
+    for tmp in ids:
+        s1 = s1 + " " + tmp;
+    print(s1)
+    os.system(s1);
+    return 0;
+
+def podman_stop_all_root():
+    ids = read_podman_ps_all_continer_runing_root();
+    s1 = "sudo podman stop ";
+    for tmp in ids:
+        s1 = s1 + " " + tmp;
+    print(s1)
+    os.system(s1);
+    return 0;
+
+def podman_kill_all_root():
+    ids = read_podman_ps_all_continer_runing_root();
+    s1 = "sudo podman kill ";
+    for tmp in ids:
+        s1 = s1 + " " + tmp;
+    print(s1)
+    os.system(s1);
+    return 0;
+
 def docker_killall(docker_build, auto):
     if(auto == 0):
         i1 = input("killall docker coantiner? y,n")
         if(i1 == "y" or i1 == "Y"):
             docker_stop_all();
             docker_kill_all();
+        i1 = input("killall podman coantiner? y,n")
+        if(i1 == "y" or i1 == "Y"):
+            podman_stop_all();
+            podman_kill_all();
+
+        i1 = input("killall podman as root coantiner? y,n")
+        if(i1 == "y" or i1 == "Y"):
+            podman_stop_all_root();
+            podman_kill_all_root();
         i1 = input("killall und remove lxc coantiner? y,n")
         if(i1 == "y" or i1 == "Y"):
             lxc_remove_all_vms(docker_build);
         return 0;
+    elif(auto == 2):
+        lxc_remove_all_vms(docker_build);
     else:
         docker_stop_all();
         docker_kill_all();
+        podman_stop_all();
+        podman_kill_all();
+        podman_stop_all_root();
+        podman_kill_all_root();
         lxc_remove_all_vms(docker_build);
         return 0;
 
@@ -529,14 +690,409 @@ def kill_all_args_help():
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('-killall', action='store_true', default=False, dest='boolean_killall', help='automatisch kill all coantiner lxc and docker run "./killall -killall"');
+    parser.add_argument('-killall_lxc_only', action='store_true', default=False, dest='boolean_killall_lxc_only', help='automatisch kill all coantiner lxc only "./killall -killall_lxc_only"');
     results = parser.parse_args();
     if(results.boolean_killall == True):
+        return 1;
+    if(results.boolean_killall_lxc_only == True):
+        return 2;
+    return 0;
+
+def auto_update_args_help():
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-auto', action='store_true', default=False, dest='boolean_auto', help='automatisch erzuegen von continer"');
+    results = parser.parse_args();
+    if(results.boolean_auto == True):
         return 1;
     return 0;
 
 
+def docker_auto_backup(docker_coantiner, pacman_cache, docker_auto_sav_folder, docker_system, podman_runs_root):
+    #0.2a
+    if(docker_auto_sav_folder == ""):
+        print("ERRROR docker_auto_sav_folder is empty!");
+        exit(-1);
+    date = get_datetime();
+
+    #odcker
+    os.system("docker save -o \"" + docker_auto_sav_folder + "/docker_backup_" + date + "_docker.tar\" " +  docker_coantiner);
+    os.system("docker save -o \"" + docker_auto_sav_folder + "/docker_backup_steamos_"+ date + "_docker.tar\" " +  docker_coantiner + "_steamos");
+    #podman user
+    os.system("podman save -o \"" + docker_auto_sav_folder + "/docker_backup_" + date + "_podman_user.tar\" " +  docker_coantiner);
+    os.system("podman save -o \"" + docker_auto_sav_folder + "/docker_backup_steamos_"+ date + "_podman_user.tar\" " +  docker_coantiner + "_steamos");
+    #podman root
+    os.system("sudo podman save -o \"" + docker_auto_sav_folder + "/docker_backup_" + date + "_podman_root.tar\" " +  docker_coantiner);
+    os.system("sudo podman save -o \"" + docker_auto_sav_folder + "/docker_backup_steamos_"+ date + "_podman_root.tar\" " +  docker_coantiner + "_steamos");
+
+
+    out = os.system("sudo bsdtar -cvf '" + docker_auto_sav_folder +"/lxc_archlinux_autosav_" + date + "_lxc.tar.bz2'  /var/lib/lxc/" + docker_coantiner)
+    os.system("sync; sync; sync; sync; sync");
+    return 0;
+
+def run_networkbridge_found(docker_system):
+    #v0.1a
+    if(docker_system == 1):
+        #docker
+        out = system("sudo docker  network ls");
+        return check_network_bridge_found(out)
+    if(docker_system == 2):
+        #docker
+        out = system("sudo podman  network ls");
+        return check_network_bridge_found(out)
+
+def check_network_bridge_found(a1):
+    #v0.1a
+    name = "br0";
+    for tmp in a1:
+        tmp2 = tmp.split();
+        for tmp3 in tmp2:
+            if(name == tmp3):
+                return 1;
+    return 0;
+
+def docker_continer_auto_update(docker_coantiner, pacman_cache, docker_auto_sav_folder, docker_system, podman_runs_root, podman_set_route_gateway_ip, automode):
+    #0.5g aplha
+    #docker_container_steamos_build(pacman_cache, "archlinux_std_docker_steamos", docker_system, podman_runs_root);
+    #exit();
+
+    if(docker_system == 2):
+        #podman
+        if(run_networkbridge_found(docker_system) == 0):
+            print("network bridge not found!")
+            exit(-1);
+
+        if(len(podman_set_route_gateway_ip.split(".")) != 4):
+            print("ERROR podman_set_route_gateway_ipr not set. please set");
+            exit(-1);
+
+    if(docker_auto_sav_folder == ""):
+        print("ERRROR docker_auto_sav_folder is empty!");
+        exit(-1);
+    if(os.path.isdir("../archlinux_std_docker/archlinux_std_docker_big/archlinux_std_docker") == False):
+        print("ERROR dir ../archlinux_std_docker/archlinux_std_docker_big/archlinux_std_docker not found!");
+        exit(-1);
+
+    print("starting.. auto_update!")
+    time.sleep(10);
+    date = get_datetime();
+
+    if(automode == 0):
+        print("must have 72gb free space!")
+        i1 = input("must have 72gb free space! Y,n");
+        if(i1 == "n" or i1 == "no" or i1 == "N" or i1 == "NO"):
+            exit();
+    else:
+        auto_kill = 0;
+
+    if(automode == 0):
+        i1 = input("soll alle docker conatiner gestopt werden?: Y,n");
+        auto_kill = 0;
+        if(i1 == "n" or i1 == "no" or i1 == "N" or i1 == "NO"):
+            pass;
+        else:
+            auto_kill = 1;
+            os.system("./killall -killall");
+    os.system("sudo chmod 777 /etc/resolv.conf")
+    os.system("sudo echo 'nameserver 1.1.1.1' > /etc/resolv.conf")
+    os.system("sudo chmod 555 /etc/resolv.conf")
+
+    if(automode == 0):
+        i1 = input("before rm docker conatiner sav! Y,n");
+        if(i1 == "n" or i1 == "no" or i1 == "N" or i1 == "NO"):
+            pass;
+        else:
+            print("sav docker_coantiner..")
+            docker_auto_backup(docker_coantiner, pacman_cache, docker_auto_sav_folder, docker_system, podman_runs_root);
+    else:
+        docker_auto_backup(docker_coantiner, pacman_cache, docker_auto_sav_folder, docker_system, podman_runs_root);
+
+    #os.system("docker save -o \"" + docker_auto_sav_folder + "/docker_backup_" + date + ".tar\" " +  docker_coantiner);
+    #os.system("docker save -o \"" + docker_auto_sav_folder + "/docker_backup_steamos_"+ date + ".tar\" " +  docker_coantiner + "_steamos");
+    print("rm docker_coantiner..")
+    out = os.system("./docker image rm -f  archlinux_std_docker 2>pipe.tmp")
+    out = os.system("./docker image rm -f  archlinux_std_docker_steamos 2>pipe.tmp")
+    out = os.system("./docker image rm -f  archlinux 2>pipe.tmp")
+    print("build docker_coantiner..")
+    os.system("sudo bash ../down.bash");
+    os.system("cd ../archlinux_std_docker/archlinux_std_docker_big/archlinux_std_docker && sudo IPV4_ROUTE_GATEWAY=" + podman_set_route_gateway_ip + " DOCKER_SYSTEM=" + str(docker_system) + " ./build")
+    os.system("sudo bash ../up.bash");
+    docker_container_steamos_build(pacman_cache, "archlinux_std_docker_steamos", docker_system, podman_runs_root);
+    #out = os.system("bsdtar -cvf '" + docker_auto_sav_folder +"/lxc_archlinux_autosav_" + date + ".tar.bz2'  /var/lib/lxc/" + docker_coantiner)
+    os.system("sudo bash ../down.bash");
+    os.system("cd ../archlinux_std_docker_lxc && sudo ./build")
+    os.system("cd ../archlinux_std_docker_steamos_lxc && sudo bash build_container_lxc.bash")
+    #docker_container_lxc_build(pacman_cache, "archlinux_std_docker_lxc");
+    #os.system("sudo bash ../up.bash");
+    if(auto_kill == 1):
+        os.system("sudo bash ../up_docker_continers.bash")
+    else:
+        i1 = input("soll alle docker conatiner neu gestarten werden?: Y,n");
+        if(i1 == "n" or i1 == "no" or i1 == "N" or i1 == "NO"):
+            pass;
+        else:
+            os.system("./killall -killall");
+            time.sleep(10)
+            os.system("sudo bash ../up_docker_continers.bash")
+    os.system("sudo bash ../up.bash");
+    print("docker system prune -f")
+    os.system("sudo docker system prune -f");
+    print("sudo podman system prune -f")
+    os.system("sudo podman system prune -f");
+    print("podman system prune -f")
+    os.system("podman system prune -f");
+    os.system("sync; sync; sync; sync; sync");
+
+    return 0;
+
+def docker_container_steamos_build(pacman_cache, dirname_tmp, docker_system, podman_runs_root):
+    #0.2b aplha
+    fertigfile = os.path.join(pacman_cache, "fertig");
+    if(os.path.isfile(fertigfile) == True):
+        os.remove(fertigfile);
+    #import pdb; pdb.set_trace()
+    out = start_thread2("cd ../" + dirname_tmp + " && PACMAN_CACHE_DIR=\"" + pacman_cache + "\"  bash build_container.bash ")
+    time.sleep(30);
+    #import pdb; pdb.set_trace()
+    id = read_docker_ps("archlinux_std_docker", docker_system, podman_runs_root);
+    wait_build_fertig(fertigfile, "archlinux_std_docker", docker_system, podman_runs_root);
+    dockerid = id;
+    if(dockerid == ""):
+        print("dockerid ist empty!");
+        print("pacman_cache: ", pacman_cache);
+        print("dirname_tmp: ", dirname_tmp);
+        print("docker_system: ", docker_system);
+        print("podman_runs_root: ", podman_runs_root);
+        exit(-1)
+    if(docker_system == 1):
+        #docker
+        cmd = "docker commit " + dockerid + " " + dirname_tmp;
+    if(docker_system == 2):
+        if(podman_runs_root == 1):
+            cmd = "sudo podman commit " + dockerid + " " + dirname_tmp;
+        else:
+            cmd = "podman commit " + dockerid + " " + dirname_tmp;
+    print(cmd)
+    os.system(cmd);
+    thread_wait_is_exit(out);
+    return 0;
+
+def docker_container_lxc_build(pacman_cache, dirname_tmp, docker_system, podman_runs_root):
+    fertigfile = os.path.join(pacman_cache, "fertig");
+    if(os.path.isfile(fertigfile) == True):
+        os.remove(fertigfile);
+    out = start_thread("cd ../" + dirname_tmp + " && PACMAN_CACHE_DIR=\"" + pacman_cache + "\" python build ")
+    time.sleep(30);
+    id = read_docker_ps("archlinux_std_docker", docker_system, podman_runs_root);
+    wait_build_fertig(fertigfile, "archlinux_std_docker", docker_system, podman_runs_root);
+    cmd = "./docker commit " + id + " " + dirname_tmp;
+    print(cmd)
+    os.system(cmd);
+    return 0;
+
+def get_datetime():
+    update = time.localtime(time.time());
+    jahr = update.tm_year;
+    monat = update.tm_mon;
+    tag = update.tm_mday;
+    hour = update.tm_hour;
+    min1 = update.tm_min;
+    return str(tag) + "." + str(monat) + "." + str(jahr) + "-" + str(hour) + "." + str(update.tm_min);
+
+def check_array_found(a1, foudns1):
+    for tmp in a1:
+        if(tmp == foudns1):
+            return 1;
+    return 0;
+
+
+def check_user_groups():
+    #v0.1c
+    out = system("groups");
+    if(len(out) == 0):
+        return -1;
+    out = out[0].split();
+    b1 = 0
+    if(check_array_found(out , "root") == 1):
+        return 0;
+    if(check_array_found(out , "docker") == 0):
+        print("user not in group docker!")
+        exit(-1)
+    if(check_array_found(out , "video") == 0):
+        print("user not in group video!")
+        #exit(-1)
+    if(check_array_found(out , "audio") == 0):
+        print("user not in group audio!")
+        #exit(-1)
+    if(check_array_found(out , "input") == 0):
+        print("user not in group input! no contoller work!")
+        b1 = 1;
+    if(check_array_found(out , "optical") == 0):
+        print("user not in group optical! no cd/dvd devcies work!")
+        b1 = 1;
+    if(b1 == 1):
+        time.sleep(5)
+    return 0;
+
+def create_dockerfile(docker_system, docker_user, podman_set_route_gateway_ip, dns, staticip):
+    os.system("mkdir src");
+    f1 = open("src/Dockerfile", "w");
+    f1.write("FROM archlinux\n");
+    f1.write("RUN echo \"[multilib]\" >>/etc/pacman.conf\n");
+    f1.write("RUN echo \"Include = /etc/pacman.d/mirrorlist\" >>/etc/pacman.conf\n");
+    if(docker_system == 2):
+        os.system("wget -O src/1.pkg.tar.zst https://archlinux.org/packages/core/x86_64/net-tools/download/");
+        f1.write("COPY src/1.pkg.tar.zst src/1.pkg.tar.zst\n")
+        f1.write("RUN pacman -U src/1.pkg.tar.zst --noconfirm \n")
+        f1.write("RUN route add default gw " + podman_set_route_gateway_ip + "\n")
+        f1.write("RUN echo \"nameserver  " + dns + "\" > /etc/resolv.conf\n")
+        f1.write("RUN ifconfig eth0 down \n")
+        f1.write("RUN ifconfig eth0 up " + staticip + " \n")
+        pass;
+    #f1.write("RUN pacman -Syu base dhcpcd net-tools pacman python  --noconfirm -y\n");
+    f1.write("RUN useradd -m -g users -G video,audio,wheel " + docker_user + "\n");
+    f1.write("CMD empty\n");
+    f1.close();
+    return 0;
+
+def os_system(cmd, dirname_tmp, docker_system, podman_runs_root, gamescope_bypass_tmp):
+    b1 = 0;
+    #os.system("echo 1 >/tmp/gamscope.lock");
+    os.system(cmd);
+    #os.system("rm -f /tmp/gamscope.lock");
+    return 0;
+
+def check_array_gamecope(a1, a2):
+    if(len(a1) == 0):
+        if(len(a2) != 0):
+            return a2;
+        else:
+            return [];
+    if(len(a2) == 0):
+        if(len(a1) != 0):
+            return a1;
+        else:
+            return [];
+    windowids = [];
+    for tmp in a1:
+        b1 = 0;
+        for tmp2 in a2:
+            if(tmp == tmp2):
+                b1 = 1;
+                break;
+        if(b1 == 0):
+            windowids.append(tmp);
+    for tmp in a2:
+        b1 = 0;
+        for tmp2 in a1:
+            if(tmp == tmp2):
+                b1 = 1;
+                break;
+        if(b1 == 0):
+            windowids.append(tmp);
+    return windowids;
+
+def list_all_ids():
+    out = [];
+    cmd = system("xwininfo -root -children -all")
+    if(len(cmd) == 0):
+        print("ERROR array empty!");
+        exit(-1);
+    for tmp in cmd:
+        tmp2 = tmp.split();
+        if(len(tmp2) >= 4):
+            if(tmp2[0] == "xwininfo:"):
+                continue;
+            elif(tmp2[0] == "Root"):
+                continue;
+            elif(tmp2[0] == "Parent"):
+                continue;
+            else:
+                out.append(tmp2[0]);
+                continue;
+    return out;
+
+def gamescope_not_used(docker_build, docker_system, podman_runs_root):
+    #v0.2a
+    if(docker_build.find("localhost/") != -1):
+        docker_build = docker_build.split("localhost/")[1]
+    cmd = "";
+    for tmp in sys.argv[::-1][:-1][::-1]:
+        if(tmp.find(" ") != -1):
+            cmd = cmd + " \"" + tmp + "\" ";
+        else:
+            cmd = cmd + " " + tmp + " ";
+    b1 = 0;
+    while True:
+        if(os.path.isfile("/tmp/gamscope.lock") == False):
+            break;
+        else:
+            if(b1 == 0):
+                print("waiting delete lock file /tmp/gamscope.lock!");
+            b1 = 1;
+    os.system("echo 1 >/tmp/gamscope.lock");
+    gamescope_ids = gamescope_to_window_id_x11();
+    th1 = start_thread_ossystem(cmd);
+    gamescope_ids2 = "";
+    while True:
+        gamescope_ids2 = gamescope_to_window_id_x11();
+        ids = check_array_gamecope(gamescope_ids2, gamescope_ids);
+        if(len(ids) >= 1):
+            break;
+        #time.sleep(0.25);
+    time.sleep(8);
+    dockerid = read_docker_ps(docker_build, docker_system, podman_runs_root)
+    ids = check_array_gamecope(gamescope_ids2, gamescope_ids);
+    os.system("sudo rm /tmp/gamscope.lock");
+    while True:
+        gamescope_ids2 = gamescope_to_window_id_x11();
+        ids = check_array_gamecope(gamescope_ids2, gamescope_ids);
+        if(len(ids) >= 1):
+            break;
+        #time.sleep(0.25);
+    if(len(ids) == 0):
+        exit(-1)
+    while True:
+        allids = list_all_ids();
+        b1 = 0;
+        for tmp in allids:
+            if(tmp == ids[len(ids) - 1]):
+                b1 = 1;
+        if(b1 == 0):
+            break;
+        time.sleep(0.25);
+    #exit();
+    if(docker_system == 1):
+        #docker
+        s1 = "docker stop " + dockerid;
+        print(s1)
+        os.system(s1);
+        s1 = "docker kill " + dockerid;
+        os.system(s1);
+    elif(podman_runs_root == 0):
+        if(docker_system == 2):
+            #podman
+            s1 = "podman stop " + dockerid;
+            print(s1)
+            os.system(s1);
+            s1 = "podman kill " + dockerid;
+            os.system(s1);
+    else:
+        if(docker_system == 2):
+            #podman
+            s1 = "sudo podman stop " + dockerid;
+            print(s1)
+            os.system(s1);
+            s1 = "sudo podman kill " + dockerid;
+            os.system(s1);
+    #os.system("clear")
+    return 0;
+
+
+
 
 def main():
+    check_user_groups();
     create_links();
     sargs = read_args();
     nosudo = 1;
@@ -600,6 +1156,7 @@ def main():
     vkbasalt = 0;
     freesync = 0;
     vsync = 1;
+    docker_in_docker = 1;
 
     #new
     docker_system = 1;#1 docker 0 lxc
@@ -625,6 +1182,23 @@ def main():
     amdgpu_nv_ms = 0;
     amdgpu_vrs = "";
     pluseaudio_sdl_fix = 0;
+    docker_auto_sav_folder = "";#/NAS/Daten/Backup/Docker/Backup/auto_sav
+    dhcpv6 = 0;
+    docker_hardining = 1;
+    amdgpu_mesh_shader_support = 0;
+    podman_runs_root = 1;
+    podman_set_route_gateway_ip = "";
+    podman_security_appamore_disable = 1;
+    ipv6 = ""
+    amdgpu_gpl_pipline = 0;
+    reset_config = 1;
+    ubisoft_connect_mut_fix = 0;
+    vk_khr_present_wait=0;
+    docker_user_password = ""
+    gamescope_bypass = 0;
+    block_framepuffer = 1;
+    ryujinx_emu_crash_fix = 0;
+    gamescope_render_auflosung = "";
 
     i = 0;
     while True:
@@ -764,6 +1338,36 @@ def main():
             amdgpu_vrs = tmp[1];
         elif(tmp[0] == "pluseaudio_sdl_fix"):
             pluseaudio_sdl_fix = int(tmp[1]);
+        elif(tmp[0] == "docker_auto_sav_fodler"):
+            docker_auto_sav_folder = tmp[1];
+        elif(tmp[0] == "docker_auto_sav_folder"):
+            docker_auto_sav_folder = tmp[1];
+        elif(tmp[0] == "dhcpv6"):
+            dhcpv6 = int(tmp[1]);
+        elif(tmp[0] == "amdgpu_mesh_shader_support"):
+            amdgpu_mesh_shader_support = int(tmp[1]);
+        elif(tmp[0] == "podman_runs_root"):
+            podman_runs_root = int(tmp[1])
+        elif(tmp[0] == "podman_set_route_gateway_ip"):
+            podman_set_route_gateway_ip = tmp[1];
+        elif(tmp[0] == "ipv6"):
+            ipv6 = tmp[1];
+        elif(tmp[0] == "amdgpu_gpl_pipline"):
+            amdgpu_gpl_pipline = int(tmp[1]);
+        elif(tmp[0] == "rest_config"):
+            reset_config = int(tmp[1]);
+        elif(tmp[0] == "ubisoft_connect_mut_fix"):
+            ubisoft_connect_mut_fix = int(tmp[1]);
+        elif(tmp[0] == "vk_khr_present_wait"):
+            vk_khr_present_wait = int(tmp[1]);
+        elif(tmp[0] == "docker_user_password"):
+            docker_user_password = tmp[1];
+        elif(tmp[0] == "gamescope_bypass"):
+            gamescope_bypass = int(tmp[1]);
+        elif(tmp[0] == "ryujinx_emu_crash_fix"):
+            ryujinx_emu_crash_fix = int(tmp[1]);
+        elif(tmp[0] == "gamescope_render_auflosung"):
+            gamescope_render_auflosung = tmp[1];
         elif(tmp[0] == "sav_Version"):
             json_config_Verison = tmp[1];
         else:
@@ -773,33 +1377,152 @@ def main():
         i = i +1;
 
     basename_bak = basename;
+    gamescope_bypass_tmp = gamescope_bypass;
+    if(check_env("GAMESCOPE_BYPASS") != -1):
+        gamescope_bypass_tmp = int(os.environ["GAMESCOPE_BYPASS"]);
     if(basename == "killall"):
         tmp = kill_all_args_help();
         docker_killall(docker_build, tmp);
         exit(0)
+    if(basename == "gamescope_not_used"):
+        gamescope_not_used(docker_build, docker_system, podman_runs_root);
+        exit();
+
+    if(basename == "http_server_start"):
+        start_http_server();
+        exit();
+
+    if(network_disable == 1):
+        dns = "";
+    else:
+        if(dns == ""):
+            dns = "1.1.1.1"
+
+
+    if(check_env("IPV4_ROUTE_GATEWAY") != -1):
+        podman_set_route_gateway_ip = os.environ["IPV4_ROUTE_GATEWAY"];
+
+    if(check_env("DOCKER_RUN_IN_BACKGROUND") != -1):
+        run_in_background = int(os.environ["DOCKER_RUN_IN_BACKGROUND"]);
+
+    if(docker_system == 2):
+        if(basename != "edit_config"):
+            #podman
+            if(network_host == ""):
+                network_host = "bridge";
+            podman_set_route_gateway_ip = podman_network_bridge_find_gateway(network_host, podman_runs_root);
+            if(podman_set_route_gateway_ip == ""):
+                network_host = "br0";
+                podman_set_route_gateway_ip = podman_network_bridge_find_gateway(network_host, podman_runs_root);
+                if(podman_set_route_gateway_ip == ""):
+                    network_host = "bridge";
+                    podman_set_route_gateway_ip = podman_network_bridge_find_gateway(network_host, podman_runs_root);
+            print("podman_set_route_gateway_ip auto set of ", podman_set_route_gateway_ip);
+            if(ipv4 != ""):
+                tmp = podman_check_stati_ip(ipv4, podman_set_route_gateway_ip);
+                if(len(tmp) == 0):
+                    print("ERROR ipv4 not conrnrect!");
+                    exit(-1);
+                ipv4 = tmp;
+
+
 
     docker_system_bak = docker_system;
     lxc_readonly_bak = lxc_readonly;
+
+    if(check_env("DOCKER_SYSTEM") != -1):
+        docker_system = int(os.environ["DOCKER_SYSTEM"])
+        docker_system_bak = docker_system;
+
+
+    if(docker_system == 1 or docker_system == 0 or docker_system == 3):
+        #docker and lxc and vfiodock
+        podman_runs_root = 0;
+        out = read_docker_imags(docker_system, podman_runs_root);
+        out2 = brechne_neue_lxc_coantiner_name_build(docker_build, out);
+        if(len(out) > out2 ):
+            docker_build = out[out2];
+        #if(docker_build.find("localhost/") != -1):
+        #    docker_build = docker_build.split("localhost/")[1];
+
+    elif(docker_system == 2):
+        if(docker_build.find("/") == -1):
+            docker_build = "localhost/" + docker_build;
+
+
+    if(gamescope_bypass_tmp == 1):
+        if(basename == "system_only" or basename == "system_only2" or basename == "edit_config" or basename == "build" or basename == "auto_update" or basename == "auto_backup" or basename == "http_server_start" or basename == "command_root_docker"):
+            pass;
+        else:
+            cmd = "";
+            for tmp in sys.argv:
+                if(tmp.find(" ") != -1):
+                    cmd = cmd + " \"" + tmp + "\" ";
+                else:
+                    cmd = cmd + " " + tmp + " ";
+            #exit();
+            device_id = find_vulkan_device_id_for_gamescope(vulkan_device_name)
+            print(device_id)
+            #os.system("sleep 15")
+            gamescope_render_auflosung2 = ["1240", "720"];
+            if(gamescope_render_auflosung != ""):
+                if(gamescope_render_auflosung.find("x") != -1):
+                    gamescope_render_auflosung2 = gamescope_render_auflosung.split("x");
+                else:
+                    print("ERROR gamescope aufolsung not ok")
+                    gamescope_render_auflosung2 = ["1240", "720"];
+
+            if(basename == "login" or basename == "login_root"):
+                #--immediate-flips  buge mesa 23.2rc1
+                #--prefer-vk-device
+                os_system("./gamescope_not_used  GAMESCOPE_BYPASS=2 gamescope -W " + gamescope_render_auflosung2[0] + " -H " + gamescope_render_auflosung2[1] + "  --prefer-vk-device " + device_id + "  --adaptive-sync  -- " + cmd, docker_build, docker_system, podman_runs_root, gamescope_bypass_tmp)
+                #os.system("clear");
+                exit();
+            else:
+                os_system("./gamescope_not_used GAMESCOPE_BYPASS=2 gamescope  -W " + gamescope_render_auflosung2[0] + " -H " + gamescope_render_auflosung2[1] + " --prefer-vk-device " + device_id + " --adaptive-sync   -- " + cmd, docker_build, docker_system, podman_runs_root, gamescope_bypass_tmp)
+                #os.system("clear");
+                exit();
+
+
+
+    if(docker_system == 1):
+        #docker
+        os.system("ln -sf /usr/bin/docker docker")
+    if(docker_system == 2):
+        #podman
+        os.system("ln -sf /usr/bin/podman docker")
+
+    if(docker_system == 3):
+        #podman
+        os.system("ln -sf vfiodock docker")
+
 
     #import pdb
     #pdb.set_trace()
     b1 = 0;
     while True:
-        if(docker_system == 0):
+        if(docker_system == 0 or docker_system == 2):
             #lxc
             if(network_disable == 0):
                 if(network_host == "" or network_host == "0"):
                     network_host = lxc_find_eth0_network_bridge();
+                    if(type(network_host) == type([])):
+                        if(len(network_host) >= 1):
+                            network_host = network_host[0];
+
                     basename = "edit_config_sav";
                     b1 = 1;
         if(b1 == 1):
             if(lxc_network_bridge_link == ""):
-                xc_network_bridge_link = lxc_find_eth0_network_Device();
+                lxc_network_bridge_link = lxc_find_eth0_network_Device();
                 basename = "edit_config_sav";
                 break;
             else:
                 if(lxc_exist_newtworkdevice(lxc_network_bridge_link) == 0):
                     network_host = lxc_find_eth0_network_bridge();
+                    if(type(network_host) == type([])):
+                        if(len(network_host) >= 1):
+                            network_host = network_host[0];
                     lxc_network_bridge_link = lxc_find_eth0_network_Device();
                     basename = "edit_config_sav";
                 break;
@@ -820,14 +1543,27 @@ def main():
 
 
     if(json_config_Verison.find("crypt") == -1):
-        file_write_json(dirname + "/config_file_json", docker_user, gpu_render, disk_device_name, zugriff_auf_media, sav_home_docker_folder, share_folder_daten, share_folder1_aktiv, share_folder1, network_disable, steam_controller_bool, usb_sharing, usb_name, usb_hidraw_name, docker_build, maxmemory, maxcpus, network_host, portforwding, dbus_rw, pacman_cache, dns, ipv4, wireguard_fix, nosudo, run_in_background, ttyon, pacman_pakgage_install, docker_input, bluethoot_passthrough,
-            hidraw_acs_overrides_patch, ipv6_privacy, faketime, wine_32bit_speed_hak, read_only, read_only_password, amd_gpu_raytrasing_allgpus, amd_gpu_raytrasing_rdan2_only, wine_fsr, manager_vm_fodler, optional_array);
+        if(basename == "system_only" or basename == "system_only2" or basename == "edit_config" or basename == "auto_update" or basename == "auto_backup" or basename == "http_server_start" or basename == "command_root_docker"):
+            pass;
+        else:
+            file_write_json(dirname + "/config_file_json", docker_user, gpu_render, disk_device_name, zugriff_auf_media, sav_home_docker_folder, share_folder_daten, share_folder1_aktiv, share_folder1, network_disable, steam_controller_bool, usb_sharing, usb_name, usb_hidraw_name, docker_build, maxmemory, maxcpus, network_host, portforwding, dbus_rw, pacman_cache, dns, ipv4, wireguard_fix, nosudo, run_in_background, ttyon, pacman_pakgage_install, docker_input, bluethoot_passthrough,
+                hidraw_acs_overrides_patch, ipv6_privacy, faketime, wine_32bit_speed_hak, read_only, read_only_password, amd_gpu_raytrasing_allgpus, amd_gpu_raytrasing_rdan2_only, wine_fsr, manager_vm_fodler, optional_array);
+
+    if(basename == "auto_update"):
+        tmp = auto_update_args_help();
+        docker_continer_auto_update("archlinux_std_docker", "/tmp", docker_auto_sav_folder, docker_system, podman_runs_root, podman_set_route_gateway_ip, tmp);
+        exit();
+
+    if(basename == "auto_backup"):
+        docker_auto_backup("archlinux_std_docker", "/tmp", docker_auto_sav_folder, docker_system, podman_runs_root);
+        exit();
 
 
     if(basename == "system_only3"):
-        basename = "command_root_lxc";
-        lxc_readonly = 0;
-        lxc_mount_switch = 1;
+        if(basename != "edit_config"):
+            basename = "command_root_lxc";
+            lxc_readonly = 0;
+            lxc_mount_switch = 1;
     user_id = -1;
     if(docker_system == 0):
         #lxc
@@ -838,7 +1574,8 @@ def main():
         user_id = os.getuid();
 
     if(basename == "system_only" or basename == "system_only2" or basename == "edit_config"):
-        docker_system = 1;
+        if(docker_system != 2):
+            docker_system = 1;
 
     custom_command = "";
     optical_disk = read_scsi(disk_device_name, docker_system);
@@ -862,6 +1599,8 @@ def main():
         custom_command = sargs;
     if(basename == "command_root_lxc"):
         custom_command = sargs;
+    if(basename == "command_root_docker"):
+        custom_command = sargs;
     if(basename == "system_only"):
         custom_command = sargs;
     if(basename == "system_only2"):
@@ -879,16 +1618,22 @@ def main():
         exit(-1);
 
 
+    tmp = "";
+    if(docker_system == 1):
+        tmp = "docker"
+    elif(docker_system == 2):
+        tmp = "podman"
+    elif(docker_system == 3):
+        tmp = "./vfiodock"
 
     base_args = [
-        "docker", "--privileged",
+        tmp, "--privileged",
         #"-e", "XDG_RUNTIME_DIR=" + os.environ["XDG_RUNTIME_DIR"],
         #"-e", "DBUS_SESSION_BUS_ADDRESS=" + os.environ["DBUS_SESSION_BUS_ADDRESS"],
         "-e", "XDG_RUNTIME_DIR=" + "/etc/user/" + str(user_id),
         "-e", "DBUS_SESSION_BUS_ADDRESS=" + "unix:path=/etc/user/" + str(user_id) + "/bus",
         "-e", "LANG=" + os.environ["LANG"],
         #"-e", "PWD=/home/" + docker_user,
-        "-h", platform.node(),
         #"-v", "/dev/dri:/dev/dri",
         #"-v", "/dev/shm:/dev/shm",
         #"--device", "/dev/vga_arbiter:/dev/vga_arbiter",
@@ -899,20 +1644,18 @@ def main():
         #"-v", "/run/user/" + str(user_id) + "/pulse:/etc/user/" + str(user_id) + "/pulse:ro",
         #"-v", "/dev/snd:/dev/snd",
         #"-v", "/tmp/.X11-unix:/tmp/.X11-unix:rw",
-        "-v", "/var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro",
         #"-v", "/var/lib/dbus:/var/lib/dbus",
         #"-v", dirname+"/pulse-client.conf:/etc/pulse/client.conf:ro",
         #"-v", "/dev/loop0:/dev/loop0:ro",
         #"-v", dirname+"/hostname:/etc/hostname:ro",
         #"-v", dirname+"/mirrorlist:/etc/pacman.d/mirrorlist:ro",
-
         #archlinux locale gen fix
         ##"-v", "/etc/locale.conf:/etc/locale.conf:ro",
         ##"-v", "/etc/locale.gen:/etc/locale.gen:ro",
         #"-v", "/tmp/.X11-unix:/tmp/.X11-unix:rw",
-        "--device", "/dev/fb0",
         #"-v", "/dev/snd:/dev/snd",
         "--group-add", "video",
+        "--group-add", "audio",
         "--security-opt=seccomp:unconfined",
         #"--group-add", "render",
         #"--group-add", "optical",
@@ -925,32 +1668,65 @@ def main():
         "-v", dirname+"/hidraw_acs_overrides_patch.py:/root/hidraw_acs_overrides_patch.py:ro",
     ]
 
-    if(docker_system == 1):
-        #docker
-        base_args.append("-v");
-        base_args.append("/run/user/" + str(user_id) + ":/etc/user/" + str(user_id) + ":rw");
-        base_args.append("-v");
-        base_args.append("/run/user/" + str(user_id) + "/pulse:/etc/user/" + str(user_id) + "/pulse:ro");
-    else:
-        base_args.append("-v");
-        base_args.append("/run/user:/etc/user:rw");
-        base_args.append("-v");
-        base_args.append("/run/user/" + str(user_id) + ":/etc/user/"  + str(user_id) + ":rw");
+    if(block_framepuffer == 0):
+        base_args.append("--device");
+        base_args.append("/dev/fb0");
 
-    if(docker_system == 0):
-        #lxc
-        if(lxc_readonly == 1):
+    if(check_env("CONTAINER_SET_HOSTNAME") == -1):
+        base_args.append("-h");
+        base_args.append(platform.node());
+    else:
+        base_args.append("-h");
+        base_args.append(os.environ["CONTAINER_SET_HOSTNAME"]);
+
+    if(docker_system != -1):
+        #lxc docker
+        base_args.append("-v");
+        base_args.append("/var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro");
+
+    if(user_id != 0):
+        if(docker_system == 1 or docker_system == 2 ):
+            #docker
+            base_args.append("-v");
+            base_args.append("/run/user/" + str(user_id) + ":/etc/user/" + str(user_id) + ":rw");
+            base_args.append("-v");
+            base_args.append("/run/user/" + str(user_id) + "/pulse:/etc/user/" + str(user_id) + "/pulse:ro");
+        else:
+            base_args.append("-v");
+            base_args.append("/run/user:/etc/user:rw");
+            base_args.append("-v");
+            base_args.append("/run/user/" + str(user_id) + ":/etc/user/"  + str(user_id) + ":rw");
+
+    if(basename == "system_only" or basename == "system_only2" or basename == "edit_config" or basename == "build" or basename == "command_root_docker"):
+        pass;
+    else:
+        if(docker_system == 0):
+            #lxc
+            if(lxc_readonly == 1):
+                base_args.append("-v");
+                base_args.append(dirname+"/pulse-client.conf:/etc/pulse/client.conf:ro");
+        else:
             base_args.append("-v");
             base_args.append(dirname+"/pulse-client.conf:/etc/pulse/client.conf:ro");
 
-    if(docker_system == 1):
-        #docker
-        base_args.append("-v");
-        base_args.append("/dev/loop0:/dev/loop0:ro");
+        if(docker_system == 1 or docker_system == 2 ):
+            #docker
+            if(os.path.isdir("/dev/loop0") == False):
+                if(check_device_isopen("/dev/loop0") == 1):
+                    base_args.append("-v");
+                    base_args.append("/dev/loop0:/dev/loop0:ro");
 
     if(basename == "system_only" or basename == "system_only2" or basename == "edit_config" or basename == "build"):
-        base_args.append("-v");
-        base_args.append("/dev/dri")
+        #base_args.append("-v");
+        #base_args.append("/dev/dri")
+        for i in range(16):
+            if(check_device_isopen_hidraw("/dev/dri/card" + str(i)) == 0):
+                base_args.append("--device");
+                base_args.append("/dev/dri/card" + str(i) + ":/dev/dri/card0");
+                base_args.append("--device");
+                base_args.append("/dev/dri/renderD" + str(i + 128) + ":/dev/dri/renderD128");
+            else:
+                break;
         pass;
     else:
         #if(vulkan_index != ""):
@@ -958,67 +1734,43 @@ def main():
         #base_args.append("-v");
         #base_args.append("/dev/dri");
         #import pdb; pdb.set_trace();
-        if(gpu_render != ""):
-            base_args = device_folder_passthrough("/dev/dri", base_args);
-            if(gpu_Render_check_is_int(gpu_render) == 0):
-                gpu_render_2 = gpu_render;
-                atmp = read_all_dri_prime_device(basename);
-                for i in range(len(atmp)):
-                    tmp = atmp[i].split(" (")[0];
-                    if(tmp == gpu_render):
-                        gpu_render_2 = str(i);
-                        if(i != 0):
-                            vulkan_index = str(i);
-                        break;
-                if(gpu_Render_check_is_int(gpu_render_2) == 0):
-                    if(debug == 1):
-                        print("gpu not found! setze auf 0 gpu render!")
-                    gpu_render_2 = "0";
-                    #vulkan_index = "0";
-            else:
-                gpu_render_2 = gpu_render;
-                if(gpu_render != "0"):
-                    vulkan_index = gpu_render;
-        elif(docker_system == 0):
-            #lxc
-            if(vulkan_device_name != ""):
+        if(True):
+            #lxc pdoman tested
+            if(True):
                 #lxc
-                card = lxc_find_gpu_amd_Card_Nummber(vulkan_device_name);
+                b1 = 0;
+                card = -1;
+                card = lxc_podman_find_gpu_amd_Card_Nummber(vulkan_device_name);
                 if(card == -1):
                     print("ERROR vkulan device not found! vulkan_device name wrong!")
-                    exit(-1);
+                    card = lxc_podman_find_gpu_amd_Card_Nummber(gpu_render);
+                    if(card == -1):
+                        print("ERROR vkulan device not found! vulkan_device name wrong!")
+                        b1 = 1;
+                if(b1 == 1):
+                    exit(-1)
                 else:
-                    base_args.append("--device");
-                    base_args.append("/dev/dri/card" + str(card) + ":/dev/dri/card0");
+                    print(card)
+                    #base_args.append("--device");
+                    #base_args.append("/dev/dri/card" + str(card) + ":/dev/dri/card0");
                     #base_args.append("/dev/dri/card" + str(card));
-                    base_args.append("--device");
-                    base_args.append("/dev/dri/renderD" + str(card + 128) + ":/dev/dri/renderD128");
+                    #base_args.append("--device");
+                    #base_args.append("/dev/dri/renderD" + str(card + 128) + ":/dev/dri/renderD128");
                     #base_args.append("/dev/dri/renderD" + str(card + 128));
+                    if(True):
+                        #podman
+                        print("card: " , card)
+                        for i in range(8):
+                            if(i != card):
+                                string_bash_add_root = string_bash_add_root + "rm " + "/dev/dri/card" + str(i) + '\n';
+                                string_bash_add_root = string_bash_add_root + "rm " + "/dev/dri/renderD" + str(i + 128) +  '\n';
+                                string_bash_add_root = string_bash_add_root + "ln -sf " + "/dev/dri/card" + str(card) + " " +  "/dev/dri/card" + str(i) + '\n';
+                                string_bash_add_root = string_bash_add_root + "ln -sf " + "/dev/dri/renderD" + str(card + 128) + " " +  "/dev/dri/renderD" +str(i + 128) + '\n';
             else:
                 #base_args.append("-v");
                 #base_args.append("/dev/dri")
                 base_args = device_folder_passthrough("/dev/dri", base_args);
-        else:
-            #docker
-            if(vulkan_device_name != ""):
-                if(gpu_render == ""):
-                    if(basename == "system_only" or basename == "system_only2" or basename == "build"):
-                        pass;
-                    else:
-                        id = suche_vulkandevice(vulkan_device_name);
-                        if(id != 0):
-                            string_bash_add = string_bash_add + "export MESA_VK_DEVICE_SELECT=" + id + "\n"
-                        else:
-                            print("ERROR vkulan device not found! vulkan_device name wrong!")
 
-    #if( docker_system == 0 ):
-    if(False):
-        #lxc
-        if(lxc_readonly == 0):
-            base_args.append("-v");
-            base_args.append("/dev/dri")
-        else:
-            exit(-1)
 
     if(os.path.isfile("/etc/localtime") == True):
         base_args.append("-v");
@@ -1071,8 +1823,13 @@ def main():
         pass;
     else:
         if(basename != "build"):
-            base_args.append("--ipc=\"host\"");
-            base_args.append("--shm-size=\"8G\"");
+            if(docker_system == 1):
+                #docker
+                base_args.append("--ipc=\"host\"");
+                base_args.append("--shm-size=\"8G\"");
+            elif(docker_system == 2):
+                #podman
+                base_args.append("--ipc=\"host\"");
             pass
 
         if(ttyon == 1):
@@ -1096,7 +1853,7 @@ def main():
             print("dbus_rw on");
         base_args.append("-v");
         base_args.append("/var/lib/dbus:/var/lib/dbus");
-        if(docker_system == 1):
+        if(docker_system == 1 or docker_system == 2 ):
             base_args.append("-v");
             base_args.append("/tmp/.X11-unix:/tmp/.X11-unix:rw");
         else:
@@ -1106,7 +1863,7 @@ def main():
         #base_args.append("/dev/snd:/dev/snd");
         base_args = device_folder_passthrough("/dev/snd", base_args);
     else:
-        if(docker_system == 1):
+        if(docker_system == 1 or docker_system == 2 ):
             base_args.append("-v");
             base_args.append("/tmp/.X11-unix:/tmp/.X11-unix:ro");
         else:
@@ -1115,9 +1872,10 @@ def main():
 
     if(os.path.isfile(dirname+"/mirrorlist") == True):
         base_args.append("-v");
-        base_args.append(dirname+"/mirrorlist:/etc/pacman.d/mirrorlist:ro");
+        base_args.append(dirname+"/mirrorlist:/etc/pacman.d/mirrorlist:rw");
         if(debug == 1):
             print("add pacman mirrolist");
+
 
     if(basename == "system_only" or basename == "system_only2" or basename == "edit_config" or basename == "build"):
         pass;
@@ -1183,16 +1941,33 @@ def main():
 
     if(sav_home_docker_folder == 1):
             if(basename != "command_root_lxc"):
-                if(os.path.isdir(os.path.join(dirname, "home")) == False):
-                    print(read_users_name())
-                    os.system("mkdir \"" + os.path.join(dirname, "home") + "\"");
-                    time.sleep(1)
-                    os.system("sudo chmod -R  777 \"" + os.path.join(dirname, "home") + "\"");
-                    os.system("sudo chown -R " + read_users_name() + ":users  \"" + os.path.join(dirname, "home") + "\"");
-                base_args.append("-v");
-                base_args.append(dirname+"/home:/home/" + docker_user + ":rw");
-                if(debug == 1):
-                    print("sav home folder");
+                #if(docker_system != 2):
+                if(True):
+                    if(os.path.isdir(os.path.join(dirname, "home")) == False):
+                        print(read_users_name())
+                        os.system("mkdir \"" + os.path.join(dirname, "home") + "\"");
+                        time.sleep(1)
+                        os.system("sudo chmod -R  777 \"" + os.path.join(dirname, "home") + "\"");
+                        os.system("sudo chown -R " + read_users_name() + ":users  \"" + os.path.join(dirname, "home") + "\"");
+                    #lxc und docker
+                    base_args.append("-v");
+                    base_args.append(dirname+"/home:/home/" + docker_user + ":rw");
+                    if(debug == 1):
+                        print("sav home folder");
+                else:
+                    if(os.path.isdir(os.path.join(dirname, "home")) == False):
+                        print(read_users_name())
+                        os.system("mkdir \"" + os.path.join(dirname, "home") + "\"");
+                        time.sleep(1)
+                        os.system("sudo chmod -R  777 \"" + os.path.join(dirname, "home") + "\"");
+                        os.system("sudo chown -R " + read_users_name() + ":users  \"" + os.path.join(dirname, "home") + "\"");
+                    #podman
+                    base_args.append("-v");
+                    base_args.append(dirname+"/home:/root" + ":rw");
+                    base_args.append("-v");
+                    base_args.append(dirname+"/home:/home/" + docker_user + ":rw");
+                    if(debug == 1):
+                        print("sav home folder");
 
     if(share_folder_daten == 1):
             if(basename != "command_root_lxc"):
@@ -1206,6 +1981,8 @@ def main():
                 base_args.append(dirname+"/daten:/root" + "/daten:rw");
                 if(debug == 1):
                     print("share daten fodler");
+
+
     if(basename == "system_only" or basename == "system_only2" or basename == "edit_config" or basename == "build"):
         pass;
     else:
@@ -1288,6 +2065,8 @@ def main():
         if(usb_sharing == 1):
             base_args.append("-v");
             base_args.append("/dev/bus/:/dev/bus/:rw");
+            if(os.path.isdir("/dev/usb") == False):
+                os.system("sudo mkdir /dev/usb")
             base_args.append("-v");
             base_args.append("/dev/usb:/dev/usb:rw");
             pass;
@@ -1396,6 +2175,9 @@ def main():
         if(network_host != "" and network_host != "0" and network_disable == 0):
             if(debug == 1):
                 print("network_host aktive");
+            if(type(network_host) == type([])):
+                if(len(network_host) >= 1):
+                    network_host = network_host[0];
             if(network_host.find("^") == -1):
                 base_args.append("--net="+network_host);
             else:
@@ -1405,12 +2187,20 @@ def main():
         if(portforwding != ""):
             if(debug == 1):
                 print("portforwding aktive");
-            base_args.append("-p")
-            base_args.append(portforwding);
+            if(portforwding.find("^") == -1):
+                base_args.append("-p")
+                base_args.append(portforwding);
+            else:
+                tmp = portforwding.split("^");
+                for tmp2 in tmp:
+                    base_args.append("-p")
+                    base_args.append(tmp2);
             #-p 8080:80
     if(pacman_cache != ""):
         if(debug == 1):
             print("pacman_cache aktive");
+        if(check_env("PACMAN_CACHE_DIR") != -1):
+            pacman_cache = os.environ["PACMAN_CACHE_DIR"]
         base_args.append("-v");
         base_args.append(pacman_cache+":"+"/var/cache/pacman/pkg:ro");
         base_args.append("-v");
@@ -1418,6 +2208,16 @@ def main():
         system("sudo chmod -R 777 " + pacman_cache);
         user = home = os.environ['USER'];
         system("sudo chown -R "+ user + ":users " + pacman_cache);
+
+
+    if(docker_hardining == 1):
+        #lockrotade sicherheit lucke fix
+        string_bash_add_root = string_bash_add_root + "chmod -R 000 '/var/log'\n"
+
+    #steam proton fix 0.1a
+    string_bash_add_root = string_bash_add_root + "ln -sf /usr/lib64/libfmt.so.10 /usr/lib64/libfmt.so.9\n";
+
+
 
     dirname_tmp = "";
     if(docker_build != "folder_name"):
@@ -1428,19 +2228,7 @@ def main():
         pass;
     else:
 
-        if(dns != ""):
-            dns_ = dns.split("^");
-            if(len(dns_) >= 1):
-                for tmp in dns_:
-                    base_args.append("--dns");
-                    base_args.append(tmp);
-                    if(debug == 1):
-                        print("DNS Server wird auf", dns, "gesezt!");
-            else:
-                base_args.append("--dns");
-                base_args.append(dns);
-                if(debug == 1):
-                    print("DNS Server wird auf", dns, "gesezt!");
+
         if(debug == 1):
             print(ipv4)
         if(ipv4 != ""):
@@ -1452,9 +2240,6 @@ def main():
         #    base_args.append("-v");
         #    base_args.append("/etc/resolv.conf:/etc/resolv.conf:ro");
         #    print("add /etc/resolv.conf to docker container!");
-        if(ipv6_privacy == 1):
-            if(debug == 1):
-                print("Ipv6 privacy on!")
 
         if(wireguard_fix == 1):
             #wire guard patch
@@ -1521,10 +2306,12 @@ def main():
             if(smart_acces_meomory == 0):
                 string_radv_pertest.append("nosam");
                 string_radv_pertest.append("rt");
+                string_radv_pertest.append("emulate_rt");
                 #string_bash_add = string_bash_add + "export RADV_PERFTEST=nosam,rt\n"
             else:
                 string_radv_pertest.append("sam");
                 string_radv_pertest.append("rt");
+                string_radv_pertest.append("emulate_rt");
                 #tring_bash_add = string_bash_add + "export RADV_PERFTEST=sam,rt\n";
             #string_bash_add = string_bash_add + "export RADV_PERFTEST=rt\n";
         else:
@@ -1534,6 +2321,9 @@ def main():
             else:
                 string_radv_pertest.append("sam");
                 #string_bash_add = string_bash_add + "export RADV_PERFTEST=sam\n";
+
+        if(amdgpu_gpl_pipline == 1):
+            string_radv_pertest.append("gpl");
 
 
         if(wine_fsr != -1):
@@ -1596,7 +2386,7 @@ def main():
             if(debug == 1):
                 print("freesync disable!");
 
-    if(docker_system == 1):
+    if(docker_system == 1 or docker_system == 2 ):
         #docker
         if(lxc_network_mac != ""):
             if(lxc_network_mac != "0"):
@@ -1621,10 +2411,40 @@ def main():
     string_bash_add_root = string_bash_add_root + "chmod +x /tmp/.X11-unix\n";
 
     if(True):
+        if(check_env("XDG_CONFIG_DIRS") != -1):
+            string_bash_add_root = string_bash_add_root + "export XDG_CONFIG_DIRS="+ check_env("XDG_CONFIG_DIRS") + "\n"
+        if(check_env("XDG_SESSION_PATH") != -1):
+            string_bash_add_root = string_bash_add_root + "export XDG_SESSION_PATH="+ check_env("XDG_SESSION_PATH") + "\n"
+
+        if(check_env("GAMESCOPE_WAYLAND_DISPLAY") != -1):
+            string_bash_add_root = string_bash_add_root + "export GAMESCOPE_WAYLAND_DISPLAY="+ check_env("GAMESCOPE_WAYLAND_DISPLAY") + "\n"
+        if(check_env("STEAM_GAME_DISPLAY_0") != -1):
+            string_bash_add_root = string_bash_add_root + "export STEAM_GAME_DISPLAY_0="+ check_env("STEAM_GAME_DISPLAY_0") + "\n"
+        if(check_env("DISABLE_LAYER_AMD_SWITCHABLE_GRAPHICS_1") != -1):
+            string_bash_add_root = string_bash_add_root + "export DISABLE_LAYER_AMD_SWITCHABLE_GRAPHICS_1="+ check_env("DISABLE_LAYER_AMD_SWITCHABLE_GRAPHICS_1") + "\n"
+        if(check_env("XDG_CURRENT_DESKTOP") != -1):
+            string_bash_add_root = string_bash_add_root + "export XDG_CURRENT_DESKTOP="+ check_env("XDG_CURRENT_DESKTOP") + "\n"
+
+        if(check_env("XWAYLAND_FORCE_ENABLE_EXTRA_MODES") != -1):
+            string_bash_add_root = string_bash_add_root + "export XWAYLAND_FORCE_ENABLE_EXTRA_MODES="+ check_env("XWAYLAND_FORCE_ENABLE_EXTRA_MODES") + "\n"
+        if(check_env("R600_DEBUG") != -1):
+            string_bash_add_root = string_bash_add_root + "export R600_DEBUG="+ check_env("R600_DEBUG") + "\n"
+        if(check_env("XDG_VTNR") != -1):
+            string_bash_add_root = string_bash_add_root + "export XDG_VTNR="+ check_env("XDG_VTNR") + "\n"
+
+        if(check_env("XDG_VTNR") != -1):
+            string_bash_add_root = string_bash_add_root + "export XDG_VTNR="+ check_env("XDG_VTNR") + "\n"
+        if(check_env("XDG_SESSION_ID") != -1):
+            string_bash_add_root = string_bash_add_root + "export XDG_SESSION_ID="+ check_env("XDG_SESSION_ID") + "\n"
+
         tmp1 = check_env("WAYLAND_DISPLAY");
         if(tmp1 != -1):
             base_args.append("-e");
             base_args.append("WAYLAND_DISPLAY:" + tmp1);
+            string_bash_add_root = string_bash_add_root + "export WAYLAND_DISPLAY=" +  tmp1 + "\n"
+            string_bash_add_root = string_bash_add_root + "ln -sf /etc/user/ /run/user" +  tmp1 + "\n"
+            string_bash_add_root = string_bash_add_root + "export QT_QPA_PLATFORM=wayland" + "\n"
+            string_bash_add_root = string_bash_add_root + "export MOZ_ENABLE_WAYLAND=1" + "\n"
             base_args.append("-e");
             base_args.append("DISPLAY=" + os.environ["DISPLAY"]);
             if(debug == 1):
@@ -1635,11 +2455,12 @@ def main():
                     print("XORG aktiv!")
                 base_args.append("-e");
                 base_args.append("DISPLAY=" + os.environ["DISPLAY"]);
-                base_args.append("-v");
-                base_args.append( os.environ["XAUTHORITY"] + ":/home/" + docker_user + "/.Xauthority:rw");
-                base_args.append("-v");
-                base_args.append(os.environ["XAUTHORITY"] + ":/root" + "/.Xauthority:rw");
-                os.system("chmod 777 " + os.environ["XAUTHORITY"] );
+                if(check_env("XAUTHORITY") != -1):
+                    base_args.append("-v");
+                    base_args.append( os.environ["XAUTHORITY"] + ":/home/" + docker_user + "/.Xauthority:rw");
+                    base_args.append("-v");
+                    base_args.append(os.environ["XAUTHORITY"] + ":/root" + "/.Xauthority:rw");
+                    os.system("chmod 777 " + os.environ["XAUTHORITY"] );
                 #https://unix.stackexchange.com/questions/330366/how-can-i-run-a-graphical-application-in-a-container-under-wayland
 
         #if(basename != "build" and os.path.isdir("/usr/share/locale") == True):
@@ -1650,11 +2471,24 @@ def main():
         #else:
         #    print("ERROR not found /usr/share/locale on host system!");
 
+    if(docker_in_docker == 1):
+        if(docker_system == 1 or docker_system == 2 ):
+            if(basename == "command_root_docker"):
+                pass;
+            elif(basename == "build"):
+                pass;
+            else:
+                base_args.append("--init");
+
     if(docker_system == 0):
         #lxc openvpn fix 0.1a
         base_args.append("--device");
         base_args.append("/dev/net/tun");
         #string_bash_add_root = string_bash_add_root + "chmod 777 /dev/net/tun\n"
+
+    if(ipv6_privacy == 1):
+        if(debug == 1):
+            print("Ipv6 privacy on!")
 
     if(docker_system == 0):
         #lxc
@@ -1707,6 +2541,7 @@ def main():
 
         if(lxc_readonly == 1):
             os.system("mkdir -p /var/lib/lxc/" + docker_build + "/rootfs/mnt/2/etc/run" )
+            os.system("mkdir -p /var/lib/lxc/" + docker_build + "/rootfs/mnt/2/etc/cmd" )
             string_bash_add_root = string_bash_add_root + "/sbin/init systemd.legacy_systemd_cgroup_controller=yes\n"
             #string_bash_add_root = string_bash_add_root + "/root/chmod_check.py '" + docker_user + "' '" + str(user_id) + "' \n";
 
@@ -1857,12 +2692,12 @@ def main():
             base_args.append(dirname + "/pacman.conf:/etc/pacman.conf:ro");
             print("pacman.conf add to docker!")
 
-    if(docker_system == 1):
+    if(docker_system == 1 or docker_system == 2 ):
         #docker
         string_bash_add_root = string_bash_add_root + "chown -R root:video /dev/dri\n";
 
     if(docker_disable_ipv6 == 1):
-        if(docker_system == 1):
+        if(docker_system == 1 or docker_system == 2 ):
             #docker
             string_bash_add_root = string_bash_add_root + "sysctl net.ipv6.conf.eth0.disable_ipv6=1\n";
             print("docker_disable_ipv6 is 1")
@@ -1892,6 +2727,9 @@ def main():
     if(amdgpu_pswave32 == 1):
         string_radv_pertest.append("pswave32");
 
+    if(amdgpu_mesh_shader_support == 1):
+        string_radv_pertest.append("ext_ms");
+
     if(amdgpu_nv_ms == 1):
         string_radv_pertest.append("nv_ms");
 
@@ -1913,8 +2751,102 @@ def main():
         string_bash_add_root = string_bash_add_root + "chmod 000 -R /dev/input\n";
 
 
+    if(docker_system == 0):
+        #lxc
+        #lxc bug fix dhcp waiting before run comman 0.1a
+        string_bash_add_root = string_bash_add_root + "sleep 5 \n";
+
+    if(dhcpv6 == 1):
+        if(basename == "system_only" or basename == "system_only2" or basename == "edit_config" or basename == "build"):
+            pass;
+        else:
+            if(docker_system == 0 or docker_system == 2):
+                #lxc podman
+                base_args.append("-v");
+                base_args.append(dirname + "/dhcp:/var/lib/dhcpcd:rw");
+                base_args.append("-v");
+                base_args.append(dirname + "/network:/etc/netplan:rw");
+                base_args.append("-v");
+                base_args.append(dirname + "/resolv.conf:/etc/resolv.conf:ro");
+                os.system("chmod 777 resolv.conf");
+                os.system("echo \"nameserver 1.1.1.1\" > resolv.conf");
+                os.system("mkdir dhcp");
+                os.system("mkdir network");
+                #string_bash_add_root = string_bash_add_root + "rm /var/lib/dhcpcd/eth* /var/lib/dhcpcd/secret \n"
+                if(docker_system == 2):
+                    #podman
+                    string_bash_add_root = string_bash_add_root + "dhcpcd eth0 \n";
+                print("dhcp ipv6 for lxc continer enable!")
 
 
+    if(podman_set_route_gateway_ip != ""):
+        string_bash_add_root = string_bash_add_root + "/usr/bin/route add default gw " + podman_set_route_gateway_ip + "\n";
+        if(basename == "system_only" or basename == "system_only2" or basename == "edit_config" or basename == "build"):
+            pass;
+        else:
+            string_bash_add_root = string_bash_add_root + "sleep 5\n"
+
+    if(dns != ""):
+        dns_ = dns.split("^");
+        if(len(dns_) >= 1):
+            string_bash_add_root = string_bash_add_root + "echo \"\" > /etc/resolv.conf\n"
+            for tmp in dns_:
+                base_args.append("--dns");
+                base_args.append(tmp);
+                string_bash_add_root = string_bash_add_root + "echo \"nameserver  " + tmp + "\" >> /etc/resolv.conf\n"
+                if(debug == 1):
+                    print("DNS Server wird auf", dns, "gesezt!");
+        else:
+            base_args.append("--dns");
+            base_args.append(dns);
+            if(docker_system == 2):
+                #podman
+                string_bash_add_root = string_bash_add_root + "echo \"nameserver  " + dns + "\" > /etc/resolv.conf\n"
+            if(debug == 1):
+                print("DNS Server wird auf", dns, "gesezt!");
+
+    if(dns != ""):
+        #string_bash_add_root = string_bash_add_root + "rm /etc/resolv.conf\n"
+        string_bash_add_root = string_bash_add_root + "echo 'nameserver " + dns + "' >/etc/resolv.conf\n"
+        string_bash_add_root = string_bash_add_root + "chmod 777 /etc/resolv.conf\n";
+    else:
+        #string_bash_add_root = string_bash_add_root + "rm /etc/resolv.conf\n"
+        string_bash_add_root = string_bash_add_root + "echo 'nameserver 8.8.8.8' >/etc/resolv.conf\n"
+        string_bash_add_root = string_bash_add_root + "chmod 777 /etc/resolv.conf\n";
+        print("Google dns server use!");
+
+    if(docker_system == 2):
+        #podman
+        if(ipv6 != ""):
+            base_args.append("--ip6");
+            base_args.append(ipv6);
+        if(basename != "build"):
+            base_args.append("--restart");
+            base_args.append("no");
+        base_args.append("--cap-add");
+        base_args.append("all");
+
+    string_bash_add_root = string_bash_add_root +  "NL=$'\\n'\n";
+
+    if(docker_user_password != ""):
+        if(basename == "edit_config" or basename == "system_only" or basename == "system_only2" or basename == "command_root_docker"):
+            pass;
+        else:
+            string_bash_add_root = string_bash_add_root +  "echo -e '" + docker_user_password + "\\n" + docker_user_password + "\\n" + "' | passwd " + docker_user + "\n"
+            string_bash_add_root = string_bash_add_root +  "echo -e '" + docker_user_password + "\\n" + docker_user_password + "\\n" + "' | passwd " +  "\n"
+            print("docker_user_password set")
+
+    if(docker_system == 2):
+        #podman
+        if(podman_security_appamore_disable == 1):
+            base_args.append("--security-opt");
+            base_args.append("apparmor=unconfined");
+        string_bash_add_root = string_bash_add_root + "setcap cap_sys_admin+p /usr/bin/bash \n";
+        string_bash_add_root = string_bash_add_root + "usermod -aG root " + docker_user + " \n";
+        string_bash_add_root = string_bash_add_root + "unset container\n";
+
+    if(vk_khr_present_wait == 1):
+        string_bash_add_root = string_bash_add_root + "export vk_khr_present_wait=true\n"
 
     if(basename == "edit_config"):
         sav_and_exit = 0;
@@ -1927,7 +2859,9 @@ def main():
                             , wine_fsr, manager_vm_fodler, optional_array, smart_acces_meomory, vulkan_device_name, steam_proton_run_without_steam, mango_hud, vkbasalt,
                             freesync, vsync, docker_system_bak, lxc_readonly_bak, lxc_network_mac, lxc_network_bridge_link, sav_and_exit, docker_disable_ipv6,
                             nvidia_dlss, nvidia_dlss_non_nvida_gpu, wineesync_and_winefsync, pulseaudio_stotterfix, amdgpu_nohyperz, amdgpu_pswave32, amdgpu_nv_ms, amdgpu_vrs,
-                            pluseaudio_sdl_fix);
+                            pluseaudio_sdl_fix, docker_auto_sav_folder, dhcpv6, amdgpu_mesh_shader_support, podman_runs_root,
+                            podman_set_route_gateway_ip, ipv6, amdgpu_gpl_pipline, reset_config, ubisoft_connect_mut_fix, vk_khr_present_wait,
+                            docker_user_password, gamescope_bypass, ryujinx_emu_crash_fix, gamescope_render_auflosung);
     if(basename == "edit_config_sav"):
         sav_and_exit = 1;
         start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugriff_auf_media, sav_home_docker_folder, share_folder_daten,
@@ -1938,7 +2872,9 @@ def main():
                             , wine_fsr, manager_vm_fodler, optional_array, smart_acces_meomory, vulkan_device_name, steam_proton_run_without_steam, mango_hud, vkbasalt,
                             freesync, vsync, docker_system_bak, lxc_readonly_bak, lxc_network_mac, lxc_network_bridge_link, sav_and_exit, docker_disable_ipv6,
                             nvidia_dlss, nvidia_dlss_non_nvida_gpu, wineesync_and_winefsync, pulseaudio_stotterfix, amdgpu_nohyperz, amdgpu_pswave32, amdgpu_nv_ms, amdgpu_vrs,
-                            pluseaudio_sdl_fix);
+                            pluseaudio_sdl_fix, docker_auto_sav_folder, dhcpv6, amdgpu_mesh_shader_support, podman_runs_root,
+                            podman_set_route_gateway_ip, ipv6, amdgpu_gpl_pipline, reset_config, ubisoft_connect_mut_fix, vk_khr_present_wait,
+                            docker_user_password, gamescope_bypass, ryujinx_emu_crash_fix, gamescope_render_auflosung);
         basename = basename_bak;
     if(basename == "manager"):
         if(manager_vm_fodler == ""):
@@ -1946,48 +2882,123 @@ def main():
             exit()
         start_manager_gui(manager_vm_fodler);
 
+    if(docker_system == 2):
+        #podman
+        if(podman_runs_root == 1):
+            if(basename != "build"):
+                base_args.append("--user")
+                base_args.append("root")
+            base_args.append("--security-opt");
+            base_args.append("seccomp=unconfined")
+        if(basename != "build"):
+            base_args.append("--systemd")
+            base_args.append("true")
+            if(podman_runs_root == 0):
+                #crash
+                #base_args.append("--userns")
+                #base_args.append("keep-id")
+                pass
+    if(docker_system == 2):
+        #podman
+        string_bash_add_root = string_bash_add_root + "chown root /etc/shadow\n";
+        string_bash_add_root = string_bash_add_root + "chown root /etc/passwd\n";
+        string_bash_add_root = string_bash_add_root + "chown root /etc/group\n";
+        string_bash_add_root = string_bash_add_root + "usermod -aG root " + docker_user + "\n";
 
+
+    if(ubisoft_connect_mut_fix == 1):
+        string_bash_add_root = string_bash_add_root + "sysctl net.ipv4.tcp_mtu_probing=1\n"
+
+
+    if(basename == "build"):
+        if(docker_system == 2):
+            #podman
+            base_args.append("--net=br0");
+        create_dockerfile(docker_system, docker_user, podman_set_route_gateway_ip, dns, ipv4);
+
+
+    if(docker_system == 1 or docker_system == 2 ):
+        if(check_env("DOCKER_HEALTY_CMD") != -1):
+            base_args.append("--health-cmd");
+            base_args.append(check_env("DOCKER_HEALTY_CMD"));
+            base_args.append("--health-timeout");
+            base_args.append("5s");
+            base_args.append("--health-interval");
+            base_args.append("30s");
+            base_args.append("--health-retries");
+            base_args.append("10");
+
+    if(basename == "build"):
+        ttyon = 1;
+
+    if(ryujinx_emu_crash_fix == 1):
+        string_bash_add_root = string_bash_add_root + "sysctl -w vm.max_map_count=524288 \n";
+        print("ryujinx_emu_crash_fix aktive!");
+
+    user_patched = "";
+    user_patched2 = "";
     if(True):
         base_args.append("-v");
         base_args.append(dirname + "/empty:/etc/cmd:rw");
         base_args.append("-v");
-        base_args.append(dirname + "/user_patched.bash:/etc/cmd/user_patched.bash:ro");
-        base_args.append("-v");
-        base_args.append(dirname + "/user_patched2.bash:/etc/cmd/user_patched2.bash:ro");
-        os.system("mkdir -p " + dirname + "/empty")
-        if(basename == "command"):
-            patching_user(docker_user, "su " + docker_user + " - -c ",  custom_command, str(user_id), hidraw_acs_overrides_patch, ipv6_privacy, faketime, wine_32bit_speed_hak, string_bash_add, string_bash_add_root);
-        elif(basename == "system_only"):
-            patching_user(docker_user, "su " + docker_user + " - -c ",  custom_command, str(user_id), hidraw_acs_overrides_patch, ipv6_privacy, faketime, wine_32bit_speed_hak, string_bash_add, string_bash_add_root);
-        elif(basename == "system_only2"):
-            patching_user(docker_user, "su " + docker_user + " - -c ",  custom_command, str(user_id), hidraw_acs_overrides_patch, ipv6_privacy, faketime, wine_32bit_speed_hak, string_bash_add, string_bash_add_root);
-        elif(basename == "command_root"):
-            patching_user(docker_user, "",  custom_command, str(user_id), hidraw_acs_overrides_patch, ipv6_privacy, faketime, wine_32bit_speed_hak, string_bash_add, string_bash_add_root);
-        elif(basename == "command_root_lxc"):
-            patching_user(docker_user, "",  custom_command, str(user_id), hidraw_acs_overrides_patch, ipv6_privacy, faketime, wine_32bit_speed_hak, string_bash_add, string_bash_add_root);
-        elif(basename == "login"):
-            patching_user(docker_user, "su "+docker_user , "bash", str(user_id), hidraw_acs_overrides_patch, ipv6_privacy, faketime, wine_32bit_speed_hak, string_bash_add, string_bash_add_root);
-        elif(basename == "login_root"):
-            patching_user(docker_user, "su", "su", str(user_id), hidraw_acs_overrides_patch, ipv6_privacy, faketime, wine_32bit_speed_hak, string_bash_add, string_bash_add_root);
-        elif(basename == "openra-ra"):
-            patching_user(docker_user, "su " + docker_user + " - -c ", "openra-ra", str(user_id), hidraw_acs_overrides_patch, ipv6_privacy, faketime, wine_32bit_speed_hak, string_bash_add, string_bash_add_root);
-        elif(basename == "firefox"):
-            patching_user(docker_user, "su " + docker_user + " - -c ", "firefox", str(user_id), hidraw_acs_overrides_patch, ipv6_privacy, faketime, wine_32bit_speed_hak, string_bash_add, string_bash_add_root);
-        elif(basename == "firefox"):
-            patching_user(docker_user, "su " + docker_user + " - -c ", "firefox", str(user_id), hidraw_acs_overrides_patch, ipv6_privacy, faketime, wine_32bit_speed_hak, string_bash_add, string_bash_add_root);
-        elif(basename == "firefox"):
-            patching_user(docker_user, "su " + docker_user + " - -c ", "firefox", str(user_id), hidraw_acs_overrides_patch, ipv6_privacy, faketime, wine_32bit_speed_hak, string_bash_add, string_bash_add_root);
-        elif(basename == "build"):
-            pass;
-        elif(basename == "run"):
-            pass;
-        elif(basename == "edit_config"):
-            pass
-        elif(basename == "manager"):
-            pass
+        if(docker_system == 1):
+            user_patched = "/user_patched.bash";
+            base_args.append(dirname + "/user_patched.bash:" + user_patched+ ":ro");
+            base_args.append("-v");
+            user_patched2 = "/user_patched2.bash";
+            base_args.append(dirname + "/user_patched2.bash:" + user_patched2+ ":ro");
         else:
-            print("Command not found!");
-            exit();
+            user_patched = "/etc/cmd/user_patched.bash";
+            base_args.append(dirname + "/user_patched.bash:" + user_patched+ ":ro");
+            base_args.append("-v");
+            user_patched2 = "/etc/cmd/user_patched2.bash";
+            base_args.append(dirname + "/user_patched2.bash:" + user_patched2+ ":ro");
+        os.system("mkdir -p " + dirname + "/empty")
+        #if(docker_system != 2):
+        if(True):
+            #lxc and docker
+            if(basename == "command"):
+                patching_user(docker_user, "su " + docker_user + " - -c ",  custom_command, str(user_id), hidraw_acs_overrides_patch, ipv6_privacy, faketime, wine_32bit_speed_hak, string_bash_add, string_bash_add_root, user_patched2);
+            elif(basename == "system_only"):
+                patching_user(docker_user, "su " + docker_user + " - -c ",  custom_command, str(user_id), hidraw_acs_overrides_patch, ipv6_privacy, faketime, wine_32bit_speed_hak, string_bash_add, string_bash_add_root, user_patched2);
+            elif(basename == "system_only2"):
+                #patching_user(docker_user, "su " + docker_user + " - -c ",  custom_command, str(user_id), hidraw_acs_overrides_patch, ipv6_privacy, faketime, wine_32bit_speed_hak, string_bash_add, string_bash_add_root, user_patched2);
+                patching_user(docker_user, "",  custom_command, str(user_id), hidraw_acs_overrides_patch, ipv6_privacy, faketime, wine_32bit_speed_hak, string_bash_add, string_bash_add_root, user_patched2);
+            elif(basename == "command_root"):
+                patching_user(docker_user, "",  custom_command, str(user_id), hidraw_acs_overrides_patch, ipv6_privacy, faketime, wine_32bit_speed_hak, string_bash_add, string_bash_add_root, user_patched2);
+            elif(basename == "command_root_lxc"):
+                patching_user(docker_user, "",  custom_command, str(user_id), hidraw_acs_overrides_patch, ipv6_privacy, faketime, wine_32bit_speed_hak, string_bash_add, string_bash_add_root, user_patched2);
+            elif(basename == "command_root_docker"):
+                patching_user(docker_user, "",  custom_command, str(user_id), hidraw_acs_overrides_patch, ipv6_privacy, faketime, wine_32bit_speed_hak, string_bash_add, string_bash_add_root, user_patched2);
+            elif(basename == "login"):
+                patching_user(docker_user, "su "+docker_user , "bash", str(user_id), hidraw_acs_overrides_patch, ipv6_privacy, faketime, wine_32bit_speed_hak, string_bash_add, string_bash_add_root, user_patched2);
+            elif(basename == "login_root"):
+                patching_user(docker_user, "su", "su", str(user_id), hidraw_acs_overrides_patch, ipv6_privacy, faketime, wine_32bit_speed_hak, string_bash_add, string_bash_add_root, user_patched2);
+            elif(basename == "openra-ra"):
+                patching_user(docker_user, "su " + docker_user + " - -c ", "openra-ra", str(user_id), hidraw_acs_overrides_patch, ipv6_privacy, faketime, wine_32bit_speed_hak, string_bash_add, string_bash_add_root, user_patched2);
+            elif(basename == "firefox"):
+                patching_user(docker_user, "su " + docker_user + " - -c ", "firefox", str(user_id), hidraw_acs_overrides_patch, ipv6_privacy, faketime, wine_32bit_speed_hak, string_bash_add, string_bash_add_root, user_patched2);
+            elif(basename == "firefox"):
+                patching_user(docker_user, "su " + docker_user + " - -c ", "firefox", str(user_id), hidraw_acs_overrides_patch, ipv6_privacy, faketime, wine_32bit_speed_hak, string_bash_add, string_bash_add_root, user_patched2);
+            elif(basename == "firefox"):
+                patching_user(docker_user, "su " + docker_user + " - -c ", "firefox", str(user_id), hidraw_acs_overrides_patch, ipv6_privacy, faketime, wine_32bit_speed_hak, string_bash_add, string_bash_add_root, user_patched2);
+            elif(basename == "build"):
+                pass;
+            elif(basename == "run"):
+                pass;
+            elif(basename == "edit_config"):
+                pass
+            elif(basename == "manager"):
+                pass
+            else:
+                print("Command not found!");
+                exit();
+        else:
+            #podman
+            if(basename == "login" or basename == "login_root"):
+                custom_command = "bash"
+            patching_user(docker_user, "",  custom_command, str(user_id), hidraw_acs_overrides_patch, ipv6_privacy, faketime, wine_32bit_speed_hak, string_bash_add, string_bash_add_root, user_patched2);
+
     #base_args.append(os.path.split(dirname)[-1]);
 
     build_args = filter_docker_build(base_args);
@@ -1996,21 +3007,22 @@ def main():
     base_args.append(dirname_tmp);
 
     print("docker_system: ", docker_system)
-    if(docker_system == 1):#docker system
+    if(docker_system == 1 or docker_system == 2 or  docker_system == 3):#docker system vfiodock
         if(ttyon == 0):
             #gui aktiv
             args = {
                 #"build": [build_args[0], "build", "-f", dirname + "/src/Dockerfile", "-t" ,dirname_tmp ] +  (build_args[1:] + [dirname]),
                 "build": [build_args[0], "build", "-f", dirname + "/src/Dockerfile", "-t" ,dirname_tmp ] +  (build_args[1:] + [dirname]),
                 "run": [base_args[0], "run"] + (base_args[1:]),
-                "login": [base_args[0], "run", "-it"] + (base_args[1:] + ["bash", "-c", "/etc/cmd/user_patched.bash"]),
-                "login_root": [base_args[0], "run", "-it"] + (base_args[1:] + ["bash", "-c", "/etc/cmd/user_patched.bash"]),
-                "openra-ra": [base_args[0], "run", "-i"] + (base_args[1:] + ["bash", "-c", "/etc/cmd/user_patched.bash"]),
-                "firefox": [base_args[0], "run", "-i"] + (base_args[1:] + ["bash", "-c", "/etc/cmd/user_patched.bash"]),
-                "command": [base_args[0], "run", "-i"] + (base_args[1:] + ["bash", "-c", "/etc/cmd/user_patched.bash"]),
-                "command_root": [base_args[0], "run", "-i"] + (base_args[1:] + ["bash", "-c", "/etc/cmd/user_patched.bash"]),
-                "system_only": [base_args[0], "run", "-i"] + (base_args[1:] + ["bash", "-c", "/etc/cmd/user_patched.bash"]),
-                "system_only2": [base_args[0], "run", "-i"] + (base_args[1:] + ["bash", "-c", "/etc/cmd/user_patched.bash"]),
+                "login": [base_args[0], "run", "-it"] + (base_args[1:] + ["bash", "-c", user_patched]),
+                "login_root": [base_args[0], "run", "-it"] + (base_args[1:] + ["bash", "-c", user_patched]),
+                "openra-ra": [base_args[0], "run", "-i"] + (base_args[1:] + ["bash", "-c", user_patched]),
+                "firefox": [base_args[0], "run", "-i"] + (base_args[1:] + ["bash", "-c", user_patched]),
+                "command": [base_args[0], "run", "-i"] + (base_args[1:] + ["bash", "-c", user_patched]),
+                "command_root": [base_args[0], "run", "-i"] + (base_args[1:] + ["bash", "-c", user_patched]),
+                "command_root_docker": [base_args[0], "run", "-i"] + (base_args[1:] + ["bash", "-c", user_patched]),
+                "system_only": [base_args[0], "run", "-i"] + (base_args[1:] + ["bash", "-c", user_patched]),
+                "system_only2": [base_args[0], "run", "-i"] + (base_args[1:] + ["bash", "-c", user_patched]),
             }
             if __name__ == "__main__":
                 if(debug == 1):
@@ -2022,48 +3034,28 @@ def main():
                     #os.chdir(os.path.join(dirname , "archlinux_std_docker"));
                     #os.system("./build");
                     #os.chdir(dirname);
-                    os.system(cmd);
+                    if(podman_runs_root == 1):
+                        #os.system("sudo " + cmd);
+                        os_system("sudo " + cmd, dirname_tmp, docker_system, podman_runs_root, gamescope_bypass_tmp)
+                    else:
+                        os_system(cmd, dirname_tmp, docker_system, podman_runs_root, gamescope_bypass_tmp)
                     if(debug == 1):
                         print(cmd)
                 elif(basename == "login" or basename == "login_root" ):
-                    os.system(cmd);
+                    if(podman_runs_root == 1):
+                        os_system("sudo " + cmd, dirname_tmp, docker_system, podman_runs_root, gamescope_bypass_tmp)
+                    else:
+                        os_system(cmd, dirname_tmp, docker_system, podman_runs_root, gamescope_bypass_tmp)
                     if(debug == 1):
                         print(cmd)
                 else:
-                    os.system(cmd);
+                    if(podman_runs_root == 1):
+                        os_system("sudo " + cmd, dirname_tmp, docker_system, podman_runs_root, gamescope_bypass_tmp)
+                    else:
+                        os_system(cmd, dirname_tmp, docker_system, podman_runs_root, gamescope_bypass_tmp)
                     if(debug == 1):
                         print(cmd)
                 #print(cmd)
-            if(basename == "build" and pacman_cache != ""):
-                fertigfile = os.path.join(pacman_cache, "fertig");
-                if(os.path.isfile(fertigfile) == True):
-                    os.remove(fertigfile);
-                if(debug == 1):
-                    print("starting mod")
-                start_thread_wait("bash install.bash");
-                print("ERROR docker building system onlay mit ttyon set of 1!")
-                exit(-1);
-                while True:
-                    if(start_thread_wait("./command_root 'pacman -Sy archlinux-keyring --noconfirm -y --cachedir /var/cache/pacman/pkg && pacman -Syu " + pacman_pakgage_install + " --noconfirm -y --downloadonly --cachedir /mnt/pacman_cache_rw/ && exit'") == 0):
-                        break;
-                start_thread("./command_root 'pacman -Sy archlinux-keyring archiso --noconfirm -y --cachedir /var/cache/pacman/pkg && pacman -Syu " + pacman_pakgage_install + " --noconfirm -y --cachedir /var/cache/pacman/pkg  && echo 1 > /mnt/pacman_cache_rw/fertig && sleep 180 &&  exit '");#start_thread
-                #start_thread("./command_root 'pacman -Sy archlinux-keyring archiso --noconfirm -y --cachedir /var/cache/pacman/pkg && mkdir /mnt/2 &&  mount -B / /mnt/2 && mount -B /var/cache/pacman/pkg/ /mnt/2/var/cache/pacman/pkg/ && pacman -Syu  " + pacman_pakgage_install + " --noconfirm -y --cachedir /var/cache/pacman/pkg --root /mnt/2  && echo 1 > /mnt/pacman_cache_rw/fertig && sleep 180 &&  exit '");#start_thread
-                time.sleep(30);
-                wait_build_fertig(fertigfile, dirname_tmp);
-                dockerid = read_docker_ps(dirname_tmp);
-                tmp = "";
-                if(dockerid != ""):
-                    print("sav docker image")
-                    print(dockerid);
-                    print(tmp);
-                    cmd = "docker commit " + dockerid + " " + dirname_tmp;
-                    os.system(cmd);
-                    print("docker save!");
-                    exit();
-                else:
-                    print("ERROR docker id not found");
-                    exit(-1);
-                thread_wait_is_exit();
             else:
                 print("ERROR pacman cache is empty in config file!");
         elif(ttyon == 1):
@@ -2074,14 +3066,15 @@ def main():
                 #"build": [build_args[0], "build", "-f", dirname + "/src/Dockerfile", "-t" ,dirname_tmp ] +  (build_args[1:] + [dirname]),
                 "build": [build_args[0], "build", "-f", dirname + "/src/Dockerfile", "-t" ,dirname_tmp ] +  (build_args[1:] + [dirname]),
                 "run": [base_args[0], "run"] + (base_args[1:]),
-                "login": [base_args[0], "run", "-it"] + (base_args[1:] + ["bash", "-c", "/etc/cmd/user_patched.bash"]),
-                "login_root": [base_args[0], "run", "-it"] + (base_args[1:] + ["bash", "-c", "/etc/cmd/user_patched.bash"]),
-                "openra-ra": [base_args[0], "run", "-it"] + (base_args[1:] + ["bash", "-c", "/etc/cmd/user_patched.bash"]),
-                "firefox": [base_args[0], "run", "-it"] + (base_args[1:] + ["bash", "-c", "/etc/cmd/user_patched.bash"]),
-                "command": [base_args[0], "run", "-it"] + (base_args[1:] + ["bash", "-c", "/etc/cmd/user_patched.bash"]),
-                "command_root": [base_args[0], "run", "-it"] + (base_args[1:] + ["bash", "-c", "/etc/cmd/user_patched.bash"]),
-                "system_only": [base_args[0], "run", "-it"] + (base_args[1:] + ["bash", "-c", "/etc/cmd/user_patched.bash"]),
-                "system_only2": [base_args[0], "run", "-it"] + (base_args[1:] + ["bash", "-c", "/etc/cmd/user_patched.bash"]),
+                "login": [base_args[0], "run", "-it"] + (base_args[1:] + ["bash", "-c", user_patched]),
+                "login_root": [base_args[0], "run", "-it"] + (base_args[1:] + ["bash", "-c", user_patched]),
+                "openra-ra": [base_args[0], "run", "-i"] + (base_args[1:] + ["bash", "-c", user_patched]),
+                "firefox": [base_args[0], "run", "-i"] + (base_args[1:] + ["bash", "-c", user_patched]),
+                "command": [base_args[0], "run", "-it"] + (base_args[1:] + ["bash", "-c", user_patched]),
+                "command_root": [base_args[0], "run", "-it"] + (base_args[1:] + ["bash", "-c", user_patched]),
+                "command_root_docker": [base_args[0], "run", "-i"] + (base_args[1:] + ["bash", "-c", user_patched]),
+                "system_only": [base_args[0], "run", "-i"] + (base_args[1:] + ["bash", "-c", user_patched]),
+                "system_only2": [base_args[0], "run", "-i"] + (base_args[1:] + ["bash", "-c", user_patched]),
             }
             if __name__ == "__main__":
                 if(debug == 1):
@@ -2090,52 +3083,100 @@ def main():
                 #os.s(base_args[0], args[basename])
                 cmd = args_array_to_str(args[basename]);
                 if(basename == "build"):
+                    os.system("sudo ./docker pull archlinux:latest");
                     #os.chdir(os.path.join(dirname , "archlinux_std_docker"));
                     #os.system("./build");
                     #os.chdir(dirname);
-                    os.system(cmd);
+                    if(podman_runs_root == 1):
+                        os_system("sudo " + cmd, dirname_tmp, docker_system, podman_runs_root, gamescope_bypass_tmp)
+                    else:
+                        os_system(cmd, dirname_tmp, docker_system, podman_runs_root, gamescope_bypass_tmp)
                     if(debug == 1):
                         print(cmd)
                 elif(basename == "login" or basename == "login_root" ):
-                    os.system(cmd);
+                    if(podman_runs_root == 1):
+                        os_system("sudo " + cmd, dirname_tmp, docker_system, podman_runs_root, gamescope_bypass_tmp)
+                    else:
+                        os_system(cmd, dirname_tmp, docker_system, podman_runs_root, gamescope_bypass_tmp)
                     if(debug == 1):
                         print(cmd)
                 else:
-                    os.system(cmd);
+                    if(podman_runs_root == 1):
+                        os_system("sudo " + cmd, dirname_tmp, docker_system, podman_runs_root, gamescope_bypass_tmp)
+                    else:
+                        os_system(cmd, dirname_tmp, docker_system, podman_runs_root, gamescope_bypass_tmp)
                     if(debug == 1):
                         print(cmd)
                 #print(cmd)
 
             if(basename == "build" and pacman_cache != ""):
+                pacman_pakgage_install = pacman_pakgage_install + " dhcpcd"
                 fertigfile = os.path.join(pacman_cache, "fertig");
                 if(os.path.isfile(fertigfile) == True):
                     os.remove(fertigfile);
                 print("starting mod")
                 start_thread_wait("bash install.bash");
                 print("downloading pacman data..")
+                if(pacman_pakgage_install != ""):
+                    out = pacman_list_a_downlaod_pkg(basename);
+                    if(type(out) == type([])):
+                        if(len(out) != 0):
+                            out = check_array_pacman_pkg_exist(out, pacman_pakgage_install);
+                            out = podman_pkg_doppelt_check(out[0])
+                            pacman_pakgage_install = out;
+                            out = [[], []];
+                            if(len(out[1]) >= 1):
+                                tmp = "ERROR pkg not foudn: "
+                                for tmp2 in out[1]:
+                                    tmnp = tmp + tmp2 + ", ";
+                                print(tmp)
+                else:
+                    pacman_pakgage_install = "bash "
                 while True:
-                    if(start_thread_wait("./command_root 'pacman -Sy archlinux-keyring --noconfirm -y --cachedir /var/cache/pacman/pkg && pacman -Syu " + pacman_pakgage_install + " --noconfirm -y --downloadonly --cachedir /mnt/pacman_cache_rw/ && exit'") == 0):
+                    if(start_thread_wait("./command_root_docker 'pacman -Sy archlinux-keyring python reflector --noconfirm -y --cachedir /var/cache/pacman/pkg \n reflector --verbose --latest 15 --protocol https --sort rate --save /etc/pacman.d/mirrorlist \n pacman -Syu " + pacman_pakgage_install + " --noconfirm -y --downloadonly --cachedir /mnt/pacman_cache_rw/ && exit'") == 0):
                         break;
-                start_thread("./command_root 'pacman -Sy archlinux-keyring archiso --noconfirm -y --cachedir /var/cache/pacman/pkg && pacman -Syu " + pacman_pakgage_install + " --noconfirm -y --cachedir /var/cache/pacman/pkg --needed  && echo 1 > /mnt/pacman_cache_rw/fertig && sleep 180 &&  exit '");#start_thread
+                th1 = -1;
+                if(docker_system == 1):
+                    #docker_build
+                    th1 = start_thread("./command_root_docker 'pacman -Sy archlinux-keyring archiso python --noconfirm -y --cachedir /var/cache/pacman/pkg && mkdir /mnt/2 &&  mount -B / /mnt/2 && mount -B /var/cache/pacman/pkg/ /mnt/2/var/cache/pacman/pkg/ &&  pacman -Syu  " + pacman_pakgage_install + " --noconfirm -y --overwrite=\"*\" --cachedir /var/cache/pacman/pkg --root /mnt/2  && echo 1 > /mnt/pacman_cache_rw/fertig && sleep 600 &&  exit '");#start_thread
+                else:
+                    #overwirde pacman not enof free space
+                    if(check_env("FORCE_PACMAN_BUILD_ERROR_NOT_ENOF_FREE_SPACE") != -1):
+                        th1 = start_thread("./command_root_docker 'pacman -Sy archlinux-keyring archiso python --noconfirm -y --cachedir /var/cache/pacman/pkg \n mkdir /mnt/2 \n  mount -B / /mnt/2 \n mount -B /var/cache/pacman/pkg/ /mnt/2/var/cache/pacman/pkg/ \n mount -B /proc /mnt/2/proc \n mount -B /etc /mnt/2/etc   \n mount -B /sys /mnt/2/sys \n rm /etc/locale.gen \n  pacman -Syu  " + pacman_pakgage_install + " --noconfirm -y --overwrite=\"*\" --cachedir /var/cache/pacman/pkg --root /mnt/2  \n echo 1 > /mnt/pacman_cache_rw/fertig \n sleep 600 \n  exit '");#start_thread
+                    else:
+                        th1 = start_thread("./command_root_docker 'pacman -Sy archlinux-keyring archiso python --noconfirm -y --cachedir /var/cache/pacman/pkg && pacman -Syu " + pacman_pakgage_install + " --noconfirm -y --cachedir /var/cache/pacman/pkg --needed  && echo 1 > /mnt/pacman_cache_rw/fertig && sleep 600 &&  exit '");#start_thread
+                    #old
+                    #pacman install normaly
+                    #th1 = start_thread("./command_root_docker 'pacman -Sy archlinux-keyring archiso python --noconfirm -y --cachedir /var/cache/pacman/pkg && pacman -Syu " + pacman_pakgage_install + " --noconfirm -y --cachedir /var/cache/pacman/pkg --needed  && echo 1 > /mnt/pacman_cache_rw/fertig && sleep 600 &&  exit '");#start_thread
+                #os.system("sudo cp pipe.tmp build_log")
                 #pacman free sapce error fix 0.2a
-                #start_thread("./command_root 'pacman -Sy archlinux-keyring archiso --noconfirm -y --cachedir /var/cache/pacman/pkg && mkdir /mnt/2 &&  mount -B / /mnt/2 && mount -B /var/cache/pacman/pkg/ /mnt/2/var/cache/pacman/pkg/ && pacman -Syu  " + pacman_pakgage_install + " --noconfirm -y --cachedir /var/cache/pacman/pkg --root /mnt/2  && echo 1 > /mnt/pacman_cache_rw/fertig && sleep 180 &&  exit '");#start_thread
+                #start_thread("./command_root 'pacman -Sy archlinux-keyring archiso --noconfirm -y --cachedir /var/cache/pacman/pkg && mkdir /mnt/2 &&  mount -B / /mnt/2 && mount -B /var/cache/pacman/pkg/ /mnt/2/var/cache/pacman/pkg/ && pacman -Syu  " + pacman_pakgage_install + " --noconfirm -y --cachedir /var/cache/pacman/pkg --root /mnt/2  && echo 1 > /mnt/pacman_cache_rw/fertig && sleep 600 &&  exit '");#start_thread
                 #start_thread
+                #exit()
                 time.sleep(30);
-                wait_build_fertig(fertigfile, dirname_tmp);
-                dockerid = read_docker_ps(dirname_tmp);
+                wait_build_fertig(fertigfile, dirname_tmp, docker_system, podman_runs_root);
+                os.system("sudo cp pipe.tmp build_log")
+                dockerid = read_docker_ps(dirname_tmp, docker_system, podman_runs_root);
                 tmp = "";
                 if(dockerid != ""):
                     print("sav docker image")
                     print(dockerid);
                     print(tmp);
-                    cmd = "docker commit " + dockerid + " " + dirname_tmp;
+                    if(docker_system == 1):
+                        #docker
+                        cmd = "docker commit " + dockerid + " " + dirname_tmp;
+                    if(docker_system == 2):
+                        if(podman_runs_root == 1):
+                            cmd = "sudo podman commit " + dockerid + " " + dirname_tmp;
+                        else:
+                            cmd = "podman commit " + dockerid + " " + dirname_tmp;
                     os.system(cmd);
                     print("docker save!");
                     exit();
                 else:
                     print("ERROR docker id not found");
                     exit(-1);
-                thread_wait_is_exit();
+                thread_wait_is_exit(th1);
         else:
             #ttyon 2 #gui off terminal on docker checkpoit on
             build_args.append("-d");
@@ -2144,15 +3185,16 @@ def main():
             args = {
                 #"build": [build_args[0], "build", "-f", dirname + "/src/Dockerfile", "-t" ,dirname_tmp ] +  (build_args[1:] + [dirname]),
                 "build": [build_args[0], "build", "-f", dirname + "/src/Dockerfile", "-t" ,dirname_tmp ] +  (build_args[1:] + [dirname]),
-                "run": [base_args[0], "run", "-i"] + (base_args[1:]),
-                "login": [base_args[0], "run", "-i"] + (base_args[1:] + ["bash", "-c", "/etc/cmd/user_patched.bash"]),
-                "login_root": [base_args[0], "run", "-i"] + (base_args[1:] + ["bash", "-c", "/etc/cmd/user_patched.bash"]),
-                "openra-ra": [base_args[0], "run", "-i"] + (base_args[1:] + ["bash", "-c", "/etc/cmd/user_patched.bash"]),
-                "firefox": [base_args[0], "run", "-i"] + (base_args[1:] + ["bash", "-c", "/etc/cmd/user_patched.bash"]),
-                "command": [base_args[0], "run", "-i"] + (base_args[1:] + ["bash", "-c", "/etc/cmd/user_patched.bash"]),
-                "command_root": [base_args[0], "run", "-i"] + (base_args[1:] + ["bash", "-c", "/etc/cmd/user_patched.bash"]),
-                "system_only": [base_args[0], "run", "-it"] + (base_args[1:] + ["bash", "-c", "/etc/cmd/user_patched.bash"]),
-                "system_only2": [base_args[0], "run", "-it"] + (base_args[1:] + ["bash", "-c", "/etc/cmd/user_patched.bash"]),
+                "run": [base_args[0], "run"] + (base_args[1:]),
+                "login": [base_args[0], "run", "-it"] + (base_args[1:] + ["bash", "-c", user_patched]),
+                "login_root": [base_args[0], "run", "-it"] + (base_args[1:] + ["bash", "-c", user_patched]),
+                "openra-ra": [base_args[0], "run", "-i"] + (base_args[1:] + ["bash", "-c", user_patched]),
+                "firefox": [base_args[0], "run", "-i"] + (base_args[1:] + ["bash", "-c", user_patched]),
+                "command": [base_args[0], "run", "-i"] + (base_args[1:] + ["bash", "-c", user_patched]),
+                "command_root": [base_args[0], "run", "-i"] + (base_args[1:] + ["bash", "-c", user_patched]),
+                "command_root_docker": [base_args[0], "run", "-i"] + (base_args[1:] + ["bash", "-c", user_patched]),
+                "system_only": [base_args[0], "run", "-i"] + (base_args[1:] + ["bash", "-c", user_patched]),
+                "system_only2": [base_args[0], "run", "-i"] + (base_args[1:] + ["bash", "-c", user_patched]),
             }
             if __name__ == "__main__":
                 if(debug == 1):
@@ -2164,54 +3206,33 @@ def main():
                     #os.chdir(os.path.join(dirname , "archlinux_std_docker"));
                     #os.system("./build");
                     #os.chdir(dirname);
-                    os.system(cmd);
+                    if(podman_runs_root == 1):
+                        os_system("sudo " + cmd, dirname_tmp, docker_system, podman_runs_root, gamescope_bypass_tmp)
+                    else:
+                        os_system(cmd, dirname_tmp, docker_system, podman_runs_root, gamescope_bypass_tmp)
                     if(debug == 1):
                         print(cmd)
                 elif(basename == "login" or basename == "login_root" ):
-                    os.system(cmd);
+                    if(podman_runs_root == 1):
+                        os_system("sudo " + cmd, dirname_tmp, docker_system, podman_runs_root, gamescope_bypass_tmp);
+                    else:
+                        os_system(cmd, dirname_tmp, docker_system, podman_runs_root, gamescope_bypass_tmp)
                     if(debug == 1):
                         print(cmd)
                 else:
-                    os.system(cmd);
+                    if(podman_runs_root == 1):
+                        os_system("sudo " + cmd, dirname_tmp, docker_system, podman_runs_root, gamescope_bypass_tmp)
+                    else:
+                        os_system(cmd, dirname_tmp, docker_system, podman_runs_root, gamescope_bypass_tmp)
                     if(debug == 1):
                         print(cmd)
                 #print(cmd)
-            if(basename == "build" and pacman_cache != ""):
-                fertigfile = os.path.join(pacman_cache, "fertig");
-                if(os.path.isfile(fertigfile) == True):
-                    os.remove(fertigfile);
-                print("starting mod")
-                start_thread_wait("bash install.bash");
-                print("downloading pacman data..")
-                print("ERROR docker building system onlay mit ttyon set of 1!")
-                exit(-1);
-                while True:
-                    if(start_thread_wait("./command_root 'pacman -Sy archlinux-keyring --noconfirm -y --cachedir /var/cache/pacman/pkg && pacman -Syu " + pacman_pakgage_install + " --noconfirm -y --downloadonly --cachedir /mnt/pacman_cache_rw/ && exit'") == 0):
-                        break;
-                start_thread("./command_root 'pacman -Sy archlinux-keyring archiso --noconfirm -y --cachedir /var/cache/pacman/pkg && pacman -Syu " + pacman_pakgage_install + " --noconfirm -y --cachedir /var/cache/pacman/pkg --needed  && echo 1 > /mnt/pacman_cache_rw/fertig && sleep 180 &&  exit '");#start_thread
-                #start_thread("./command_root 'pacman -Sy archlinux-keyring archiso --noconfirm -y --cachedir /var/cache/pacman/pkg && mkdir /mnt/2 &&  mount -B / /mnt/2 && mount -B /var/cache/pacman/pkg/ /mnt/2/var/cache/pacman/pkg/ && pacman -Syu  " + pacman_pakgage_install + " --noconfirm -y --cachedir /var/cache/pacman/pkg --root /mnt/2  && echo 1 > /mnt/pacman_cache_rw/fertig && sleep 180 &&  exit '");#start_thread
-                #start_thread
-                time.sleep(30);
-                wait_build_fertig(fertigfile, dirname_tmp);
-                dockerid = read_docker_ps(dirname_tmp);
-                tmp = "";
-                if(dockerid != ""):
-                    print("sav docker image")
-                    print(dockerid);
-                    print(tmp);
-                    cmd = "docker commit " + dockerid + " " + dirname_tmp;
-                    os.system(cmd);
-                    print("docker save!");
-                    exit();
-                else:
-                    print("ERROR docker id not found");
-                    exit(-1);
-                thread_wait_is_exit();
             else:
                 print("ERROR pacman cache is empty in config file!");
             exit();
     else:
         #lxc
+        #import pdb; pdb.set_trace()
         out = lxc_converter_docker_array_reading(base_args);
         paths = out[0];
         variable = out[1];
@@ -2231,7 +3252,7 @@ def main():
                 #base_args.append("/var/lib/lxc/" + docker_build + "/rootfs2:/mnt/2:rw")
             else:
                 if(lxc_readonly == 0):
-                    if(basename == "system_only" or basename == "system_only2" or basename == "edit_config" or basename == "build"):
+                    if(basename == "system_only" or basename == "system_only2" or basename == "edit_config" or basename == "build" or basename == "command_root_lxc" or basename == "command_root_docker"):
                         pass;
                     else:
                         s1 = input("Sind sie sich sicher das sie die VM schreibar starten wolle? y,n: ");
@@ -2283,7 +3304,10 @@ def main():
                         #lxc_create_a_snapshot(docker_build);
                         print(lxc_start_vm_lxc_device_coammds);
                         os.system("sudo echo 1> start_lxc.log");
-                        os.system("sudo lxc-start " + docker_build + "_backing" + str(lxc_tmp_auto_create_id) + " -o start_lxc.log");
+                        if(run_in_background == 1):
+                            os.system("sudo lxc-autostart start")
+                        else:
+                            os.system("sudo lxc-start " + docker_build + "_backing" + str(lxc_tmp_auto_create_id) + " -o start_lxc.log");
                         #os.system("sudo lxc-config set " + docker_build + "_backing" + str(lxc_tmp_auto_create_id) +  " raw.lxc 'lxc.init_cmd = /sbin/init systemd.legacy_systemd_cgroup_controller=yes'")
                         #os.system("sudo lxc-start " + docker_build + "_backing" + str(lxc_tmp_auto_create_id) + " -o start_lxc.log");
                         #os.system("sudo lxc launch '" + docker_build + "_backing" + str(lxc_tmp_auto_create_id) + "' --vm");
@@ -2294,9 +3318,12 @@ def main():
                         lxc_start_vm_lxc_device_coammds = lxc_start_vm_lxc_device_coammds + "sudo lxc-config device add " + docker_build + "_backing" + str(lxc_tmp_auto_create_id) + " mysocket proxy connect=unix:/var/run/dbus/system_bus_socket listen=unix:/var/run/dbus/system_bus_socket bind=container\n";
                         os.system(lxc_start_vm_lxc_device_coammds)
                         os.system("sudo lxc-attach -n " + docker_build + "_backing" + str(lxc_tmp_auto_create_id) + " -e  -- /etc/cmd/user_patched.bash");
-                        os.system("sudo lxc-stop " +  docker_build + "_backing" + str(lxc_tmp_auto_create_id) + " -k")
-                        #exit();
-                        lxc_remove_a_new_vm_copy(docker_build, lxc_tmp_auto_create_id);
+                        if(run_in_background == 1):
+                            pass;
+                        else:
+                            os.system("sudo lxc-stop " +  docker_build + "_backing" + str(lxc_tmp_auto_create_id) + " -k")
+                            #exit();
+                            lxc_remove_a_new_vm_copy(docker_build, lxc_tmp_auto_create_id);
                     else:
                         #tmp1 = lxc_covert_device_array_to_string(devices, docker_build + "_backing" + str(lxc_tmp_auto_create_id));
                         #lxc_start_vm_lxc_device_coammds = lxc_device_array_to_comdands(docker_build + "_backing" + str(lxc_tmp_auto_create_id), optical_disk[2]);
@@ -2389,7 +3416,7 @@ def main():
                     #while True:
                     #    if(start_thread_wait("./command_root 'pacman -Sy base base-devel archlinux-keyring --noconfirm -y --cachedir /var/cache/pacman/pkg && pacman -Syu " + pacman_pakgage_install + " --noconfirm -y --downloadonly --cachedir /mnt/pacman_cache_rw/ && exit'") == 0):
                     #        break;
-                    #start_thread("./command_root 'pacman -Syu  base base-devel  archlinux-keyring archiso --noconfirm -y --cachedir /var/cache/pacman/pkg && pacman -Syu " + pacman_pakgage_install + " --noconfirm -y --cachedir /var/cache/pacman/pkg --needed  && echo 1 > /mnt/pacman_cache_rw/fertig && sleep 180 &&  exit '");#start_thread
+                    #start_thread("./command_root 'pacman -Syu  base base-devel  archlinux-keyring archiso --noconfirm -y --cachedir /var/cache/pacman/pkg && pacman -Syu " + pacman_pakgage_install + " --noconfirm -y --cachedir /var/cache/pacman/pkg --needed  && echo 1 > /mnt/pacman_cache_rw/fertig && sleep 600 &&  exit '");#start_thread
 
                     #old version 0.20h mod 1
                     #start_thread_wait
@@ -2415,7 +3442,6 @@ def main():
 
                     #start_thread_wait("./command_root 'mkdir /mnt/2 &&  mount -B / /mnt/2 && mount -B /var/cache/pacman/pkg/ /mnt/2/var/cache/pacman/pkg/ && pacman -Syu  " + pacman_pakgage_install + " --noconfirm -y --cachedir /var/cache/pacman/pkg --root /mnt/2  && echo 1 > /mnt/pacman_cache_rw/fertig &&  exit '");
                     os.system("./command_root_lxc 'pacstrap  /mnt/2 --cachedir /var/cache/pacman/pkg dhcpcd " + pacman_pakgage_install + "\n chroot /var/lib/lxc/" + docker_build + "/mnt/2/ /usr/bin/useradd -m -g users -G wheel,audio,video -s /bin/bash " + docker_user + " \nexit '");
-
                     os.system("sudo lxc-stop " + docker_build + " -k");
                     #os.system("sudo rm -r /var/lib/lxc/" + docker_build + "/rootfs")
                     #os.system("sudo mv /var/lib/lxc/" + docker_build + "/rootfs2 /var/lib/lxc/" + docker_build + "/rootfs3")
@@ -2427,7 +3453,7 @@ def main():
 
                     os.system("./system_only3 exit")
                     #os.system("./command_root_lxc 'useradd -m -g users -G video,audio " + docker_user + "'");
-                    #start_thread("./command_root 'pacman -Sy archlinux-keyring archiso --noconfirm -y --cachedir /var/cache/pacman/pkg && mkdir /mnt/2 &&  mount -B / /mnt/2 && mount -B /var/cache/pacman/pkg/ /mnt/2/var/cache/pacman/pkg/ && pacman -Syu  " + pacman_pakgage_install + " --noconfirm -y --cachedir /var/cache/pacman/pkg --root /mnt/2  && echo 1 > /mnt/pacman_cache_rw/fertig && sleep 180 &&  exit '");#start_thread
+                    #start_thread("./command_root 'pacman -Sy archlinux-keyring archiso --noconfirm -y --cachedir /var/cache/pacman/pkg && mkdir /mnt/2 &&  mount -B / /mnt/2 && mount -B /var/cache/pacman/pkg/ /mnt/2/var/cache/pacman/pkg/ && pacman -Syu  " + pacman_pakgage_install + " --noconfirm -y --cachedir /var/cache/pacman/pkg --root /mnt/2  && echo 1 > /mnt/pacman_cache_rw/fertig && sleep 600 &&  exit '");#start_thread
                     #start_thread
                     time.sleep(5);
                     exit();
