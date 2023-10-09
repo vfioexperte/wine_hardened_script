@@ -5,7 +5,8 @@
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #this is a fork from https://github.com/kritzsie/steam-on-docker
 
-version = "0.4h lxc"
+version = "0.5c lxc podman"
+#0.5c ncie prozess prio of -30
 # 0.4a lxc patch 0.1a
 #0.3d add new file /etc/etc/cmd/user_patched2.bash and fix faketime 0.1a
 
@@ -54,9 +55,9 @@ def patching_pulse_audio_config(id):
     return 0;
 
 
-def patching_user(docker_user, command2, command, id, hidraw_acs_overrides_patch, ipv6_privacy, faketime, wine_32bit_speed_hak, string_bash_add, string_bash_add_root):
+def patching_user(docker_user, command2, command, id, hidraw_acs_overrides_patch, ipv6_privacy, faketime, wine_32bit_speed_hak, string_bash_add, string_bash_add_root, user_patched):
     s0 = "#!/bin/bash\n#version=0.1\n";
-    s0 = s0 + string_bash_add_root;
+    s0 = "";
     s1 = "usermod -u "+ id + " "  + docker_user + "\n";
     s1 = s1 + "usermod -aG input " + docker_user + "\n";
     s1 = s1 + "usermod -aG optical " + docker_user + "\n";
@@ -65,6 +66,7 @@ def patching_user(docker_user, command2, command, id, hidraw_acs_overrides_patch
     s1 = s1 + "usermod -aG audio " + docker_user + "\n";
     s1 = s1 + "usermod -aG render " + docker_user + "\n";
     s1 = s1 + "usermod -aG dbus " + docker_user + "\n";
+
     #freesync patch vsync on
     s1 = s1 + "export vblank_mode=3" + "\n";
     s1 = s1 + "echo 'vblank_mode=3' >> /etc/environment" + "\n";
@@ -74,12 +76,18 @@ def patching_user(docker_user, command2, command, id, hidraw_acs_overrides_patch
     s2 = "";
     if(hidraw_acs_overrides_patch == 1):
         s2 = s2 + "/root/hidraw_acs_overrides_patch.py\n";
+    if(ipv6_privacy >= 0):
+        s2 = s2 + "sysctl net.ipv6.conf.eth0.use_tempaddr=0\n"
+        s2 = s2 + "sysctl net.ipv6.conf.all.temp_prefered_lft=90000\n"
+        s2 = s2 + "sysctl net.ipv6.conf.all.temp_valid_lft=90000\n"
+        #s2 = s2 + "rm /var/lib/dhcpcd/* \n";
     if(ipv6_privacy >= 1):
         s2 = s2 + "sysctl net.ipv6.conf.eth0.use_tempaddr=2\n"
     if(ipv6_privacy == 2):
         s2 = s2 + "sysctl net.ipv6.conf.all.use_tempaddr=2\n"
     if(wine_32bit_speed_hak == 1):
         s2 = s2 + "sysctl -w abi.vsyscall32=0\n"
+    s2 = s2 + string_bash_add_root;
     #steam fix PWD 1
     s2 = s2 + "export PWD=/home/" + docker_user + "\n";
     #s2 = "chown -R "+ docker_user +":users /home/" + docker_user + "\n";
@@ -88,22 +96,23 @@ def patching_user(docker_user, command2, command, id, hidraw_acs_overrides_patch
     s3 = "";
     if(faketime != ""):
         if(command == "su"):
-            s3 = s3 + "/usr/bin/faketime --exclude-monotonic \"" + faketime + "\" bash /etc/cmd/user_patched2.bash";
+            s3 = s3 + "/usr/bin/faketime --exclude-monotonic \"" + faketime + "\"  nice -n -20 bash /etc/cmd/user_patched2.bash";
         else:
             if(command2 == ""):
-                s3 = s3 + "/usr/bin/faketime --exclude-monotonic \"" + faketime + "\" bash /etc/cmd/user_patched2.bash";
+                s3 = s3 + "/usr/bin/faketime --exclude-monotonic \"" + faketime + "\"  nice -n -20 bash /etc/cmd/user_patched2.bash";
             else:
-                s3 = s3 + "su " + docker_user + " - -c 'FAKETIME_FORCE_MONOTONIC_FIX=1 FAKETIME_DONT_RESET=1 FAKETIME=\"" + faketime + "\" LD_PRELOAD=/usr/lib/faketime/libfaketime.so.1 bash -c /etc/cmd/user_patched2.bash'";
+                s3 = s3 + "nice -n -20  bash -c \"su " + docker_user + " - -c 'FAKETIME_FORCE_MONOTONIC_FIX=1 FAKETIME_DONT_RESET=1 FAKETIME=\"" + faketime + "\" LD_PRELOAD=/usr/lib/faketime/libfaketime.so.1  nice -n -20 bash -c /etc/cmd/user_patched2.bash'\"";
     else:
         if(command == "su"):
-            s3 = s3 + "bash /etc/cmd/user_patched2.bash";
+            s3 = s3 + "nice -n -20 bash " + user_patched;
         else:
             if(command2 == ""):
-                s3 = s3 + "bash /etc/cmd/user_patched2.bash";
+                s3 = s3 + "nice -n -20 bash " + user_patched;
             else:
-                s3 = s3 + "su " + docker_user + " - -c 'bash /etc/cmd/user_patched2.bash'";
+                s3 = s3 + "nice -n -20 bash -c \"su " + docker_user + " - -c 'bash " + user_patched + "'\"";
 
     s4 = "#!/bin/bash\n#version=0.1\n";
+    s4 = "";
     s4 = s4 + string_bash_add;
     if(command2 != ""):
         s4 = s4 + command + "\n";
