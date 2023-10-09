@@ -5,7 +5,19 @@
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #this is a fork from https://github.com/kritzsie/steam-on-docker
 
-version_jsongui = "0.4f hotfix 3 lxc hotfix 58"
+version_jsongui = "0.8a"
+#0.8a add neu option gamescope_render_auflosung
+#0.7m4 degrade fuktion vulkan_device fix 0.2a
+#0.7j ryujinx_emu_crash_fix 0.1a
+#0.7i new pacman_pakgage_install check 0.1a
+#0.7f gamescope_bypass add new option
+#0.7d add new options docker_user_password
+#0.7c add new options vk_khr_present_wait
+#0.6i python qt6
+#0.6h add new amdgpu_gpl_pipline
+#v0.6d podman_set_route_gateway_ip
+#0.6a podman support
+#0.5d amdgpu_mesh_shader_support variable
 #0.4f docker input label fix 0.1a
 #0.4e docker system combobox fix 0.1a
 #0.4d new desinge 0.2a
@@ -35,6 +47,8 @@ import math
 import json
 jason_data = {};
 from Code.Json.json_file import *
+from Code.Lxc.lxc import *
+from Code.Podman.podman import *
 appname = "Seb Docker build json edit config"
 
 DEBUG_MODE_jsongui = 0;
@@ -118,7 +132,7 @@ def read_glxinfo(dri_prime, basename):
     #cmd_start("./command 'DRI_PRIME=" + str(dri_prime) + " glxinfo | grep \"OpenGL renderer\" > /tmp/pipe.tmp'");
     #cmd_start("./system_only DRI_PRIME=" + str(dri_prime) + " glxinfo | grep \"OpenGL renderer\" 2>/tmp/pipe.tmp");
     #cmd_start
-    cmd_start("./system_only2 'DRI_PRIME=" + str(dri_prime) + " glxinfo | grep \"OpenGL renderer\" >/etc/tmp/pipe.tmp'");
+    os.system("./system_only2 'DRI_PRIME=" + str(dri_prime) + " glxinfo | grep \"OpenGL renderer\" >/etc/tmp/pipe.tmp'");
 
     f1 = open("pipe.tmp", "r");
     f1.seek(0, 2);
@@ -153,19 +167,21 @@ def list_all_gpus():
 
 def read_all_dri_prime_device(basename):
     out = [];
-    for i in range(40):
+    for i in range(16):
         s1 = read_glxinfo(i, basename);
         if(s1 != ""):
             out.append(s1);
+        else:
+            break;
     return out;
 
-def read_docker_imags(docker_system):
+def read_docker_imags(docker_system, podman_runs_root = 0):
     if(docker_system == 0):
         #lxc
         out = [];
         s1 = cmd_start("sudo lxc-ls");
         return s1[0].split();
-    else:
+    if(docker_system == 1):
         #docker
         out = [];
         s1 = cmd_start("docker image ls");
@@ -175,7 +191,59 @@ def read_docker_imags(docker_system):
             if(len(tmp2) > 6):
                 out.append(tmp2[0]);
         return out;
+    else:
+        #podman
+        out = [];
+        s1  = []
+        if(podman_runs_root == 1):
+            s1 = cmd_start("sudo podman image ls");
+        else:
+            s1 = cmd_start("podman image ls");
+        s1 = s1[1::];
+        for tmp in s1:
+            tmp2 = tmp.split();
+            if(len(tmp2) > 6):
+                out.append(tmp2[0]);
+        return out;
 
+
+
+def list_mesa_vulkan_device():
+    devices = [];
+    #MESA_VK_DEVICE_SELECT_FORCE_DEFAULT_DEVICE
+    cmd_start("./system_only2 'MESA_VK_DEVICE_SELECT=\"list\" vkcube 2>/etc/tmp/pipe.tmp'");
+    f1 = open("pipe.tmp", "r");
+    f1.seek(0, 2);
+    size = f1.tell();
+    f1.seek(0, 0);
+    s1 = f1.read(size);
+    f1.close();
+    s1 = s1.split("\n")
+    #print(s1);
+    b1 = 0;
+    if(len(s1) < 1):
+        return -1;
+    for tmp in s1:
+        print(tmp)
+        s3 = tmp.split();
+        if(tmp == ""):
+            break;
+        if(b1 == 0):
+            if(len(s3) >= 2):
+                if(s3[0] == "selectable"):
+                    if(s3[1] == "devices:"):
+                        b1 = 1;
+                        #print("b1 = 1")
+        elif(b1 == 1):
+            device_name = tmp.split("\"")[1];
+            device_name2 = tmp.split("\"")[1].split("(")[0];
+            device_name3 = tmp.split("\"")[1].split("(")[1].split(")")[0];
+            device_id = s3[2];
+            devices.append([device_name.upper(), device_name2.upper(), device_name3.upper(), device_id]);
+    #print(devices)
+    if(len(devices) == 0):
+        return 0;
+    return devices;
 
 def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugriff_auf_media, sav_home_docker_folder, share_folder_daten,
                     share_folder1_aktiv, share_folder1, network_disable, steam_controller_bool, usb_sharing, usb_name, usb_hidraw_name,
@@ -185,10 +253,12 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
                     , wine_fsr, manager_vm_fodler, optional_array, smart_acces_meomory, vulkan_device_name, steam_proton_run_without_steam, mango_hud, vkbasalt,
                     freesync, vsync, docker_system, lxc_readonly, lxc_network_mac, lxc_network_bridge_link, sav_and_exit, docker_disable_ipv6,
                     nvidia_dlss, nvidia_dlss_non_nvida_gpu, wineesync_and_winefsync, pulseaudio_stotterfix, amdgpu_nohyperz, amdgpu_pswave32, amdgpu_nv_ms,
-                    amdgpu_vrs, pluseaudio_sdl_fix ):
-    from PyQt5 import QtWidgets
-    from PyQt5 import QtGui
-    from PyQt5 import QtCore
+                    amdgpu_vrs, pluseaudio_sdl_fix, docker_auto_sav_fodler, dhcpv6, amdgpu_mesh_shader_support, podman_runs_root,
+                    podman_set_route_gateway_ip, ipv6, amdgpu_gpl_pipline, rest_config, ubisoft_connect_mut_fix, vk_khr_present_wait,
+                    docker_user_password, gamescope_bypass, ryujinx_emu_crash_fix, gamescope_render_auflosung):
+    from PyQt6 import QtWidgets
+    from PyQt6 import QtGui
+    from PyQt6 import QtCore
     import time
     import datetime
     app = QtWidgets.QApplication(sys.argv);
@@ -211,8 +281,9 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
             self.scrollArea.setWidget(self.scrollAreaWidgetContents)
             self.layoutv0.addWidget(self.scrollArea)
 
+            #print(read_only_password)
             if(read_only_password != ""):
-                text, ok =  QtWidgets.QInputDialog.getText(self, 'config file passwort Frage!', 'Zum bearbeiten Bitte das Password:', QtWidgets.QLineEdit.NoEcho);
+                text, ok =  QtWidgets.QInputDialog.getText(self, 'config file passwort Frage!', 'Zum bearbeiten Bitte das Password:');
                 if ok and read_only_password == text:
                     pass;
                 else:
@@ -231,17 +302,30 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
             self.layoutv1.addLayout(self.layouth_tmp2);
 
             self.layouth_tmp1 = QtWidgets.QHBoxLayout();
-            self.docker_system = QtWidgets.QCheckBox("docker_system for steam lxc wählen (lxc == off, docker == on)");
-            self.docker_system.setChecked(self.int_to_bool(docker_system));
-            self.docker_system.toggled.connect(self.docker_system_changed)
+            self.docker_system_label = QtWidgets.QLabel("docker_system for steam lxc wählen (lxc == 0, docker == 1, podman (experimental) == 2, vfiodock (experimental) == 3)")
+            self.docker_system = QtWidgets.QSpinBox()
+            self.docker_system.setValue(docker_system);
+            self.docker_system.setMinimum(0);
+            self.docker_system.setMaximum(3)
+            self.docker_system.valueChanged.connect(self.docker_system_changed)
             self.lxc_readonly = QtWidgets.QCheckBox("lxc readonly mode für / nur für lxc");
             self.lxc_readonly.setChecked(self.int_to_bool(sav_home_docker_folder));
+            self.layouth_tmp1.addWidget(self.docker_system_label);
             self.layouth_tmp1.addWidget(self.docker_system);
             self.layouth_tmp1.addWidget(self.lxc_readonly);
             self.layoutv1.addLayout(self.layouth_tmp1);
 
+            self.podman_runs_root_label = QtWidgets.QLabel("podman als root ausführen: off als user on als root per sudo (cdrom fix)")
+            self.podman_runs_root = QtWidgets.QCheckBox();
+            self.podman_runs_root.setChecked(self.int_to_bool(podman_runs_root));
+            self.podman_runs_root.stateChanged.connect(self.docker_system_changed)
+            self.layouth_tmp3 = QtWidgets.QHBoxLayout();
+            self.layouth_tmp3.addWidget(self.podman_runs_root_label);
+            self.layouth_tmp3.addWidget(self.podman_runs_root);
+            self.layoutv1.addLayout(self.layouth_tmp3);
+
             self.layouth14 = QtWidgets.QHBoxLayout();
-            self.docker_build_label = QtWidgets.QLabel("docker doer lxc contaienr name das docker image wo gestatet wird: ");
+            self.docker_build_label = QtWidgets.QLabel("docker oder lxc oder podman oder vfiodock contaienr name das docker image wo gestatet wird: ");
             self.docker_build = QtWidgets.QLineEdit(docker_build);
             self.docker_build_combobox = QtWidgets.QComboBox();
             self.docker_build_combobox_add = QtWidgets.QPushButton("add")
@@ -307,15 +391,13 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
             self.layoutv1.addLayout(self.layouth2);
 
             self.layouth2_2 = QtWidgets.QHBoxLayout()
-            self.vulkan_device_name =  QtWidgets.QLabel("vulkan device name bitte automatisch setzen lassen oder leer: ");
+            self.vulkan_device_name =  QtWidgets.QLabel("vulkan device name bitte automatisch setzen lassen oder leer ab mesa 23.1 fehlerhaft: ");
             self.vulkan_device = QtWidgets.QLineEdit();
             self.vulkan_device.setText(vulkan_device_name);
             self.layouth2_2.addWidget(self.vulkan_device_name);
             self.layouth2_2.addWidget(self.vulkan_device);
             self.layoutv1.addLayout(self.layouth2_2);
 
-            if(self.gpu_render.text() != ""):
-                self.vulkan_device.setText("");
 
 
             self.layouth_tmp4 =  QtWidgets.QHBoxLayout();
@@ -367,7 +449,7 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
             self.layoutv1.addLayout(self.layouth13);
 
             self.layouth_tmp4 =  QtWidgets.QHBoxLayout();
-            self.layouth_tmp4_label = QtWidgets.QLabel("--------------------------------------------------------NETWORK & Share Folder & Pacman cache--------------------------------------------------------")
+            self.layouth_tmp4_label = QtWidgets.QLabel("--------------------------------------------------------NETWORK & Share Folder & Pacman cache & docker backup fodler--------------------------------------------------------")
             self.layouth_tmp4.addWidget(self.layouth_tmp4_label);
             self.layoutv1.addLayout(self.layouth_tmp4);
 
@@ -379,18 +461,27 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
 
             self.layouth17 = QtWidgets.QHBoxLayout();
             self.network_host_label = QtWidgets.QLabel("network_host gib eine netwerk geräte per name an oder lass es lerr für default network bridge more with network names ^ getrennt (\"0\" disable): ");
-            self.network_host = QtWidgets.QLineEdit(network_host);
+            tmp = network_host;
+            if(type(tmp) == type([])):
+                if(len(tmp) >= 1):
+                    tmp = tmp[0];
+                else:
+                    tmp = "";
+            self.network_host = QtWidgets.QLineEdit(tmp);
             #lxc_network_bridge_link
             self.lxc_network_bridge_link_link_eth0_lbael = QtWidgets.QLabel("Network link eth0 for internet: ");
             self.lxc_network_bridge_link = QtWidgets.QLineEdit(lxc_network_bridge_link);
             self.lxc_network_mac_label = QtWidgets.QLabel("macaddr from network \"\" is random mac addr lxc \"0\" for disable: ");
             self.lxc_network_mac = QtWidgets.QLineEdit(lxc_network_mac);
+            self.lxc_network_mac_button = QtWidgets.QPushButton("create a radom mac addr");
+            self.lxc_network_mac_button .clicked.connect(self.lxc_network_mac_set)
             self.layouth17.addWidget(self.network_host_label);
             self.layouth17.addWidget(self.network_host);
             self.layouth17.addWidget(self.lxc_network_bridge_link_link_eth0_lbael);
             self.layouth17.addWidget(self.lxc_network_bridge_link);
             self.layouth17.addWidget(self.lxc_network_mac_label);
             self.layouth17.addWidget(self.lxc_network_mac);
+            self.layouth17.addWidget(self.lxc_network_mac_button);
             self.layoutv1.addLayout(self.layouth17);
 
             self.layouth29 = QtWidgets.QHBoxLayout();
@@ -401,7 +492,10 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
             self.ipv6_privacy1.setValue(ipv6_privacy);
             self.ipv6_privacy1.setMinimum(0);
             self.ipv6_privacy1.setMaximum(2);
+            self.dhcpv6 = QtWidgets.QCheckBox("Netzwerk dhcpv6 aktiviren lxc only: ");
+            self.dhcpv6.setChecked(self.int_to_bool(dhcpv6));
             self.layouth29.addWidget(self.docker_disable_ipv6);
+            self.layouth29.addWidget(self.dhcpv6);
             self.layouth29.addWidget(self.ipv6_privacy_label);
             self.layouth29.addWidget(self.ipv6_privacy1);
             self.layoutv1.addLayout(self.layouth29);
@@ -416,8 +510,16 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
             self.layouth22 = QtWidgets.QHBoxLayout();
             self.ipv4_label = QtWidgets.QLabel("Static ipv4 : ");
             self.ipv4 = QtWidgets.QLineEdit(ipv4);
+            self.ipv6_label = QtWidgets.QLabel("Static ipv6 : ");
+            self.ipv6 = QtWidgets.QLineEdit(ipv6);
+            self.podman_set_route_gateway_ip_label = QtWidgets.QLabel("set ipv4 gateway (use for poadman network fix): ");
+            self.podman_set_route_gateway_ip = QtWidgets.QLineEdit(podman_set_route_gateway_ip);
             self.layouth22.addWidget(self.ipv4_label);
             self.layouth22.addWidget(self.ipv4);
+            self.layouth22.addWidget(self.ipv6_label);
+            self.layouth22.addWidget(self.ipv6);
+            self.layouth22.addWidget(self.podman_set_route_gateway_ip_label);
+            self.layouth22.addWidget(self.podman_set_route_gateway_ip);
             self.layoutv1.addLayout(self.layouth22);
 
             self.layouth18 = QtWidgets.QHBoxLayout();
@@ -428,14 +530,23 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
             self.layoutv1.addLayout(self.layouth18);
 
             self.layouth20 = QtWidgets.QHBoxLayout();
+            self.layouth20_1 = QtWidgets.QHBoxLayout();
             self.pacman_cache_label = QtWidgets.QLabel("pacman_cache setze hier ein path zu einem Ordner an wo der packet cache von pacman gesichert wird: ");
             self.pacman_cache = QtWidgets.QLineEdit(pacman_cache);
             self.pacman_cache_browse = QtWidgets.QPushButton("browse..")
             self.pacman_cache_browse .clicked.connect(self.set_pacman_cache_folder)
+            self.docker_auto_sav_fodler_label = QtWidgets.QLabel("docker and lxc contaienr sav fodler for run ./auto_update and ./auto_backup: ");
+            self.docker_auto_sav_fodler = QtWidgets.QLineEdit(docker_auto_sav_fodler);
+            self.docker_auto_sav_fodler_broswe = QtWidgets.QPushButton("browse..")
+            self.docker_auto_sav_fodler_broswe .clicked.connect(self.set_docker_auto_sav_fodler)
             self.layouth20.addWidget(self.pacman_cache_label);
             self.layouth20.addWidget(self.pacman_cache);
             self.layouth20.addWidget(self.pacman_cache_browse);
             self.layoutv1.addLayout(self.layouth20);
+            self.layouth20_1.addWidget(self.docker_auto_sav_fodler_label);
+            self.layouth20_1.addWidget(self.docker_auto_sav_fodler);
+            self.layouth20_1.addWidget(self.docker_auto_sav_fodler_broswe);
+            self.layoutv1.addLayout(self.layouth20_1);
 
             self.layouth27 = QtWidgets.QHBoxLayout();
             self.pacman_pakgage_install_label = QtWidgets.QLabel("pacman install pakage von pacman zu installirende packet beim build des continer: ");
@@ -495,13 +606,26 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
             self.layouth1.addWidget(self.docker_user);
             self.layoutv1.addLayout(self.layouth1);
 
+            self.layouth1_4 =  QtWidgets.QHBoxLayout();
+            self.docker_user_password_label =  QtWidgets.QLabel("docker user password setzen (ohne \ bitte):");
+            self.docker_user_password = QtWidgets.QLineEdit(docker_user_password);
+            self.layouth1_4.addWidget(self.docker_user_password_label);
+            self.layouth1_4.addWidget(self.docker_user_password);
+            self.layoutv1.addLayout(self.layouth1_4);
 
 
 
             self.layouth19 = QtWidgets.QHBoxLayout();
             self.dbus_rw = QtWidgets.QCheckBox("dbus_rw beschreibar für manch anwedeungen benötigt z.B. Gamescope ");
             self.dbus_rw.setChecked(self.int_to_bool(dbus_rw));
+            self.gamescope_bypass = QtWidgets.QCheckBox("Gamescope bypas");
+            self.gamescope_bypass.setChecked(self.int_to_bool(gamescope_bypass));
+            self.gamescope_render_auflosung_label =  QtWidgets.QLabel("gamescope gamescope_render_auflosung set ("" is default 720p, \"1920x1080\" is FULL HD  ):");
+            self.gamescope_render_auflosung = QtWidgets.QLineEdit(gamescope_render_auflosung);
             self.layouth19.addWidget(self.dbus_rw);
+            self.layouth19.addWidget(self.gamescope_bypass);
+            self.layouth19.addWidget(self.gamescope_render_auflosung_label);
+            self.layouth19.addWidget(self.gamescope_render_auflosung);
             self.layoutv1.addLayout(self.layouth19);
 
             self.layouth23 = QtWidgets.QHBoxLayout();
@@ -548,11 +672,14 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
             self.amd_gpu_raytrasing_rdan2_only = QtWidgets.QCheckBox("amd gpu for all raytrasing wav64 sped hak support rdna 2(amd rx 6000) only up mesa 22.0");
             self.amd_gpu_raytrasing_rdan2_only.setChecked(self.int_to_bool(amd_gpu_raytrasing_rdan2_only));
             self.amd_gpu_raytrasing_rdan2_only.toggled.connect(self.amdgpu_spinbox_value_change)
+            self.amdgpu_gpl_pipline = QtWidgets.QCheckBox("amd gpu experimentel gpl pipline mesa 22.3");
+            self.amdgpu_gpl_pipline.setChecked(self.int_to_bool(amdgpu_gpl_pipline));
             self.wineesync_and_winefsync = QtWidgets.QCheckBox("wine and Proton speed patch FSYNC ab linux kernel 5.19");
             self.wineesync_and_winefsync.setChecked(self.int_to_bool(wineesync_and_winefsync));
             self.layouth31.addWidget(self.wine_32bit_speed_hak);
             self.layouth31.addWidget(self.amd_gpu_raytrasing_allgpus);
             self.layouth31.addWidget(self.amd_gpu_raytrasing_rdan2_only);
+            self.layouth31.addWidget(self.amdgpu_gpl_pipline);
             self.layouth31.addWidget(self.wineesync_and_winefsync);
             self.layoutv1.addLayout(self.layouth31);
             self.amd_gpu_raytrasing_bak = 0;
@@ -580,10 +707,14 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
 
             self.amdgpu_nohyperz = QtWidgets.QCheckBox("yuzu emu amd gpu grafik fix");
             self.amdgpu_nohyperz.setChecked(self.int_to_bool(amdgpu_nohyperz));
+            self.ryujinx_emu_crash_fix =  QtWidgets.QCheckBox("ryujinx emu amd gpu grafik fix");
+            self.ryujinx_emu_crash_fix.setChecked(self.int_to_bool(ryujinx_emu_crash_fix));
             self.amdgpu_pswave32 = QtWidgets.QCheckBox("amdgpu enable wave32 for pixel shaders (GFX10+)");
             self.amdgpu_pswave32.setChecked(self.int_to_bool(amdgpu_pswave32));
             self.amdgpu_nv_ms = QtWidgets.QCheckBox("amdgpu enable unofficial experimental support for NV_mesh_shader");
             self.amdgpu_nv_ms.setChecked(self.int_to_bool(amdgpu_nv_ms));
+            self.amdgpu_mesh_shader_support = QtWidgets.QCheckBox("amdgpu rdna 2 oder hoeher enable unofficial experimental support for NV_mesh_shader");
+            self.amdgpu_mesh_shader_support.setChecked(self.int_to_bool(amdgpu_mesh_shader_support));
             self.amdgpu_vrs = QtWidgets.QComboBox();
             if(amdgpu_vrs == ""):
                 self.amdgpu_vrs_array = ["disable", "1x1", "1x2", "2x1", "2x2"]
@@ -596,7 +727,9 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
             self.layouth31_3.addWidget(self.pluseaudio_sdl_fix_label);
             self.layouth31_3.addWidget(self.pluseaudio_sdl_fix);
             self.layouth31_3.addWidget(self.amdgpu_nohyperz);
-            self.layouth31_3.addWidget(self.amdgpu_pswave32);
+            self.layouth31_3.addWidget(self.ryujinx_emu_crash_fix);
+            self.layouth31_3.addWidget(self.amdgpu_mesh_shader_support);
+            self.layouth31_3.addWidget(self.amdgpu_nv_ms);
             self.layouth31_3.addWidget(self.amdgpu_nv_ms);
             self.layouth31_3.addWidget(self.amdgpu_vrs);
             self.layoutv1.addLayout(self.layouth31_3);
@@ -654,9 +787,16 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
             self.vsync = QtWidgets.QCheckBox("vsync");
             self.vsync.setChecked(self.int_to_bool(vsync));
             self.vsync.toggled.connect(self.update_freesync_and_vsync_change)
+            self.ubisoft_connect_mut_fix = QtWidgets.QCheckBox("Ubisoft connect fix")
+            self.ubisoft_connect_mut_fix.setChecked(self.int_to_bool(ubisoft_connect_mut_fix));
+            self.vk_khr_present_wait = QtWidgets.QCheckBox("vk_khr_present_wait=true Vulkan swapchain wait patch for steam Play")
+            self.vk_khr_present_wait.setChecked(self.int_to_bool(vk_khr_present_wait));
             self.layouth38.addWidget(self.freesync);
             self.layouth38.addWidget(self.vsync);
+            self.layouth38.addWidget(self.ubisoft_connect_mut_fix);
+            self.layouth38.addWidget(self.vk_khr_present_wait);
             self.layoutv1.addLayout(self.layouth38);
+
 
 
             self.layouth_tmp6 =  QtWidgets.QHBoxLayout();
@@ -685,15 +825,12 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
             self.read_only_password = QtWidgets.QLineEdit(read_only_password);
             self.read_only_password_clear_ = QtWidgets.QPushButton("clear and disable")
             self.read_only_password_clear_ .clicked.connect(self.read_only_password_clear)
-            self.read_only_password.setEchoMode(QtWidgets.QLineEdit.Password)
+            #self.read_only_password.setEchoMode(QtWidgets.QLineEdit.Password)
             self.layouth32.addWidget(self.read_only);
             self.layouth32.addWidget(self.read_only_password_label);
             self.layouth32.addWidget(self.read_only_password);
             self.layouth32.addWidget(self.read_only_password_clear_);
             self.layoutv1.addLayout(self.layouth32);
-
-
-
 
             self.layouth99999999999 = QtWidgets.QHBoxLayout();
             self.button_save = QtWidgets.QPushButton("Save json")
@@ -712,6 +849,16 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
             self.update_freesync_and_vsync_change();
             self.docker_system_changed();
             self.docker_system_changed();
+
+            if(rest_config == 1):
+                self.rest_config = 0;
+                msgBox2 = QtWidgets.QMessageBox();
+                msgBox2.setText("config was reset please set all settings new? ");
+                out = msgBox2.exec();
+            else:
+                self.rest_config = 0;
+
+
             self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, self.w, self.h))
         def save(self):
             docker_user = self.docker_user.text();
@@ -741,6 +888,23 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
             run_in_background = str(self.bool_to_int(self.run_in_background.isChecked()));
             ttyon = str(self.ttyon.value());
             pacman_pakgage_install = self.remove_string_tablaotor(self.pacman_pakgage_install.text());
+            out = -1;
+            if(pacman_pakgage_install != ""):
+                if(pacman_pakgage_install != "bash "):
+                    out = pacman_list_a_downlaod_pkg("");
+                    out2 = check_array_pacman_pkg_exist(out, pacman_pakgage_install);
+                    out = podman_pkg_doppelt_check(out2[0])
+                    pacman_pakgage_install = out;
+                    #out = [[], []];
+                    if(len(out2[1]) >= 1):
+                        msgBox2 = QtWidgets.QMessageBox();
+                        tmp = "ERROR pacman_pakgage_install pkg names not found: ";
+                        for tmp2 in out2[1]:
+                            tmp = tmp + tmp2 + " ,";
+                        msgBox2.setText(tmp);
+                        msgBox2.exec();
+
+
             docker_input = self.docker_input.text();
             bluethoot_passthrough = str(self.bool_to_int(self.bluethoot_passthrough.isChecked()));
             hidraw_acs_overrides_patch = str(self.bool_to_int(self.hidraw_acs_overrides_patch.isChecked()));
@@ -762,7 +926,7 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
             vkbasalt = str(self.bool_to_int(self.vkbasalt.isChecked()));
             freesync = str(self.bool_to_int(self.freesync.isChecked()));
             vsync = str(self.bool_to_int(self.vsync.isChecked()));
-            docker_system = str(self.bool_to_int(self.docker_system.isChecked()));
+            docker_system = str(self.docker_system.value());
             lxc_readonly = str(self.bool_to_int(self.lxc_readonly.isChecked()));
             lxc_network_mac = self.lxc_network_mac.text();
             lxc_network_bridge_link = self.lxc_network_bridge_link.text();
@@ -779,9 +943,47 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
             pluseaudio_sdl_fix = str(self.pluseaudio_sdl_fix.value());
             if(amdgpu_vrs == "disable"):
                 amdgpu_vrs = "";
+
+            docker_auto_sav_fodler = self.docker_auto_sav_fodler.text();
+            dhcpv6 = str(self.bool_to_int(self.dhcpv6.isChecked()));
+            amdgpu_mesh_shader_support = str(self.bool_to_int(self.amdgpu_nv_ms.isChecked()));
+            podman_runs_root = str(self.bool_to_int(self.podman_runs_root.isChecked()));
+            podman_set_route_gateway_ip = self.podman_set_route_gateway_ip.text();
+            ipv6 = self.ipv6.text();
+            amdgpu_gpl_pipline =  str(self.bool_to_int(self.amdgpu_gpl_pipline.isChecked()));
+            rest_config = self.rest_config;
+            ubisoft_connect_mut_fix = str(self.bool_to_int(self.ubisoft_connect_mut_fix.isChecked()));
+            vk_khr_present_wait = str(self.bool_to_int(self.vk_khr_present_wait.isChecked()));
+            docker_user_password = self.docker_user_password.text();
+            gamescope_bypass = str(self.bool_to_int(self.gamescope_bypass.isChecked()));
+            ryujinx_emu_crash_fix =  str(self.bool_to_int(self.ryujinx_emu_crash_fix.isChecked()));
+            gamescope_render_auflosung = self.gamescope_render_auflosung.text();
+
+            gamescope_render_auflosung3 = 0;
+            if(gamescope_render_auflosung != ""):
+                if(gamescope_render_auflosung.find("x") != -1):
+                    gamescope_render_auflosung2 = gamescope_render_auflosung.split("x");
+                    if(int(gamescope_render_auflosung2[0]) >= 1240 ):
+                        if(int(gamescope_render_auflosung2[1]) >= 720 ):
+                            gamescope_render_auflosung3 = 1;
+            else:
+                gamescope_render_auflosung3 = 1;
+            if(gamescope_render_auflosung3 == 0):
+                msgBox2 = QtWidgets.QMessageBox();
+                tmp = "ERROR gamescope_render_auflosung not correct!";
+                msgBox2.setText(tmp);
+                msgBox2.exec();
+                return 0;
+            if(amdgpu_nv_ms == "1"):
+                amdgpu_mesh_shader_support = "1";
+                amdgpu_nv_ms = "0";
+
             #, steam_proton_run_without_steam, mango_hud, vkbasalt
             optional_array = [smart_acces_meomory, vulkan_device, steam_proton_run_without_steam, mango_hud, vkbasalt, freesync, vsync, docker_system, lxc_readonly, lxc_network_mac, lxc_network_bridge_link, docker_disable_ipv6, nvidia_dlss, nvidia_dlss_non_nvida_gpu, wineesync_and_winefsync, pulseaudio_stotterfix, amdgpu_nohyperz, amdgpu_pswave32, amdgpu_nv_ms, amdgpu_vrs,
-            pluseaudio_sdl_fix];
+                                pluseaudio_sdl_fix, docker_auto_sav_fodler, dhcpv6, amdgpu_mesh_shader_support, podman_runs_root,
+                                podman_set_route_gateway_ip, ipv6, amdgpu_gpl_pipline, rest_config, ubisoft_connect_mut_fix,
+                                vk_khr_present_wait, docker_user_password, gamescope_bypass, ryujinx_emu_crash_fix, gamescope_render_auflosung];
+
             optional_array_str = self.optional_array_to_string(optional_array);
 
             #file_write_json(dirname + "/config_file_json", docker_user, gpu_render, disk_device_name, zugriff_auf_media, sav_home_docker_folder, share_folder_daten,
@@ -789,6 +991,13 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
             #                docker_build, maxmemory, maxcpus, network_host, portforwding, dbus_rw, pacman_cache, dns, ipv4, wireguard_fix,
             #                 nosudo, run_in_background, ttyon, pacman_pakgage_install, docker_input);
             file_write_json(dirname + "/config_file_json", docker_user, gpu_render, disk_device_name, zugriff_auf_media, sav_home_docker_folder, share_folder_daten, share_folder1_aktiv, share_folder1, network_disable, steam_controller_bool, usb_sharing, usb_name, usb_hidraw_name, docker_build, maxmemory, maxcpus, network_host, portforwding, dbus_rw, pacman_cache, dns, ipv4, wireguard_fix, nosudo, run_in_background, ttyon, pacman_pakgage_install, docker_input, bluethoot_passthrough, hidraw_acs_overrides_patch, ipv6_privacy, faketime, wine_32bit_speed_hak, read_only, read_only_password, amd_gpu_raytrasing_allgpus, amd_gpu_raytrasing_rdan2_only, wine_fsr, manager_vm_fodler, optional_array_str);
+            msgBox2 = QtWidgets.QMessageBox();
+            tmp = "Save!";
+            if(out != -1):
+                for tmp2 in out[1]:
+                    tmp = tmp + tmp2 + ", ";
+            msgBox2.setText(tmp);
+            msgBox2.exec();
             return 0;
 
         def add_combox_usb_share(self):
@@ -859,22 +1068,50 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
         def set_combox_gpu_render(self):
             index = self.gpu_render_combobox.currentIndex()
             self.gpu_render.setText(str(index));
-            self.vulkan_device.setText("");
+            #self.vulkan_device.setText("");
             return 0;
 
         def set_combox_gpu_render_name_vulkan_only(self):
-            index = self.gpu_render_combobox.currentIndex()
-            self.gpu_render.setText(self.gpu_render_array[index].split(" (")[0]);
-            #s1 = self.gpu_render_array[index].split("(")[1].split()[0].split(",")[0];
-            s1 = self.gpu_render_array[index].split(" (")[0].split(" Series")[0].lower();
-            s1 = s1.split();
-            s1 = s1[len(s1) -1];
-            if(DEBUG_MODE_jsongui == 1):
-                #print("opengl_device found set: ", self.gpu_render.text())
-                print("vulkan_device found set: ", s1)
-                print("vulkan only")
-            self.gpu_render.setText("")
-            self.vulkan_device.setText(s1);
+            self.set_combox_gpu_render_name_opengl_only()
+            #degrade fuktion vulkan_device fix 0.1a
+            return 0;
+
+            if(self.docker_system.value() == 0):
+                #lxc
+                index = self.gpu_render_combobox.currentIndex()
+                self.gpu_render.setText(self.gpu_render_array[index].split(" (")[0]);
+                #s1 = self.gpu_render_array[index].split("(")[1].split()[0].split(",")[0];
+                s1 = self.gpu_render_array[index].split(" (")[0].split(" Series")[0].lower();
+                s1 = s1.split();
+                s1 = s1[len(s1) -1];
+                if(DEBUG_MODE_jsongui == 1):
+                    #print("opengl_device found set: ", self.gpu_render.text())
+                    print("vulkan_device found set: ", s1)
+                    print("vulkan only")
+                self.gpu_render.setText("")
+                self.vulkan_device.setText(s1);
+            elif(self.docker_system.value() == 2):
+                #pdoman
+                self.vulkan_device.setText("opengl render use");
+                index = self.gpu_render_combobox.currentIndex()
+                self.gpu_render.setText("");
+                s1 =  self.gpu_render_array[index].split("(")[0].split();
+                self.vulkan_device.setText(s1[len(s1) - 1].lower());
+                s1 = self.gpu_render_array[index].split("(")[1].split()[0].split(",")[0];
+                #if(DEBUG_MODE_jsongui == 1):
+                #    print("opengl_device found set: ", self.gpu_render.text())
+                #    #print("vulkan_device found set: ", s1)
+                #    print("opengl only")
+            elif(self.docker_system.value() == 3):
+                #vfiodock
+                self.vulkan_device.setText("opengl render use");
+                index = self.gpu_render_combobox.currentIndex()
+                self.gpu_render.setText(self.gpu_render_array[index].split(" (")[0]);
+                s1 = self.gpu_render_array[index].split("(")[1].split()[0].split(",")[0];
+                if(DEBUG_MODE_jsongui == 1):
+                    print("opengl_device found set: ", self.gpu_render.text())
+                    #print("vulkan_device found set: ", s1)
+                    print("opengl only")
             return 0;
         def set_combox_gpu_render_name_opengl_only(self):
             index = self.gpu_render_combobox.currentIndex()
@@ -884,7 +1121,13 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
                 print("opengl_device found set: ", self.gpu_render.text())
                 #print("vulkan_device found set: ", s1)
                 print("opengl only")
-            self.vulkan_device.setText("");
+            #self.vulkan_device.setText("");
+            name = self.gpu_render.text().split()[::-1][::2][::-1]
+            name2 = "";
+            for tmp in name:
+                name2 = name2 + tmp + " "
+            self.vulkan_device.setText(name2);
+            self.gpu_render.setText(name2);
             return 0;
 
         def set_share_folder1(self):
@@ -950,16 +1193,30 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
             return 0;
 
         def update_docker_build_combobox(self):
-            if(self.docker_system.isChecked() == False):
+            if(self.docker_system.value() == 0):
                 #lxc
                 self.docker_build_combobox_array = read_docker_imags(0);
                 self.docker_build_combobox.clear()
                 self.docker_build_combobox.addItems(self.docker_build_combobox_array)
                 self.docker_build_combobox.update()
                 self.docker_build_combobox.setEnabled(True)
-            else:
+            if(self.docker_system.value() == 1):
                 #docker
                 self.docker_build_combobox_array = read_docker_imags(1);
+                self.docker_build_combobox.clear()
+                self.docker_build_combobox.addItems(self.docker_build_combobox_array)
+                self.docker_build_combobox.update()
+                self.docker_build_combobox.setEnabled(True)
+            if(self.docker_system.value() == 2):
+                #podman
+                self.docker_build_combobox_array = read_docker_imags(2, self.bool_to_int(self.podman_runs_root.isChecked()));
+                self.docker_build_combobox.clear()
+                self.docker_build_combobox.addItems(self.docker_build_combobox_array)
+                self.docker_build_combobox.update()
+                self.docker_build_combobox.setEnabled(True)
+            if(self.docker_system.value() == 3):
+                #vfiodock
+                self.docker_build_combobox_array = read_docker_imags(3, 0);
                 self.docker_build_combobox.clear()
                 self.docker_build_combobox.addItems(self.docker_build_combobox_array)
                 self.docker_build_combobox.update()
@@ -968,6 +1225,7 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
                 index = self.brechne_neue_lxc_coantiner_name(self.docker_build.text(), self.docker_build_combobox_array);
                 self.docker_build_combobox_last = self.docker_build_combobox_array[index];
                 #self.docker_build_combobox.setIndex(index);
+            if(len(self.docker_build_combobox_array) != 0):
                 self.docker_build.setText(self.docker_build_combobox_last);
             return 0;
 
@@ -1012,7 +1270,7 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
                 return True;
 
         def docker_system_changed(self):
-            if(self.docker_system.isChecked() == False):
+            if(self.docker_system.value() == 0):
                 #lxc
                 #self.docker_build_combobox.setEnabled(False);
                 #self.docker_build_combobox_add.setEnabled(False);
@@ -1022,14 +1280,14 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
                 self.portforwding.setEnabled(False);
                 self.wireguard_fix.setEnabled(False);
                 self.ttyon.setEnabled(False);
-                self.run_in_background.setEnabled(False);
+                #self.run_in_background.setEnabled(False);
                 self.nosudo.setEnabled(False);
                 #self.lxc_network_mac.setEnabled(True);
                 self.lxc_readonly.setEnabled(True);
                 self.gpu_render_combobox_set_name_opengl_only.setEnabled(False);
                 self.gpu_render.setText("");
                 self.gpu_render.setEnabled(False);
-            else:
+            elif(self.docker_system.value() == 1):
                 #docker
                 #self.docker_build_combobox.setEnabled(True);
                 #self.docker_build_combobox_add.setEnabled(True);
@@ -1039,7 +1297,73 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
                 self.portforwding.setEnabled(True);
                 self.wireguard_fix.setEnabled(True);
                 self.ttyon.setEnabled(True);
-                self.run_in_background.setEnabled(True);
+                #self.run_in_background.setEnabled(True);
+                self.nosudo.setEnabled(True);
+                #self.lxc_network_mac.setEnabled(False);
+                self.lxc_readonly.setEnabled(False);
+                self.gpu_render_combobox_set_name_opengl_only.setEnabled(True);
+                self.gpu_render.setEnabled(True);
+                if(self.network_host.text() != "" and self.network_host.text() != "0"):
+                    def question_networkbridge():
+                        msgBox2 = QtWidgets.QMessageBox();
+                        msgBox2.setText("delete the network bridge for docker conatiner? " + self.network_host.text() + ":");
+                        yesbuttom = QtWidgets.QPushButton("Yes");
+                        nobuttom = QtWidgets.QPushButton("No");
+                        yesbuttom = msgBox2.addButton("Yes", QtWidgets.QMessageBox.ButtonRole.AcceptRole);
+                        nobuttom = msgBox2.addButton("No", QtWidgets.QMessageBox.ButtonRole.NoRole);
+
+                        out = msgBox2.exec();
+                        if(msgBox2.clickedButton() == yesbuttom):
+                            self.network_host.setText("");
+                        elif(msgBox2.clickedButton() == nobuttom):
+                            pass;
+                        else:
+                            pass;
+                    question_networkbridge();
+            elif(self.docker_system.value() == 2):
+                #vfiodock
+                #self.docker_build_combobox.setEnabled(True);
+                #self.docker_build_combobox_add.setEnabled(True);
+                self.maxmemory.setEnabled(True);
+                self.maxcpus.setEnabled(True);
+                #self.ipv4.setEnabled(True);
+                self.portforwding.setEnabled(True);
+                self.wireguard_fix.setEnabled(True);
+                self.ttyon.setEnabled(True);
+                #self.run_in_background.setEnabled(True);
+                self.nosudo.setEnabled(True);
+                #self.lxc_network_mac.setEnabled(False);
+                self.lxc_readonly.setEnabled(False);
+                self.gpu_render_combobox_set_name_opengl_only.setEnabled(True);
+                self.gpu_render.setEnabled(True);
+                if(self.network_host.text() != "" and self.network_host.text() != "0"):
+                    def question_networkbridge():
+                        msgBox2 = QtWidgets.QMessageBox();
+                        msgBox2.setText("delete the network bridge for docker conatiner? " + self.network_host.text() + ":");
+                        yesbuttom = QtWidgets.QPushButton("Yes");
+                        nobuttom = QtWidgets.QPushButton("No");
+                        yesbuttom = msgBox2.addButton("Yes", QtWidgets.QMessageBox.ButtonRole.AcceptRole);
+                        nobuttom = msgBox2.addButton("No", QtWidgets.QMessageBox.ButtonRole.NoRole);
+
+                        out = msgBox2.exec();
+                        if(msgBox2.clickedButton() == yesbuttom):
+                            self.network_host.setText("");
+                        elif(msgBox2.clickedButton() == nobuttom):
+                            pass;
+                        else:
+                            pass;
+                    question_networkbridge();
+            elif(self.docker_system.value() == 3):
+                #pdoman
+                #self.docker_build_combobox.setEnabled(True);
+                #self.docker_build_combobox_add.setEnabled(True);
+                self.maxmemory.setEnabled(True);
+                self.maxcpus.setEnabled(True);
+                #self.ipv4.setEnabled(True);
+                self.portforwding.setEnabled(True);
+                self.wireguard_fix.setEnabled(True);
+                self.ttyon.setEnabled(True);
+                #self.run_in_background.setEnabled(True);
                 self.nosudo.setEnabled(True);
                 #self.lxc_network_mac.setEnabled(False);
                 self.lxc_readonly.setEnabled(False);
@@ -1127,6 +1451,14 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
             if(self.nvidia_dlss_non_nvida_gpu.isChecked() == True):
                 self.smart_acces_meomory.setChecked(True);
                 self.nvidia_dlss.setChecked(True);
+        def lxc_network_mac_set(self):
+            self.lxc_network_mac.setText(lxc_create_a_new_random_mac_addr());
+            return 0;
+
+        def set_docker_auto_sav_fodler(self):
+            s1 = QtWidgets.QFileDialog.getExistingDirectory();
+            self.docker_auto_sav_fodler.setText(s1);
+            return 0;
 
 
 
@@ -1140,12 +1472,28 @@ def start_json_edit_gui(dirname, docker_user, gpu_render, disk_device_name, zugr
 
 
 
+    while True:
+            mainwindow = seb_sync_clinet_gui()
+            if(sav_and_exit == 1):
+                mainwindow.save();
+                exit();
+                break;
+            else:
+                mainwindow.show()
+                app.exec()
+                exit();
+                break;
+            break;
 
-    mainwindow = seb_sync_clinet_gui()
-    if(sav_and_exit == 1):
-        mainwindow.save();
-        exit();
-    else:
-        mainwindow.show()
-        app.exec_()
-        exit();
+def brechne_neue_lxc_coantiner_name_build(last, out):
+    if(last == ""):
+        return -1;
+    for i in range(len(out)):
+        tmp = out[i];
+        if(tmp == last):
+            return i;
+    for i in range(len(out)):
+        tmp = out[i];
+        if(tmp.find(last) != -1):
+            return i;
+    return 0;
