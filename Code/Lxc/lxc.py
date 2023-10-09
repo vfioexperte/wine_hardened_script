@@ -5,7 +5,7 @@
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #this is a fork from https://github.com/kritzsie/steam-on-docker
 
-version = "0.1d hotfix 56 lxc"
+version = "0.2a lxc"
 
 import platform
 import os
@@ -38,9 +38,9 @@ def system(cmd):
 
 
 def lxc_question_use_bridge_network(text):
-    from PyQt5 import QtWidgets
-    from PyQt5 import QtGui
-    from PyQt5 import QtCore
+    from PyQt6 import QtWidgets
+    from PyQt6 import QtGui
+    from PyQt6 import QtCore
     import time
     import datetime
     app = QtWidgets.QApplication(sys.argv);
@@ -49,7 +49,7 @@ def lxc_question_use_bridge_network(text):
             QtWidgets.QWidget.__init__(self)
             self.text = text;
         def start(self, test):
-            text2, okPressed = QtWidgets.QInputDialog.getText(self, "Get text", self.text, QtWidgets.QLineEdit.Normal, "");
+            text2, okPressed = QtWidgets.QInputDialog.getText(self, "Get text", self.text);
             if(okPressed and text2 != ""):
                 return text2;
             else:
@@ -456,6 +456,8 @@ def applay_path(paths, dockername, vars, ttyon, dirname, staticip, lxc_readonly,
             pass;
     else:
         pass;
+
+    f1.write("lxc.start.auto=1\n")
     f1.close();
     os.system("sudo sysctl kernel.unprivileged_userns_clone=1");
 
@@ -1002,7 +1004,30 @@ def suche_vulkandevice(vkdevicename, out):
     return 0;
 
 
+def lxc_podman_find_gpu_amd_Card_Nummber(amdgpuname):
+    out = amd_gup_pci_ids();
+    print(out)
+    print(amdgpuname)
+    for i in range(len(out[2])):
+        if(out[2][i].lower().find(amdgpuname.lower()) != -1):
+            #return out[3][i];
+            return i;
+    for tmp2 in out[2]:
+        tmp3 = tmp2.lower();
+        print(tmp3)
+        b1 = 0;
+        for tmp in amdgpuname.lower().split(" "):
+            print(tmp)
+            if(tmp3.find(tmp) != -1):
+                b1 = b1 + 1;
+        print("b1:", b1)
+        if(b1 >= 2):
+            return i;
+    return -1;
+
+
 def lxc_find_gpu_amd_Card_Nummber(amdgpuname):
+    return lxc_podman_find_gpu_amd_Card_Nummber(amdgpuname);
     out = amd_gup_pci_ids();
     deviceid = suche_vulkandevice(amdgpuname, out);
     print(deviceid)
@@ -1085,3 +1110,48 @@ def lxc_add_groups_docker_user(basename, docker_build, docker_user):
         s3 = tmp.split(":")[0];
         out.append(s3);
     return lxc_brechne_groups_docker_user(docker_user, out)
+
+
+def list_all_lspci_vga_device():
+    out = system("lspci -v | grep \"VGA compatible controller: \"")
+    ids = [];
+    name = [];
+    for tmp in out:
+        tmp2 = tmp.split();
+        if(len(tmp2) >= 2):
+            ids.append(tmp2[0])
+            print(tmp2)
+            name.append(tmp.split("VGA compatible controller: ")[1])
+    print(ids)
+    print(name)
+    return [ids, name]
+
+def pciid_to_deviceid(pciid):
+    out = system("lspci -n")
+    for tmp in out:
+        if(tmp.find(pciid) != -1):
+            tmp2 = tmp.split();
+            print(tmp2);
+            return tmp2[2];
+    return -1;
+
+
+def find_vulkan_device_id_for_gamescope(amdgpuname):
+    tmp1 = list_all_lspci_vga_device();
+    pciid = tmp1[0];
+    pciname = tmp1[1];
+    j = -1;
+    for i in range(len(pciname)):
+        tmp1 = pciid[i];
+        tmp2 = pciname[i];
+        tmp3 = tmp2.lower();
+        print(tmp3)
+        b1 = 0;
+        for tmp in amdgpuname.lower().split():
+            print(tmp)
+            if(tmp3.find(tmp) != -1):
+                b1 = b1 + 1;
+        if(b1 >= 2):
+            device_id = pciid_to_deviceid(pciid[i])
+            return device_id;
+    return -1;
