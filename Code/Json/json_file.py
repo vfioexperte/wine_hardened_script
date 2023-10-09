@@ -5,7 +5,7 @@
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #this is a fork from https://github.com/kritzsie/steam-on-docker
 
-version = "0.4d lxc hotfix 58"
+version = "0.8a"
 #0.4c lxc support 0.1a
 #0.3l_hotfix_2 optional_array empty array[0] fix 0.1a
 #0.3l optional_array and freesync, vsync
@@ -274,6 +274,34 @@ def optional_array_to_out(out, array_str):
         out.append(brechen_config('amdgpu_vrs', array[19]));
     if(len(array) >= 21 and array[20] != ""):
         out.append(brechen_config('pluseaudio_sdl_fix', array[20]));
+    if(len(array) >= 22 and array[21] != ""):
+        out.append(brechen_config('docker_auto_sav_folder', array[21]));
+    if(len(array) >= 23 and array[22] != ""):
+        out.append(brechen_config('dhcpv6', array[22]));
+    if(len(array) >= 24 and array[23] != ""):
+        out.append(brechen_config('amdgpu_mesh_shader_support', array[23]));
+    if(len(array) >= 25 and array[24] != ""):
+        out.append(brechen_config('podman_runs_root', array[24]));
+    if(len(array) >= 26 and array[25] != ""):
+        out.append(brechen_config('podman_set_route_gateway_ip', array[25]));
+    if(len(array) >= 27 and array[26] != ""):
+        out.append(brechen_config('ipv6', array[26]));
+    if(len(array) >= 28 and array[27] != ""):
+        out.append(brechen_config('amdgpu_gpl_pipline', array[27]));
+    if(len(array) >= 29 and array[28] != ""):
+        out.append(brechen_config('rest_config', array[28]));
+    if(len(array) >= 30 and array[29] != ""):
+        out.append(brechen_config('ubisoft_connect_mut_fix', array[29]));
+    if(len(array) >= 31 and array[30] != ""):
+        out.append(brechen_config('vk_khr_present_wait', array[30]));
+    if(len(array) >= 32 and array[31] != ""):
+        out.append(brechen_config('docker_user_password', array[31]));
+    if(len(array) >= 33 and array[32] != ""):
+        out.append(brechen_config('gamescope_bypass', array[32]));
+    if(len(array) >= 34 and array[33] != ""):
+        out.append(brechen_config('ryujinx_emu_crash_fix', array[33]));
+    if(len(array) >= 35 and array[34] != ""):
+        out.append(brechen_config('gamescope_render_auflosung', array[34]));
     return out;
 
 def file_read_json_0_1(sfile):
