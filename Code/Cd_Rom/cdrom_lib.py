@@ -5,7 +5,7 @@
 #You should have received a copy of the GNU General Public License along with this program; if not, see <http://www.gnu.org/licenses/>.
 #this is a fork from https://github.com/kritzsie/steam-on-docker
 
-version = "0.3a"
+version = "0.3d"
 
 import platform
 import os
@@ -50,7 +50,7 @@ def link_device(device, i):
 
 def read_scsi(device_name, docker_system):
     #docker_system == 1
-    if(docker_system == 1):
+    if(docker_system == 1 or docker_system == 2):
         #docker
         dev = [];
         dev2 = [];
@@ -160,11 +160,11 @@ def create_a_cdrom_mount_file_per_dev(devarray, docker_user, folder):
                 patch_wine_fodler_cdrom(tmp ,"/mnt/cdrom"+ str(i+1), buchstabe[buchstabe_i], tmp2, os.path.join(tmp, "pfx"));
             buchstabe_i = buchstabe_i +1;
             i = i +1;
-        file1.write("su " + docker_user + "\n");
+        #file1.write("su " + docker_user + "\n");
         file1.close();
         file2 = open("with_cdrom.bash", "w");
         file2.write("#!/bin/bash\n");
-        file2.write("./command_root \"/home/empty/daten/cdrom.bash\"\n");
+        file2.write("./command_root \"/home/empty/daten/cdrom.bash \\n su\" \n");
         file2.close();
         abspath = os.path.abspath(sys.argv[0]);
         basename = os.path.basename(abspath);
@@ -202,6 +202,7 @@ def patch_wine_fodler_cdrom(device, mountpoint, buchstabe, sg, folder = ""):
 
 
 def listpath_only_dirs(path, rpath, array, idarray, patharray, ctime):
+    try:
         #File list
         j = array[0];
         sdir = array[1];
@@ -275,6 +276,8 @@ def listpath_only_dirs(path, rpath, array, idarray, patharray, ctime):
                 j = j +1;
                 if( i== size):
                     break;
+        return [j, sdir, idarray, patharray, ctime]
+    except:
         return [j, sdir, idarray, patharray, ctime]
 
 def find_wine_prefix(folder):
